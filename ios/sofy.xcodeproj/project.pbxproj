@@ -8,13 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* sofyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* sofyTests.m */; };
-		0C80B921A6F3F58F76C31292 /* libPods-sofy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-sofy.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		1D833486F52BF637735CAA87 /* libPods-sofy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DBADE8C13276C70D35F9692 /* libPods-sofy.a */; };
 		6132EF182BDFF13200BBE14D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6132EF172BDFF13200BBE14D /* PrivacyInfo.xcprivacy */; };
-		7699B88040F8A987B510C191 /* libPods-sofy-sofyTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-sofy-sofyTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		B515582D106F1E1AD34B2FC1 /* libPods-sofy-sofyTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 278057687D64509F0735BFA7 /* libPods-sofy-sofyTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,21 +31,36 @@
 		00E356EE1AD99517003FC87E /* sofyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = sofyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* sofyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = sofyTests.m; sourceTree = "<group>"; };
+		0A86B4A055C943BC8A450314 /* MaterialDesignIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialDesignIcons.ttf; path = "../node_modules/@react-native-vector-icons/material-design-icons/fonts/MaterialDesignIcons.ttf"; sourceTree = "<group>"; };
+		0C5142682BE948DEBF8CD657 /* AndroidManifest.xml */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = AndroidManifest.xml; path = "../node_modules/@react-native-vector-icons/material-design-icons/android/src/main/AndroidManifest.xml"; sourceTree = "<group>"; };
+		0CFCB4299747D568077AE0D4 /* Pods-sofy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sofy.release.xcconfig"; path = "Target Support Files/Pods-sofy/Pods-sofy.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* sofy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = sofy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = sofy/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = sofy/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = sofy/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = sofy/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = sofy/main.m; sourceTree = "<group>"; };
-		19F6CBCC0A4E27FBF8BF4A61 /* libPods-sofy-sofyTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-sofy-sofyTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B4392A12AC88292D35C810B /* Pods-sofy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sofy.debug.xcconfig"; path = "Target Support Files/Pods-sofy/Pods-sofy.debug.xcconfig"; sourceTree = "<group>"; };
-		5709B34CF0A7D63546082F79 /* Pods-sofy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sofy.release.xcconfig"; path = "Target Support Files/Pods-sofy/Pods-sofy.release.xcconfig"; sourceTree = "<group>"; };
-		5B7EB9410499542E8C5724F5 /* Pods-sofy-sofyTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sofy-sofyTests.debug.xcconfig"; path = "Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests.debug.xcconfig"; sourceTree = "<group>"; };
-		5DCACB8F33CDC322A6C60F78 /* libPods-sofy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-sofy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1448F05D9F01B08944A8E1BD /* Pods-sofy-sofyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sofy-sofyTests.release.xcconfig"; path = "Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests.release.xcconfig"; sourceTree = "<group>"; };
+		17153C24C5184E80BF7CC6E0 /* package.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = package.json; path = "../node_modules/@react-native-vector-icons/material-design-icons/lib/typescript/commonjs/package.json"; sourceTree = "<group>"; };
+		1E36F842911A4B71AD7B1F9D /* MaterialDesignIcons.json */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialDesignIcons.json; path = "../node_modules/@react-native-vector-icons/material-design-icons/glyphmaps/MaterialDesignIcons.json"; sourceTree = "<group>"; };
+		1ED885270C1B40219C6F651C /* index.js */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = index.js; path = "../node_modules/@react-native-vector-icons/material-design-icons/lib/commonjs/index.js"; sourceTree = "<group>"; };
+		278057687D64509F0735BFA7 /* libPods-sofy-sofyTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-sofy-sofyTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		388D42147DC443FBA54968DD /* README.md */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = README.md; path = "../node_modules/@react-native-vector-icons/material-design-icons/README.md"; sourceTree = "<group>"; };
+		38B6B13B15EE4B26B12BC8D6 /* AndroidManifestNew.xml */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = AndroidManifestNew.xml; path = "../node_modules/@react-native-vector-icons/material-design-icons/android/src/main/AndroidManifestNew.xml"; sourceTree = "<group>"; };
+		3BECE04457894635A8F4511F /* index.js.map */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = index.js.map; path = "../node_modules/@react-native-vector-icons/material-design-icons/lib/commonjs/index.js.map"; sourceTree = "<group>"; };
+		3DBADE8C13276C70D35F9692 /* libPods-sofy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-sofy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		601B8EE01D32625F608C2072 /* Pods-sofy-sofyTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sofy-sofyTests.debug.xcconfig"; path = "Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests.debug.xcconfig"; sourceTree = "<group>"; };
 		6132EF172BDFF13200BBE14D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = sofy/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		70B7DDEB3F82845FB26511F9 /* Pods-sofy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sofy.debug.xcconfig"; path = "Target Support Files/Pods-sofy/Pods-sofy.debug.xcconfig"; sourceTree = "<group>"; };
+		805E4DB2B2D940409E89832E /* VectorIconsMaterialDesignIconsPackage.kt */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = VectorIconsMaterialDesignIconsPackage.kt; path = "../node_modules/@react-native-vector-icons/material-design-icons/android/src/main/java/VectorIconsMaterialDesignIconsPackage.kt"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = sofy/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		89C6BE57DB24E9ADA2F236DE /* Pods-sofy-sofyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sofy-sofyTests.release.xcconfig"; path = "Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests.release.xcconfig"; sourceTree = "<group>"; };
+		9858A3E23FD14811BB96D5A6 /* index.d.ts */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = index.d.ts; path = "../node_modules/@react-native-vector-icons/material-design-icons/lib/typescript/commonjs/src/index.d.ts"; sourceTree = "<group>"; };
+		B8FF1B00E73E48AE8D51B2FC /* build.gradle */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = build.gradle; path = "../node_modules/@react-native-vector-icons/material-design-icons/android/build.gradle"; sourceTree = "<group>"; };
+		D29B5068C1EC43A4A460CFC3 /* react-native-vector-icons-material-design-icons.podspec */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "react-native-vector-icons-material-design-icons.podspec"; path = "../node_modules/@react-native-vector-icons/material-design-icons/react-native-vector-icons-material-design-icons.podspec"; sourceTree = "<group>"; };
+		DB6908860BA84FB7B5E172BF /* LICENSE */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = LICENSE; path = "../node_modules/@react-native-vector-icons/material-design-icons/LICENSE"; sourceTree = "<group>"; };
+		DBC7A909F58E4BB4A61BEAB1 /* index.ts */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = index.ts; path = "../node_modules/@react-native-vector-icons/material-design-icons/src/index.ts"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		FEC07A95BA0446A0913727EE /* index.d.ts.map */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = index.d.ts.map; path = "../node_modules/@react-native-vector-icons/material-design-icons/lib/typescript/commonjs/src/index.d.ts.map"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,7 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7699B88040F8A987B510C191 /* libPods-sofy-sofyTests.a in Frameworks */,
+				B515582D106F1E1AD34B2FC1 /* libPods-sofy-sofyTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C80B921A6F3F58F76C31292 /* libPods-sofy.a in Frameworks */,
+				1D833486F52BF637735CAA87 /* libPods-sofy.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,12 +113,34 @@
 			name = sofy;
 			sourceTree = "<group>";
 		};
+		22FCF3EF782348FB8F4A1CDF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				0A86B4A055C943BC8A450314 /* MaterialDesignIcons.ttf */,
+				DB6908860BA84FB7B5E172BF /* LICENSE */,
+				388D42147DC443FBA54968DD /* README.md */,
+				B8FF1B00E73E48AE8D51B2FC /* build.gradle */,
+				0C5142682BE948DEBF8CD657 /* AndroidManifest.xml */,
+				38B6B13B15EE4B26B12BC8D6 /* AndroidManifestNew.xml */,
+				805E4DB2B2D940409E89832E /* VectorIconsMaterialDesignIconsPackage.kt */,
+				1E36F842911A4B71AD7B1F9D /* MaterialDesignIcons.json */,
+				1ED885270C1B40219C6F651C /* index.js */,
+				3BECE04457894635A8F4511F /* index.js.map */,
+				17153C24C5184E80BF7CC6E0 /* package.json */,
+				9858A3E23FD14811BB96D5A6 /* index.d.ts */,
+				FEC07A95BA0446A0913727EE /* index.d.ts.map */,
+				D29B5068C1EC43A4A460CFC3 /* react-native-vector-icons-material-design-icons.podspec */,
+				DBC7A909F58E4BB4A61BEAB1 /* index.ts */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				5DCACB8F33CDC322A6C60F78 /* libPods-sofy.a */,
-				19F6CBCC0A4E27FBF8BF4A61 /* libPods-sofy-sofyTests.a */,
+				3DBADE8C13276C70D35F9692 /* libPods-sofy.a */,
+				278057687D64509F0735BFA7 /* libPods-sofy-sofyTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -125,6 +162,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				22FCF3EF782348FB8F4A1CDF /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -143,10 +181,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3B4392A12AC88292D35C810B /* Pods-sofy.debug.xcconfig */,
-				5709B34CF0A7D63546082F79 /* Pods-sofy.release.xcconfig */,
-				5B7EB9410499542E8C5724F5 /* Pods-sofy-sofyTests.debug.xcconfig */,
-				89C6BE57DB24E9ADA2F236DE /* Pods-sofy-sofyTests.release.xcconfig */,
+				70B7DDEB3F82845FB26511F9 /* Pods-sofy.debug.xcconfig */,
+				0CFCB4299747D568077AE0D4 /* Pods-sofy.release.xcconfig */,
+				601B8EE01D32625F608C2072 /* Pods-sofy-sofyTests.debug.xcconfig */,
+				1448F05D9F01B08944A8E1BD /* Pods-sofy-sofyTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -158,12 +196,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "sofyTests" */;
 			buildPhases = (
-				A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */,
+				149FF1C50CEBFF853D79DDB7 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */,
-				F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */,
+				A277C32FC7F62AA1C8A26189 /* [CP] Embed Pods Frameworks */,
+				B3F3B82B6EC2EAD3383C6C81 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -179,13 +217,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "sofy" */;
 			buildPhases = (
-				C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */,
+				F2E05218C3DA15D59ED352B8 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
-				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				11F5DD230226BB9B69E32E41 /* [CP] Embed Pods Frameworks */,
+				AD5A1D9EE9F345E8B04920AC /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -269,7 +307,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */ = {
+		11F5DD230226BB9B69E32E41 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -286,7 +324,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-sofy/Pods-sofy-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */ = {
+		149FF1C50CEBFF853D79DDB7 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -308,7 +346,58 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
+		A277C32FC7F62AA1C8A26189 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AD5A1D9EE9F345E8B04920AC /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-sofy/Pods-sofy-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-sofy/Pods-sofy-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-sofy/Pods-sofy-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B3F3B82B6EC2EAD3383C6C81 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F2E05218C3DA15D59ED352B8 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -328,57 +417,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E235C05ADACE081382539298 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-sofy/Pods-sofy-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-sofy/Pods-sofy-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-sofy/Pods-sofy-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-sofy-sofyTests/Pods-sofy-sofyTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -414,7 +452,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B7EB9410499542E8C5724F5 /* Pods-sofy-sofyTests.debug.xcconfig */;
+			baseConfigurationReference = 601B8EE01D32625F608C2072 /* Pods-sofy-sofyTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -441,7 +479,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 89C6BE57DB24E9ADA2F236DE /* Pods-sofy-sofyTests.release.xcconfig */;
+			baseConfigurationReference = 1448F05D9F01B08944A8E1BD /* Pods-sofy-sofyTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -465,7 +503,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-sofy.debug.xcconfig */;
+			baseConfigurationReference = 70B7DDEB3F82845FB26511F9 /* Pods-sofy.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -492,7 +530,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-sofy.release.xcconfig */;
+			baseConfigurationReference = 0CFCB4299747D568077AE0D4 /* Pods-sofy.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

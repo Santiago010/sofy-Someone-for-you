@@ -1,0 +1,65 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/LICENSE",
+      "sha1": "f4f84bac0edae0e07d4404a37ee4ae977587c55d"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/README.md",
+      "sha1": "9084a37fb6b8bb2ea04b6ed5df837d08748cb6f1"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/android/build.gradle",
+      "sha1": "c1be89b4721acc8d1abbb800f4836ed52d42bc97"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/android/src/main/AndroidManifest.xml",
+      "sha1": "f2b73f4c6c06ca833c4ff656962da0dd773986b4"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/android/src/main/AndroidManifestNew.xml",
+      "sha1": "85df09002dc8f7442a893b62920d17d4eccef1c7"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/android/src/main/java/VectorIconsMaterialDesignIconsPackage.kt",
+      "sha1": "657f18141d178269351cb4f43524b01ea330944f"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/fonts/MaterialDesignIcons.ttf",
+      "sha1": "4f51a4dc75a68d3e57321c448efddea23c8a9db0"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/glyphmaps/MaterialDesignIcons.json",
+      "sha1": "54a090a328857e21894dda46ebfd6e86e0a08294"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/lib/commonjs/index.js",
+      "sha1": "0ea3b662293aaf145d5893b7342d8f88da32d400"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/lib/commonjs/index.js.map",
+      "sha1": "68863dc96a6dd563a2d83d10b28055db1b69cbf0"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/lib/typescript/commonjs/package.json",
+      "sha1": "30a7147ca1a194a48f913aa93c4b8a27f62f85f5"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/lib/typescript/commonjs/src/index.d.ts",
+      "sha1": "2b0c53f9fc4be1e328c1ce0448f8a20bbb378379"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/lib/typescript/commonjs/src/index.d.ts.map",
+      "sha1": "57e3c065b97da47ca7c1c399850d32d00272c9ad"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/react-native-vector-icons-material-design-icons.podspec",
+      "sha1": "81a7c107af5a6d44cded55858ab241635e5e76b7"
+    },
+    {
+      "path": "node_modules/@react-native-vector-icons/material-design-icons/src/index.ts",
+      "sha1": "e7be24845c8f82188664c3fc37a5d33916925e77"
+    }
+  ]
+}

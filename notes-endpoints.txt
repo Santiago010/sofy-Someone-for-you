@@ -1,0 +1,30 @@
+
+
+
+
+curl --location 'http://127.0.0.1:3001/api/v1/auth/login' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'username=tapitarias@gmail.com' \
+--data-urlencode 'password=^1WE7@!UTiaqorla'
+
+
+
+Login -devuelve un transacción id único , que es que se va enviar en la siguiente petición con el codigo
+
+curl --location 'http://127.0.0.1:3001/api/v1/auth/verify-code' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'transactionId=09c75afd-e3d4-4cc0-8dd0-bec6edcbbc9b' \
+--data-urlencode 'code=337872'
+
+Verificar code - devuelve un refresh  token y es que se va enviar en la siguiente petición 
+
+
+curl --location 'http://127.0.0.1:3001/api/v1/auth/refresh-token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'refreshToken=<TOKEN>'
+
+Refresh-token - es para obtener un token inicial o para refrescarlo, cada 5 minutos  hay que hacer la petición, este devuelve un access token 
+Y este lo vamos a enviar en la cabeza de auth:
+
+--header 'Authorization: Bearer {{token}}' \
+
