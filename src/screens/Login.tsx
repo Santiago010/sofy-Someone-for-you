@@ -17,8 +17,8 @@ export const Login = () => {
   const navigation = useNavigation();
   const {login, transactionId} = useContext(AuthContext);
   const {onChange, form, email, password} = useForm({
-    email: 'santiago.dev06@gmail.com',
-    password: 'hola12',
+    email: '',
+    password: '',
   });
 
   const sendData = () => {
@@ -98,7 +98,9 @@ export const Login = () => {
             <View style={commonStyles.footer}>
               <Text variant="bodyMedium" style={commonStyles.footerText}>
                 Don't have an account?{' '}
-                <Text onPress={() => {}} style={commonStyles.link}>
+                <Text
+                  onPress={() => navigation.navigate('Register')}
+                  style={commonStyles.link}>
                   Sign up
                 </Text>
               </Text>

@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {
   View,
   StyleSheet,
   Text,
   TouchableOpacity,
-  Modal,
   Image,
+  Platform,
 } from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
@@ -153,7 +153,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
-    top: -99,
+    ...(Platform.OS === 'android' && {
+      top: 0,
+      marginTop: 20,
+      height: 480,
+    }),
+    ...(Platform.OS === 'ios' && {
+      top: -99,
+    }),
   },
   profileImageContainer: {
     alignItems: 'center',
@@ -240,6 +247,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
+    ...(Platform.OS === 'android' && {
+      marginTop: 15,
+    }),
   },
   platinumTitle: {
     fontSize: 20,

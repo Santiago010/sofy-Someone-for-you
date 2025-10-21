@@ -9,6 +9,8 @@ import {
 } from '../../interfaces/interfacesApp';
 import {AuthState, authReducer} from './authReducer';
 import {db} from '../../db/db';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {decodeJWT} from '../../helpers/DecodeJWT';
 
 interface AuthContextProps {
   errorMessage: string;
@@ -84,6 +86,8 @@ export const AuthProvider = ({
           refreshToken: refreshTokenData,
         },
       );
+      AsyncStorage.setItem('access_token', data.payload.access_token);
+      console.log(data.payload.access_token);
       dispatch({
         type: 'setAccess_token',
         payload: {
@@ -101,7 +105,9 @@ export const AuthProvider = ({
     email,
     password,
     passwordVerification,
-  }: SignUpData) {}
+  }: SignUpData) {
+    dispatch({type: 'authenticatedProv'});
+  }
 
   function logout() {
     dispatch({type: 'logout'});
@@ -111,11 +117,56 @@ export const AuthProvider = ({
     dispatch({type: 'removeError'});
   }
 
-  function checkToken() {
-    dispatch({
-      type: 'notAuthenticated',
-    });
-  }
+  const checkToken = async () => {
+    const access_token = await AsyncStorage.getItem('access_token');
+
+    if (!access_token) {
+      dispatch({
+        type: 'notAuthenticated',
+      });
+      return;
+    }
+
+    // Verificar expiración del token
+    const decodedToken = decodeJWT(access_token);
+
+    if (!decodedToken) {
+      // Token inválido, remover y marcar como no autenticado
+      await AsyncStorage.removeItem('access_token');
+      dispatch({
+        type: 'notAuthenticated',
+      });
+      return;
+    }
+
+    // Verificar si el token tiene la propiedad 'exp'
+    if (!decodedToken.exp) {
+      console.warn('JWT no tiene propiedad exp, asumiendo válido');
+      dispatch({
+        type: 'setAccess_token',
+        payload: {access_token: access_token},
+      });
+      return;
+    }
+
+    // Obtener timestamp actual en segundos
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    // Verificar si el token ha expirado
+    if (currentTime >= decodedToken.exp) {
+      // Token expirado, remover y marcar como no autenticado
+      await AsyncStorage.removeItem('access_token');
+      dispatch({
+        type: 'notAuthenticated',
+      });
+    } else {
+      // Token válido
+      dispatch({
+        type: 'setAccess_token',
+        payload: {access_token: access_token},
+      });
+    }
+  };
 
   useEffect(() => {
     setTimeout(() => {

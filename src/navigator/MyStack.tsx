@@ -10,6 +10,7 @@ import {BottonTabNavigator} from './BottonTabNavigator';
 import {ForgotYourPassword} from '../screens/ForgotYourPassword';
 import {InfoUser} from '../screens/InfoUser';
 import {RootStackParamList} from './types';
+import {colors} from '../theme/globalTheme';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -19,14 +20,7 @@ export const MyStack = () => {
   console.log(status);
 
   if (status === 'checking') {
-    return (
-      <BarIndicator
-        count={4}
-        size={50}
-        color="  primary: '#ff8704', // Rosa/púrpura principal
-"
-      />
-    );
+    return <BarIndicator count={4} size={50} color={colors.primary} />;
   }
 
   return (
@@ -44,6 +38,7 @@ export const MyStack = () => {
               name="CodeVerificationEmail"
               component={CodeVerificationEmail}
             />
+            <Stack.Screen name="InfoUser" component={InfoUser} />
           </>
         ) : (
           <>
@@ -51,7 +46,6 @@ export const MyStack = () => {
               name="BottonTabNavigator"
               component={BottonTabNavigator}
             />
-            <Stack.Screen name="InfoUser" component={InfoUser} />
           </>
         )}
       </Stack.Navigator>

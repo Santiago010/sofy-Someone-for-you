@@ -11,7 +11,8 @@ type AuthAction =
   | {type: 'removeError'}
   | {type: 'notAuthenticated'}
   | {type: 'logout'}
-  | {type: 'setAccess_token'; payload: {access_token: string}};
+  | {type: 'setAccess_token'; payload: {access_token: string}}
+  | {type: 'authenticatedProv'};
 
 export const authReducer = (
   state: AuthState,
@@ -24,7 +25,11 @@ export const authReducer = (
         status: 'not-authenticated',
         errorMessage: action.payload,
       };
-
+    case 'authenticatedProv':
+      return {
+        ...state,
+        status: 'authenticated',
+      };
     case 'removeError':
       return {
         ...state,

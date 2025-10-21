@@ -30,7 +30,7 @@ export const Register = () => {
   };
 
   const signUpPress = () => {
-    navigation.navigate('CodeVerificationEmail', {formData: formData});
+    navigation.navigate('InfoUser');
   };
 
   return (

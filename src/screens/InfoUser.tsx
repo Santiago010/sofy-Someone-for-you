@@ -1,39 +1,31 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
-  Image,
-  Alert,
   Platform,
-  PermissionsAndroid,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import {useNavigation} from '@react-navigation/native';
 import {
-  Surface,
   Text,
   TextInput,
   Button,
-  FAB,
-  Portal,
-  Modal,
-  List,
-  useTheme,
   ActivityIndicator,
   Chip,
   RadioButton,
 } from 'react-native-paper';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {colors, commonStyles} from '../theme/globalTheme';
-import LogoSofy from '../components/LogoSofy';
+import GridImage from '../components/GridImage';
+import {AuthContext} from '../context/authContext/authContext';
 
 export const InfoUser = () => {
   const navigation = useNavigation();
   const [images, setImages] = useState<string[]>([]);
-  const [visible, setVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const theme = useTheme();
+  const {signUp} = useContext(AuthContext);
 
   // Estados para los nuevos campos
   const [formData, setFormData] = useState({
@@ -127,468 +119,275 @@ export const InfoUser = () => {
       console.log('Image', images);
 
       setTimeout(() => {
-        navigation.navigate('BottonTabNavigator');
-      }, 3000);
+        signUp();
+      }, 2000);
     }
-  };
-
-  // Manejo del Modal
-  const showModal = () => setVisible(true);
-  const hideModal = () => setVisible(false);
-
-  // Solicitar permisos para Android
-  const requestCameraPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-          {
-            title: 'Permiso de Cámara',
-            message: 'Esta app necesita acceso a tu cámara',
-            buttonPositive: 'OK',
-          },
-        );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        return false;
-      }
-    }
-    return true;
-  };
-
-  // Opciones para image picker
-  const imagePickerOptions = {
-    mediaType: 'photo' as const,
-    quality: 0.8 as const,
-    maxWidth: 800,
-    maxHeight: 800,
-    includeBase64: false,
-    saveToPhotos: false,
-  };
-
-  // Manejar selección de cámara
-  const handleTakePhoto = async () => {
-    const hasPermission = await requestCameraPermission();
-    if (!hasPermission) {
-      Alert.alert(
-        'Permiso denegado',
-        'Necesitas permitir el acceso a la cámara',
-      );
-      return;
-    }
-
-    setLoading(true);
-    launchCamera(imagePickerOptions, handleImageResponse);
-  };
-
-  // Manejar selección de galería
-  const handleChooseFromLibrary = () => {
-    setLoading(true);
-    launchImageLibrary(imagePickerOptions, handleImageResponse);
-  };
-
-  // Procesar respuesta de imagen
-  const handleImageResponse = (response: any) => {
-    setLoading(false);
-    hideModal();
-
-    console.log('Image picker response:', response); // Debug log
-
-    if (response.didCancel) {
-      console.log('Usuario canceló la selección');
-      return;
-    }
-
-    if (response.errorCode) {
-      console.log('Error code:', response.errorCode);
-      console.log('Error message:', response.errorMessage);
-
-      let errorMessage = 'Error desconocido';
-
-      // Manejar diferentes tipos de errores comunes en iOS
-      switch (response.errorCode) {
-        case 'camera_unavailable':
-          errorMessage = 'La cámara no está disponible en este dispositivo';
-          break;
-        case 'permission':
-          errorMessage =
-            'Permiso de cámara denegado. Por favor, habilita el acceso a la cámara en la configuración';
-          break;
-        case 'others':
-          errorMessage =
-            response.errorMessage || 'Error desconocido al acceder a la cámara';
-          break;
-        default:
-          errorMessage =
-            response.errorMessage || `Error (${response.errorCode})`;
-      }
-
-      Alert.alert('Error', `Error al seleccionar imagen: ${errorMessage}`);
-      return;
-    }
-
-    if (response.assets && response.assets[0]) {
-      const newImage = response.assets[0].uri;
-
-      if (images.length >= 6) {
-        Alert.alert('Límite alcanzado', 'Solo puedes agregar hasta 6 imágenes');
-        return;
-      }
-
-      setImages(prev => [...prev, newImage]);
-    }
-  };
-
-  // Eliminar imagen
-  const removeImage = (index: number) => {
-    const newImages = images.filter((_, i) => i !== index);
-    setImages(newImages);
-  };
-
-  // Renderizar slot de imagen
-  const renderImageSlot = (index: number) => {
-    const hasImage = images[index];
-
-    return (
-      <Surface key={index} style={styles.imageSlot} elevation={2}>
-        {hasImage ? (
-          <View style={styles.imageContainer}>
-            <Image source={{uri: hasImage}} style={styles.image} />
-            <FAB
-              icon="close"
-              style={styles.removeFab}
-              size="small"
-              onPress={() => removeImage(index)}
-              color="#FFF"
-            />
-          </View>
-        ) : (
-          <FAB
-            icon="plus"
-            style={styles.addFab}
-            size="small"
-            onPress={showModal}
-            mode="flat"
-            disabled={loading}
-          />
-        )}
-      </Surface>
-    );
   };
 
   return (
-    <ScrollView style={commonStyles.container}>
-      <View style={commonStyles.content}>
-        {/* Header */}
-        <LogoSofy />
-        <View style={styles.header}>
-          <Text variant="headlineMedium" style={styles.title}>
-            Add your recent pics
-          </Text>
-          <Text variant="bodyMedium" style={styles.recommendation}>
-            We recommend a face photo
-          </Text>
-        </View>
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView style={commonStyles.container}>
+          <View style={commonStyles.content}>
+            <GridImage images={images} setImages={setImages} />
 
-        {/* Grid de imágenes */}
-        <Surface style={styles.gridContainer} elevation={1}>
-          <View style={styles.grid}>
-            {[...Array(6)].map((_, index) => renderImageSlot(index))}
-          </View>
-
-          {/* Contador de imágenes */}
-          <Text variant="bodySmall" style={styles.imageCount}>
-            {images.length}/6 photos
-          </Text>
-        </Surface>
-
-        {/* Nuevos campos de formulario */}
-        <View style={styles.formSection}>
-          <Text variant="headlineSmall" style={styles.sectionTitle}>
-            Personal Information
-          </Text>
-
-          {/* Campos de nombre (solo lectura desde auth) */}
-          <View style={styles.nameContainer}>
-            <View style={styles.nameField}>
-              <Text variant="labelMedium" style={styles.label}>
-                First Name
+            {/* Nuevos campos de formulario */}
+            <View style={styles.formSection}>
+              <Text variant="headlineSmall" style={styles.sectionTitle}>
+                Personal Information
               </Text>
-              <TextInput
-                value={formData.firstName}
-                onChangeText={text => handleInputChange('firstName', text)}
-                mode="outlined"
-                style={styles.input}
-                outlineStyle={styles.inputOutline}
-              />
-            </View>
 
-            <View style={styles.nameField}>
-              <Text variant="labelMedium" style={styles.label}>
-                Last Name
-              </Text>
-              <TextInput
-                value={formData.lastName}
-                onChangeText={text => handleInputChange('lastName', text)}
-                mode="outlined"
-                style={styles.input}
-                outlineStyle={styles.inputOutline}
-              />
-            </View>
-          </View>
+              {/* Campos de nombre (solo lectura desde auth) */}
+              <View style={styles.nameContainer}>
+                <View style={styles.nameField}>
+                  <Text variant="labelMedium" style={styles.label}>
+                    First Name
+                  </Text>
+                  <TextInput
+                    value={formData.firstName}
+                    onChangeText={text => handleInputChange('firstName', text)}
+                    mode="outlined"
+                    style={styles.input}
+                    outlineStyle={styles.inputOutline}
+                  />
+                </View>
 
-          {/* Campo de edad */}
-          <View style={styles.field}>
-            <Text variant="labelMedium" style={styles.label}>
-              Age *
-            </Text>
-            <TextInput
-              mode="outlined"
-              placeholder="Type your Age"
-              value={formData.age}
-              onChangeText={text => handleInputChange('age', text)}
-              keyboardType="numeric"
-              style={styles.input}
-              outlineStyle={styles.inputOutline}
-            />
-          </View>
+                <View style={styles.nameField}>
+                  <Text variant="labelMedium" style={styles.label}>
+                    Last Name
+                  </Text>
+                  <TextInput
+                    value={formData.lastName}
+                    onChangeText={text => handleInputChange('lastName', text)}
+                    mode="outlined"
+                    style={styles.input}
+                    outlineStyle={styles.inputOutline}
+                  />
+                </View>
+              </View>
 
-          {/* Campo About You */}
-          <View style={styles.field}>
-            <Text variant="labelMedium" style={styles.label}>
-              About You
-            </Text>
-            <TextInput
-              mode="outlined"
-              placeholder="About You*"
-              value={formData.aboutYou}
-              onChangeText={text => handleInputChange('aboutYou', text)}
-              multiline
-              numberOfLines={4}
-              style={[styles.input, styles.textArea]}
-              outlineStyle={styles.inputOutline}
-            />
-          </View>
+              {/* Campo de edad */}
+              <View style={styles.field}>
+                <Text variant="labelMedium" style={styles.label}>
+                  Age *
+                </Text>
+                <TextInput
+                  mode="outlined"
+                  placeholder="Type your Age"
+                  value={formData.age}
+                  onChangeText={text => handleInputChange('age', text)}
+                  keyboardType="numeric"
+                  style={styles.input}
+                  outlineStyle={styles.inputOutline}
+                />
+              </View>
 
-          {/* Selector de intereses */}
-          <View style={styles.field}>
-            <Text variant="labelMedium" style={styles.label}>
-              Select up to 5 interest
-            </Text>
-            <View style={styles.interestsContainer}>
-              {interests.map(interest => (
-                <Chip
-                  key={interest}
-                  mode={
-                    formData.selectedInterests.includes(interest)
-                      ? 'flat'
-                      : 'outlined'
+              {/* Campo About You */}
+              <View style={styles.field}>
+                <Text variant="labelMedium" style={styles.label}>
+                  About You
+                </Text>
+                <TextInput
+                  mode="outlined"
+                  placeholder="About You*"
+                  value={formData.aboutYou}
+                  onChangeText={text => handleInputChange('aboutYou', text)}
+                  multiline
+                  numberOfLines={4}
+                  style={[styles.input, styles.textArea]}
+                  outlineStyle={styles.inputOutline}
+                />
+              </View>
+
+              {/* Selector de intereses */}
+              <View style={styles.field}>
+                <Text variant="labelMedium" style={styles.label}>
+                  Select up to 5 interest
+                </Text>
+                <View style={styles.interestsContainer}>
+                  {interests.map(interest => (
+                    <Chip
+                      key={interest}
+                      mode={
+                        formData.selectedInterests.includes(interest)
+                          ? 'flat'
+                          : 'outlined'
+                      }
+                      onPress={() => toggleInterest(interest)}
+                      style={[
+                        styles.interestChip,
+                        formData.selectedInterests.includes(interest) &&
+                          styles.selectedChip,
+                      ]}
+                      textStyle={
+                        formData.selectedInterests.includes(interest) &&
+                        styles.selectedChipText
+                      }>
+                      {interest}
+                    </Chip>
+                  ))}
+                </View>
+              </View>
+
+              {/* Selector de género */}
+              <View style={styles.field}>
+                <Text variant="labelMedium" style={styles.label}>
+                  Gender*
+                </Text>
+                <RadioButton.Group
+                  onValueChange={value => handleInputChange('gender', value)}
+                  value={formData.gender}>
+                  <View style={styles.radioOption}>
+                    <RadioButton value="male" color={colors.accent} />
+                    <Text variant="bodyMedium" style={styles.radioLabel}>
+                      Male
+                    </Text>
+                  </View>
+
+                  <View style={styles.radioOption}>
+                    <RadioButton value="female" color={colors.accent} />
+                    <Text variant="bodyMedium" style={styles.radioLabel}>
+                      Female
+                    </Text>
+                  </View>
+
+                  <View style={styles.radioOption}>
+                    <RadioButton value="non-binary" color={colors.accent} />
+                    <Text variant="bodyMedium" style={styles.radioLabel}>
+                      Non-binary
+                    </Text>
+                  </View>
+                </RadioButton.Group>
+              </View>
+
+              {/* Maximum Distance */}
+              <View style={styles.field}>
+                <View style={styles.sliderContainer}>
+                  <Text variant="labelMedium" style={styles.label}>
+                    Maximum Distance
+                  </Text>
+                  <Text variant="bodyMedium" style={styles.distanceValue}>
+                    {formData.maxDistance} mi.
+                  </Text>
+                </View>
+                {/* TODO:SLIDEE */}
+                <Slider
+                  thumbTintColor={`${colors.primary}`}
+                  maximumTrackTintColor={`${colors.secondary}`}
+                  minimumTrackTintColor={`${colors.primary}`}
+                  minimumValue={1}
+                  maximumValue={100}
+                  step={1}
+                  value={formData.maxDistance}
+                  onValueChange={ev =>
+                    handleInputsWithNumber('maxDistance', ev)
                   }
-                  onPress={() => toggleInterest(interest)}
-                  style={[
-                    styles.interestChip,
-                    formData.selectedInterests.includes(interest) &&
-                      styles.selectedChip,
-                  ]}
-                  textStyle={
-                    formData.selectedInterests.includes(interest) &&
-                    styles.selectedChipText
-                  }>
-                  {interest}
-                </Chip>
-              ))}
+                />
+              </View>
+
+              {/* Whole World */}
+              <View style={styles.field}>
+                <View style={styles.radioOption}></View>
+              </View>
+
+              {/* Show me */}
+              <View style={styles.field}>
+                <Text variant="labelMedium" style={styles.label}>
+                  Show me*
+                </Text>
+
+                <RadioButton.Group
+                  onValueChange={value => handleInputChange('showMe', value)}
+                  value={formData.showMe}>
+                  <View style={styles.radioOption}>
+                    <RadioButton value="men" color={colors.accent} />
+                    <Text variant="bodyMedium" style={styles.radioLabel}>
+                      Men
+                    </Text>
+                  </View>
+
+                  <View style={styles.radioOption}>
+                    <RadioButton value="women" color={colors.accent} />
+                    <Text variant="bodyMedium" style={styles.radioLabel}>
+                      Women
+                    </Text>
+                  </View>
+
+                  <View style={styles.radioOption}>
+                    <RadioButton value="non-binary" color={colors.accent} />
+                    <Text variant="bodyMedium" style={styles.radioLabel}>
+                      Non-binary
+                    </Text>
+                  </View>
+                </RadioButton.Group>
+              </View>
+
+              {/* Age Range */}
+              <View style={styles.field}>
+                <Text variant="labelMedium" style={styles.label}>
+                  Age Range
+                </Text>
+                <View style={styles.ageRangeContainer}>
+                  <TextInput
+                    mode="outlined"
+                    placeholder="18"
+                    value={`${formData.ageRangeMin}`}
+                    onChangeText={ev => {
+                      handleInputsWithNumber('ageRangeMin', Number(ev));
+                    }}
+                    keyboardType="numeric"
+                    style={[styles.input, styles.ageInput]}
+                    outlineStyle={styles.inputOutline}
+                  />
+                  <Text variant="bodyMedium" style={styles.ageSeparator}>
+                    -
+                  </Text>
+                  <TextInput
+                    mode="outlined"
+                    placeholder="100"
+                    value={`${formData.ageRangeMax}`}
+                    onChangeText={ev => {
+                      handleInputsWithNumber('ageRangeMax', Number(ev));
+                    }}
+                    keyboardType="numeric"
+                    style={[styles.input, styles.ageInput]}
+                    outlineStyle={styles.inputOutline}
+                  />
+                </View>
+              </View>
             </View>
-          </View>
 
-          {/* Selector de género */}
-          <View style={styles.field}>
-            <Text variant="labelMedium" style={styles.label}>
-              Gender*
-            </Text>
-            <RadioButton.Group
-              onValueChange={value => handleInputChange('gender', value)}
-              value={formData.gender}>
-              <View style={styles.radioOption}>
-                <RadioButton value="male" color={colors.accent} />
-                <Text variant="bodyMedium" style={styles.radioLabel}>
-                  Male
-                </Text>
-              </View>
-
-              <View style={styles.radioOption}>
-                <RadioButton value="female" color={colors.accent} />
-                <Text variant="bodyMedium" style={styles.radioLabel}>
-                  Female
-                </Text>
-              </View>
-
-              <View style={styles.radioOption}>
-                <RadioButton value="non-binary" color={colors.accent} />
-                <Text variant="bodyMedium" style={styles.radioLabel}>
-                  Non-binary
-                </Text>
-              </View>
-            </RadioButton.Group>
-          </View>
-
-          {/* Maximum Distance */}
-          <View style={styles.field}>
-            <View style={styles.sliderContainer}>
-              <Text variant="labelMedium" style={styles.label}>
-                Maximum Distance
-              </Text>
-              <Text variant="bodyMedium" style={styles.distanceValue}>
-                {formData.maxDistance} mi.
-              </Text>
-            </View>
-            {/* TODO:SLIDEE */}
-            <Slider
-              thumbTintColor={`${colors.primary}`}
-              maximumTrackTintColor={`${colors.secondary}`}
-              minimumTrackTintColor={`${colors.primary}`}
-              minimumValue={1}
-              maximumValue={100}
-              step={1}
-              value={formData.maxDistance}
-              onValueChange={ev => handleInputsWithNumber('maxDistance', ev)}
-            />
-          </View>
-
-          {/* Whole World */}
-          <View style={styles.field}>
-            <View style={styles.radioOption}></View>
-          </View>
-
-          {/* Show me */}
-          <View style={styles.field}>
-            <Text variant="labelMedium" style={styles.label}>
-              Show me*
-            </Text>
-
-            <RadioButton.Group
-              onValueChange={value => handleInputChange('showMe', value)}
-              value={formData.showMe}>
-              <View style={styles.radioOption}>
-                <RadioButton value="men" color={colors.accent} />
-                <Text variant="bodyMedium" style={styles.radioLabel}>
-                  Men
-                </Text>
-              </View>
-
-              <View style={styles.radioOption}>
-                <RadioButton value="women" color={colors.accent} />
-                <Text variant="bodyMedium" style={styles.radioLabel}>
-                  Women
-                </Text>
-              </View>
-
-              <View style={styles.radioOption}>
-                <RadioButton value="non-binary" color={colors.accent} />
-                <Text variant="bodyMedium" style={styles.radioLabel}>
-                  Non-binary
-                </Text>
-              </View>
-            </RadioButton.Group>
-          </View>
-
-          {/* Age Range */}
-          <View style={styles.field}>
-            <Text variant="labelMedium" style={styles.label}>
-              Age Range
-            </Text>
-            <View style={styles.ageRangeContainer}>
-              <TextInput
-                mode="outlined"
-                placeholder="18"
-                value={`${formData.ageRangeMin}`}
-                onChangeText={ev => {
-                  handleInputsWithNumber('ageRangeMin', Number(ev));
-                }}
-                keyboardType="numeric"
-                style={[styles.input, styles.ageInput]}
-                outlineStyle={styles.inputOutline}
-              />
-              <Text variant="bodyMedium" style={styles.ageSeparator}>
-                -
-              </Text>
-              <TextInput
-                mode="outlined"
-                placeholder="100"
-                value={`${formData.ageRangeMax}`}
-                onChangeText={ev => {
-                  handleInputsWithNumber('ageRangeMax', Number(ev));
-                }}
-                keyboardType="numeric"
-                style={[styles.input, styles.ageInput]}
-                outlineStyle={styles.inputOutline}
-              />
-            </View>
-          </View>
-        </View>
-
-        {/* Botón Save con contador */}
-        <View style={styles.saveContainer}>
-          <Button
-            mode="contained"
-            onPress={handleSave}
-            disabled={!areAllFieldsFilled()}
-            style={[
-              styles.saveButton,
-              areAllFieldsFilled() && styles.saveButtonEnabled,
-            ]}
-            contentStyle={styles.saveButtonContent}
-            labelStyle={styles.saveButtonLabel}>
-            Save ({getFilledFieldsCount().filled}/{getFilledFieldsCount().total}
-            )
-          </Button>
-        </View>
-
-        {/* Loading Indicator */}
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={theme.colors.primary} />
-            <Text style={styles.loadingText}>Cargando imagen...</Text>
-          </View>
-        )}
-
-        {/* Modal para seleccionar origen de imagen */}
-        <Portal>
-          <Modal
-            visible={visible}
-            onDismiss={hideModal}
-            contentContainerStyle={styles.modalContainer}>
-            <Surface style={styles.modalContent} elevation={5}>
-              <Text variant="titleMedium" style={styles.modalTitle}>
-                Add Photo
-              </Text>
-
-              <List.Item
-                title="Take Photo"
-                left={props => <List.Icon {...props} icon="camera" />}
-                onPress={handleTakePhoto}
-                style={styles.listItem}
-              />
-
-              <List.Item
-                title="Choose from Library"
-                left={props => <List.Icon {...props} icon="image" />}
-                onPress={handleChooseFromLibrary}
-                style={styles.listItem}
-              />
-
+            {/* Botón Save con contador */}
+            <View style={commonStyles.saveContainer}>
               <Button
-                mode="text"
-                onPress={hideModal}
-                style={styles.cancelButton}
-                labelStyle={styles.cancelButtonLabel}>
-                Cancel
+                mode="contained"
+                onPress={handleSave}
+                disabled={!areAllFieldsFilled()}
+                style={[
+                  commonStyles.saveButton,
+                  areAllFieldsFilled() && commonStyles.saveButtonEnabled,
+                ]}
+                contentStyle={commonStyles.saveButtonContent}
+                labelStyle={commonStyles.saveButtonLabel}>
+                Save ({getFilledFieldsCount().filled}/
+                {getFilledFieldsCount().total})
               </Button>
-            </Surface>
-          </Modal>
-        </Portal>
-      </View>
-    </ScrollView>
+            </View>
+
+            {/* Loading Indicator
+            {loading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+                <Text style={styles.loadingText}>Cargando imagen...</Text>
+              </View>
+            )} */}
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -632,7 +431,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.background,
-    overflow: 'hidden',
   },
   imageContainer: {
     width: '100%',

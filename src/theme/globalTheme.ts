@@ -193,6 +193,25 @@ export const commonStyles = {
     fontSize: 16,
     fontWeight: 'bold' as const,
   },
+
+  saveContainer: {
+    padding: 20,
+    paddingTop: 10,
+  },
+  saveButton: {
+    borderRadius: 25,
+    backgroundColor: colors.textSecondary,
+  },
+  saveButtonEnabled: {
+    backgroundColor: colors.secondary,
+  },
+  saveButtonContent: {
+    paddingVertical: 8,
+  },
+  saveButtonLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 };
 
 // Tipos para TypeScript

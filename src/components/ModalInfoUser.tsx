@@ -59,7 +59,6 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                 {user.firstName} {user.lastName}
               </Text>
               <Text style={styles.modalAge}>{user.age} years</Text>
-
               {/* Carrusel Parallax de Imágenes */}
               {user.images && user.images.length > 0 ? (
                 <View style={styles.carouselContainer}>
@@ -99,26 +98,25 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                   </Text>
                 </View>
               )}
-
               <Text style={styles.modalBiography}>{user.biography}</Text>
-              {/* <View>
-                {user.interest.map(interest => (
-                  <Chip
-                    key={interest}
-                    mode="flat"
-                    onPress={() => {}}
-                    style={{
-                      margin: 2,
-                      backgroundColor: colors.text,
-                      opacity: 0.8,
-                    }}
-                    textStyle={{
-                      color: colors.backgroundSecondary,
-                    }}>
-                    {interest}
-                  </Chip>
-                ))}
-              </View> */}
+
+              {/* Mostrar intereses con Chips */}
+              {user.interest && user.interest.length > 0 && (
+                <View style={styles.interestsContainer}>
+                  <Text style={styles.interestsTitle}>Interest</Text>
+                  <View style={styles.interestsChipsContainer}>
+                    {user.interest.map((interest: string, index: number) => (
+                      <Chip
+                        key={index}
+                        style={styles.interestChip}
+                        textStyle={styles.interestChipText}
+                        mode="outlined">
+                        {interest}
+                      </Chip>
+                    ))}
+                  </View>
+                </View>
+              )}
             </ScrollView>
           </View>
         </View>
@@ -281,5 +279,30 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginTop: 15,
     paddingHorizontal: 10,
+  },
+  interestsContainer: {
+    marginTop: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  interestsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 10,
+  },
+  interestsChipsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  interestChip: {
+    margin: 4,
+    backgroundColor: colors.primary,
+  },
+  interestChipText: {
+    color: colors.background,
+    fontSize: 14,
   },
 });
