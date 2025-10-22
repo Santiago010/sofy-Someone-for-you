@@ -11,6 +11,7 @@ import {ForgotYourPassword} from '../screens/ForgotYourPassword';
 import {InfoUser} from '../screens/InfoUser';
 import {RootStackParamList} from './types';
 import {colors} from '../theme/globalTheme';
+import {View} from 'react-native';
 
 const Stack = createStackNavigator<RootStackParamList>();
 

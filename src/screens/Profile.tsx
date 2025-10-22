@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Platform,
+  SafeAreaView,
 } from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
@@ -24,94 +25,101 @@ export const Profile = () => {
 
   return (
     <View style={styles.container}>
-      <View style={commonStyles.content}>
-        <View style={styles.styleBoxOne}>
-          {/* Foto de perfil circular centrada */}
-          <View style={styles.profileImageContainer}>
-            <TouchableOpacity style={styles.profileImage} onPress={toggleModal}>
-              {user.images && user.images[0] ? (
-                <Image source={user.images[0] as any} style={styles.image} />
-              ) : (
-                <Text style={styles.profileImageText}>👤</Text>
-              )}
-            </TouchableOpacity>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Text style={styles.cardFooterName}>
-                {user.firstName} {user.lastName}
-              </Text>
-              <Text style={styles.cardFooterAge}>, {user.age}</Text>
+      <SafeAreaView>
+        <View style={commonStyles.content}>
+          <View style={styles.styleBoxOne}>
+            {/* Foto de perfil circular centrada */}
+            <View style={styles.profileImageContainer}>
+              <TouchableOpacity
+                style={styles.profileImage}
+                onPress={toggleModal}>
+                {user.images && user.images[0] ? (
+                  <Image source={user.images[0] as any} style={styles.image} />
+                ) : (
+                  <Text style={styles.profileImageText}>👤</Text>
+                )}
+              </TouchableOpacity>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Text style={styles.cardFooterName}>
+                  {user.firstName} {user.lastName}
+                </Text>
+                <Text style={styles.cardFooterAge}>, {user.age}</Text>
+              </View>
+            </View>
+
+            {/* Tres botones de acción */}
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity
+                style={{
+                  ...styles.actionButton,
+                }}
+                onPress={() =>
+                  navigation.navigate('StackSettingsApps' as never)
+                }>
+                <MaterialDesignIcons
+                  name="cog"
+                  size={43}
+                  color={colors.secondary}
+                />
+                <Text
+                  style={{...styles.actionButtonText, color: colors.secondary}}>
+                  Setting
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  ...styles.actionButton,
+                  ...styles.actionButtonProfile,
+                }}
+                onPress={() => navigation.navigate('EditProfile' as never)}>
+                <MaterialDesignIcons
+                  name="face-man-profile"
+                  size={43}
+                  color={colors.primary}
+                />
+                <Text
+                  style={{...styles.actionButtonText, color: colors.primary}}>
+                  Profile
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  ...styles.actionButton,
+                }}
+                onPress={() => navigation.navigate('EditPhotos' as never)}>
+                <MaterialDesignIcons
+                  name="plus-box-multiple"
+                  size={43}
+                  color={colors.secondary}
+                />
+                <Text
+                  style={{...styles.actionButtonText, color: colors.secondary}}>
+                  Photos
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
-          {/* Tres botones de acción */}
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity
-              style={{
-                ...styles.actionButton,
-              }}
-              onPress={() => navigation.navigate('Setting' as never)}>
-              <MaterialDesignIcons
-                name="cog"
-                size={43}
-                color={colors.secondary}
-              />
-              <Text
-                style={{...styles.actionButtonText, color: colors.secondary}}>
-                Setting
-              </Text>
-            </TouchableOpacity>
+          {/* Segundo contenedor */}
+          <View style={styles.styleBoxTwo}>
+            <Text style={styles.platinumTitle}>Sofy Platinum™</Text>
+            <Text style={styles.platinumSubtitle}>
+              Level up every action you take on Sofy
+            </Text>
 
-            <TouchableOpacity
-              style={{
-                ...styles.actionButton,
-                ...styles.actionButtonProfile,
-              }}
-              onPress={() => navigation.navigate('EditProfile' as never)}>
-              <MaterialDesignIcons
-                name="face-man-profile"
-                size={43}
-                color={colors.primary}
-              />
-              <Text style={{...styles.actionButtonText, color: colors.primary}}>
-                Profile
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{
-                ...styles.actionButton,
-              }}
-              onPress={() => navigation.navigate('EditPhotos' as never)}>
-              <MaterialDesignIcons
-                name="plus-box-multiple"
-                size={43}
-                color={colors.secondary}
-              />
-              <Text
-                style={{...styles.actionButtonText, color: colors.secondary}}>
-                Photos
-              </Text>
+            {/* Botón principal */}
+            <TouchableOpacity style={styles.platinumButton}>
+              <Text style={styles.platinumButtonText}>GET Sofy PLATINUM™</Text>
             </TouchableOpacity>
           </View>
         </View>
-
-        {/* Segundo contenedor */}
-        <View style={styles.styleBoxTwo}>
-          <Text style={styles.platinumTitle}>Sofy Platinum™</Text>
-          <Text style={styles.platinumSubtitle}>
-            Level up every action you take on Sofy
-          </Text>
-
-          {/* Botón principal */}
-          <TouchableOpacity style={styles.platinumButton}>
-            <Text style={styles.platinumButtonText}>GET Sofy PLATINUM™</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      </SafeAreaView>
 
       <ModalInfoUser
         user={user}

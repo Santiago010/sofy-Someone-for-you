@@ -39,7 +39,7 @@ export const commonStyles = {
     paddingLeft: 20,
     paddingRight: 20,
     paddingBotton: 20,
-    paddingTop: Platform.OS === 'ios' ? 100 : 20,
+    paddingTop: Platform.OS === 'ios' ? 30 : 20,
   },
 
   // Títulos y textos

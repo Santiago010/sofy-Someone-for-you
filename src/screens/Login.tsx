@@ -5,6 +5,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
 } from 'react-native';
 import {Text, TextInput, Button} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
@@ -17,8 +18,8 @@ export const Login = () => {
   const navigation = useNavigation();
   const {login, transactionId} = useContext(AuthContext);
   const {onChange, form, email, password} = useForm({
-    email: '',
-    password: '',
+    email: 'santiago.dev06@gmail.com',
+    password: 'hola12',
   });
 
   const sendData = () => {
@@ -41,71 +42,73 @@ export const Login = () => {
       }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={commonStyles.container}>
-          <View style={commonStyles.content}>
-            <LogoSofy />
-            <Text variant="headlineMedium" style={commonStyles.title}>
-              Log In
-            </Text>
-
-            <View style={commonStyles.field}>
-              <Text variant="labelMedium" style={commonStyles.label}>
-                Email
+          <SafeAreaView>
+            <View style={commonStyles.content}>
+              <LogoSofy />
+              <Text variant="headlineMedium" style={commonStyles.title}>
+                Log In
               </Text>
-              <TextInput
-                mode="outlined"
-                placeholder="username@gmail.com"
-                value={email}
-                onChangeText={text => onChange(text, 'email')}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                style={commonStyles.input}
-                outlineStyle={commonStyles.inputOutline}
-              />
-            </View>
 
-            <View style={commonStyles.passwordContainer}>
               <View style={commonStyles.field}>
                 <Text variant="labelMedium" style={commonStyles.label}>
-                  Password
+                  Email
                 </Text>
                 <TextInput
                   mode="outlined"
-                  placeholder="••••••••••"
-                  value={password}
-                  onChangeText={text => onChange(text, 'password')}
-                  secureTextEntry
+                  placeholder="username@gmail.com"
+                  value={email}
+                  onChangeText={text => onChange(text, 'email')}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
                   style={commonStyles.input}
                   outlineStyle={commonStyles.inputOutline}
                 />
               </View>
 
-              <Text
-                variant="bodyMedium"
-                style={commonStyles.forgotPassword}
-                onPress={() => navigation.navigate('ForgotYourPassword')}>
-                Forgot your password?
-              </Text>
-            </View>
+              <View style={commonStyles.passwordContainer}>
+                <View style={commonStyles.field}>
+                  <Text variant="labelMedium" style={commonStyles.label}>
+                    Password
+                  </Text>
+                  <TextInput
+                    mode="outlined"
+                    placeholder="••••••••••"
+                    value={password}
+                    onChangeText={text => onChange(text, 'password')}
+                    secureTextEntry
+                    style={commonStyles.input}
+                    outlineStyle={commonStyles.inputOutline}
+                  />
+                </View>
 
-            <Button
-              mode="contained"
-              onPress={() => sendData()}
-              style={commonStyles.loginButton}
-              labelStyle={commonStyles.loginButtonText}>
-              Log in
-            </Button>
-
-            <View style={commonStyles.footer}>
-              <Text variant="bodyMedium" style={commonStyles.footerText}>
-                Don't have an account?{' '}
                 <Text
-                  onPress={() => navigation.navigate('Register')}
-                  style={commonStyles.link}>
-                  Sign up
+                  variant="bodyMedium"
+                  style={commonStyles.forgotPassword}
+                  onPress={() => navigation.navigate('ForgotYourPassword')}>
+                  Forgot your password?
                 </Text>
-              </Text>
+              </View>
+
+              <Button
+                mode="contained"
+                onPress={() => sendData()}
+                style={commonStyles.loginButton}
+                labelStyle={commonStyles.loginButtonText}>
+                Log in
+              </Button>
+
+              <View style={commonStyles.footer}>
+                <Text variant="bodyMedium" style={commonStyles.footerText}>
+                  Don't have an account?{' '}
+                  <Text
+                    onPress={() => navigation.navigate('Register')}
+                    style={commonStyles.link}>
+                    Sign up
+                  </Text>
+                </Text>
+              </View>
             </View>
-          </View>
+          </SafeAreaView>
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

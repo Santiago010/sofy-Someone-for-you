@@ -8,6 +8,7 @@
 import React from 'react';
 import 'react-native-gesture-handler';
 import 'react-native-reanimated';
+import {LogBox} from 'react-native';
 
 import {PaperProvider} from 'react-native-paper';
 import {AuthProvider} from './src/context/authContext/authContext';
@@ -29,6 +30,11 @@ function AppState({
 }
 
 function App(): React.JSX.Element {
+  // Ignorar el warning de animaciones sin listeners
+  LogBox.ignoreLogs([
+    "Sending 'onAnimatedValueUpdate' with no listeners registered.",
+  ]);
+
   return (
     <AppState>
       <MyStack />

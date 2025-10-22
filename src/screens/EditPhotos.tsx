@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import {View} from 'react-native';
+import {View, SafeAreaView} from 'react-native';
 import {commonStyles} from '../theme/globalTheme';
 import GridImage from '../components/GridImage';
 import {Button} from 'react-native-paper';
+import ButtonGoBack from '../components/ButtonGoBack';
 
-export default function EditPhotos() {
+export default function EditPhotos({navigation}) {
   const [images, setImages] = useState<string[]>([]);
 
   const handleSave = () => {
@@ -29,23 +30,27 @@ export default function EditPhotos() {
 
   return (
     <View style={commonStyles.container}>
-      <View style={commonStyles.content}>
-        <GridImage images={images} setImages={setImages} />
-      </View>
-      <View style={commonStyles.saveContainer}>
-        <Button
-          mode="contained"
-          onPress={handleSave}
-          disabled={!areAllFieldsFilled()}
-          style={[
-            commonStyles.saveButton,
-            areAllFieldsFilled() && commonStyles.saveButtonEnabled,
-          ]}
-          contentStyle={commonStyles.saveButtonContent}
-          labelStyle={commonStyles.saveButtonLabel}>
-          Save
-        </Button>
-      </View>
+      <SafeAreaView>
+        <View style={{marginHorizontal: 20}}>
+          <ButtonGoBack navigation={navigation} />
+          <GridImage images={images} setImages={setImages} />
+
+          <View style={commonStyles.saveContainer}>
+            <Button
+              mode="contained"
+              onPress={handleSave}
+              disabled={!areAllFieldsFilled()}
+              style={[
+                commonStyles.saveButton,
+                areAllFieldsFilled() && commonStyles.saveButtonEnabled,
+              ]}
+              contentStyle={commonStyles.saveButtonContent}
+              labelStyle={commonStyles.saveButtonLabel}>
+              Save
+            </Button>
+          </View>
+        </View>
+      </SafeAreaView>
     </View>
   );
 }

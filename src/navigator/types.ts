@@ -1,15 +1,7 @@
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  CodeVerificationEmail: {
-    formData: {
-      firstName: string;
-      lastName: string;
-      email: string;
-      password: string;
-      passwordVerification: string;
-    };
-  };
+  CodeVerificationEmail: undefined;
   ForgotYourPassword: undefined;
   BottonTabNavigator: undefined;
   InfoUser: undefined;

@@ -206,7 +206,7 @@ export default function SwipeCard({location}: SwipeCardProps) {
 const styles = StyleSheet.create({
   buttonContainer: {
     position: 'absolute',
-    bottom: 60,
+    bottom: 20,
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'space-evenly',

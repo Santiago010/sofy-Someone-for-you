@@ -231,7 +231,7 @@ export default function GridImage({images, setImages}: GridImageProps) {
 const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
-    marginVertical: 40,
+    marginVertical: 10,
     paddingHorizontal: 20,
   },
   title: {

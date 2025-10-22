@@ -1,11 +1,11 @@
 import React from 'react';
 import {Image, StyleSheet} from 'react-native';
 
-export default function LogoSofy() {
+export default function LogoSofy({withMarginBotton}: any) {
   return (
     <Image
       source={require('../assets/Logo.png')}
-      style={styles.logo}
+      style={{...styles.logo, marginBottom: withMarginBotton === true ? 20 : 0}}
       resizeMode="contain"
     />
   );

@@ -38,7 +38,7 @@ export const BottonTabNavigator = () => {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: 'white',
+          backgroundColor: colors.background,
           borderTopWidth: 0,
           elevation: 8,
           shadowColor: colors.text,

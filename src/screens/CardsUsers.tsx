@@ -4,6 +4,7 @@ import Geolocation from '@react-native-community/geolocation';
 import SwipeCard from '../components/SwipeCard';
 import {colors} from '../theme/globalTheme';
 import {Text} from 'react-native-paper';
+import LogoSofy from '../components/LogoSofy';
 
 interface Location {
   latitude: number | null;
@@ -161,8 +162,9 @@ export const CardsUsers = () => {
       style={{
         flex: 1,
         backgroundColor: colors.background,
-        paddingTop: Platform.OS === 'ios' ? 100 : 20,
+        paddingTop: Platform.OS === 'ios' ? 40 : 20,
       }}>
+      <LogoSofy withMarginBotton={false} />
       <SwipeCard location={location} />
     </View>
   );

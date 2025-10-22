@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import {View, ScrollView, Image, StyleSheet} from 'react-native';
+import {View, ScrollView, Image, StyleSheet, SafeAreaView} from 'react-native';
 import {Text, TextInput, Button} from 'react-native-paper';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {commonStyles} from '../theme/globalTheme';
@@ -24,41 +24,43 @@ export const CodeVerificationEmail = () => {
 
   return (
     <ScrollView style={commonStyles.container}>
-      <View style={commonStyles.content}>
-        <LogoSofy />
-        <Text variant="headlineMedium" style={commonStyles.title}>
-          Code Verification
-        </Text>
-
-        <Text variant="bodyLarge" style={commonStyles.subtitle}>
-          Enter your code verification that has been sent to your email
-        </Text>
-
-        <View style={commonStyles.fieldLarge}>
-          <Text variant="labelMedium" style={commonStyles.label}>
-            Code
+      <SafeAreaView>
+        <View style={commonStyles.content}>
+          <LogoSofy />
+          <Text variant="headlineMedium" style={commonStyles.title}>
+            Code Verification
           </Text>
-          <TextInput
-            mode="outlined"
-            placeholder="Enter your code"
-            value={code}
-            onChangeText={text => onChange(text, 'code')}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={commonStyles.input}
-            outlineStyle={commonStyles.inputOutline}
-          />
-        </View>
 
-        <Button
-          mode="contained"
-          onPress={handleCode}
-          style={commonStyles.resetButton}
-          labelStyle={commonStyles.resetButtonText}
-          disabled={!code.trim()}>
-          Check
-        </Button>
-      </View>
+          <Text variant="bodyLarge" style={commonStyles.subtitle}>
+            Enter your code verification that has been sent to your email
+          </Text>
+
+          <View style={commonStyles.fieldLarge}>
+            <Text variant="labelMedium" style={commonStyles.label}>
+              Code
+            </Text>
+            <TextInput
+              mode="outlined"
+              placeholder="Enter your code"
+              value={code}
+              onChangeText={text => onChange(text, 'code')}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={commonStyles.input}
+              outlineStyle={commonStyles.inputOutline}
+            />
+          </View>
+
+          <Button
+            mode="contained"
+            onPress={handleCode}
+            style={commonStyles.resetButton}
+            labelStyle={commonStyles.resetButtonText}
+            disabled={!code.trim()}>
+            Check
+          </Button>
+        </View>
+      </SafeAreaView>
     </ScrollView>
   );
 };
