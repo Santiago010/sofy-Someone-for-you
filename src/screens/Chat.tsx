@@ -1,23 +1,27 @@
-import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {SafeAreaView} from 'react-native';
+import {Text} from 'react-native-paper';
+import {RootStackParamsStackChat} from '../navigator/StackChats';
+import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
+import {colors, commonStyles} from '../theme/globalTheme';
+import ButtonGoBack from '../components/ButtonGoBack';
 
-export const Chat = () => {
+interface Props
+  extends BottomTabScreenProps<RootStackParamsStackChat, 'Chat'> {}
+
+export const Chat = ({navigation}: Props) => {
+  useEffect(() => {
+    navigation.setOptions({
+      tabBarStyle: {
+        display: 'none',
+      },
+    });
+  }, []);
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Chat Screen</Text>
-    </View>
+    <SafeAreaView style={commonStyles.container}>
+      <ButtonGoBack navigation={navigation} />
+
+      <Text>1</Text>
+    </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-  },
-  text: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});

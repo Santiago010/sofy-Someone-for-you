@@ -1,8 +1,16 @@
+import {
+  GetDetailsResponse,
+  PayloadDetails,
+  SignUpResponse,
+} from '../../interfaces/interfacesApp';
+
 export interface AuthState {
   status: 'checking' | 'authenticated' | 'not-authenticated';
   transactionId: string;
   errorMessage: string;
   access_token: string;
+  signUpResponseWithInfoUser: SignUpResponse | null;
+  detailsUser: PayloadDetails | null;
 }
 
 type AuthAction =
@@ -12,7 +20,12 @@ type AuthAction =
   | {type: 'notAuthenticated'}
   | {type: 'logout'}
   | {type: 'setAccess_token'; payload: {access_token: string}}
-  | {type: 'authenticatedProv'};
+  | {type: 'authenticatedProv'}
+  | {type: 'GetDetailsUser'; payload: {detailsUser: GetDetailsResponse}}
+  | {
+      type: 'setsignUpResponseWithInfoUser';
+      payload: {signUpResponseWithInfoUser: SignUpResponse};
+    };
 
 export const authReducer = (
   state: AuthState,
@@ -25,17 +38,26 @@ export const authReducer = (
         status: 'not-authenticated',
         errorMessage: action.payload,
       };
-    case 'authenticatedProv':
+    case 'GetDetailsUser':
       return {
         ...state,
-        status: 'authenticated',
+        detailsUser: action.payload.detailsUser.payload,
+      };
+    case 'setsignUpResponseWithInfoUser':
+      return {
+        ...state,
+        signUpResponseWithInfoUser: action.payload.signUpResponseWithInfoUser,
       };
     case 'removeError':
       return {
         ...state,
         errorMessage: '',
       };
-
+    case 'authenticatedProv':
+      return {
+        ...state,
+        status: 'authenticated',
+      };
     case 'login':
       return {
         ...state,

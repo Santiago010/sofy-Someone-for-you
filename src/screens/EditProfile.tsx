@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -11,6 +11,7 @@ import {colors, commonStyles} from '../theme/globalTheme';
 import LogoSofy from '../components/LogoSofy';
 import ButtonGoBack from '../components/ButtonGoBack';
 import FormEditProfile from '../components/FormEditProfile';
+import {AuthContext} from '../context/authContext/authContext';
 
 export default function EditProfile({navigation}: any) {
   // Estados para los nuevos campos
@@ -27,12 +28,14 @@ export default function EditProfile({navigation}: any) {
     ageRangeMax: 100,
   });
 
+  const {EditDetailsInfo} = useContext(AuthContext);
+
   // Función para manejar cambios en showMe (ya no se usa con radio buttons)
 
   // Función para calcular campos llenos
   const getFilledFieldsCount = () => {
     let count = 0;
-    const totalFields = 10; // Total de campos que necesitamos validar
+    const totalFields = 0; // Total de campos que necesitamos validar
 
     if (formData.firstName.length >= 3) count++;
     if (formData.lastName.length >= 3) count++;
@@ -57,7 +60,9 @@ export default function EditProfile({navigation}: any) {
   // Función para manejar el botón Save
   const handleSave = () => {
     if (areAllFieldsFilled()) {
-      console.log('formData', formData);
+      EditDetailsInfo({
+        min_age: 10,
+      });
     }
   };
   return (

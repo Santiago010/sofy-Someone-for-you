@@ -8,56 +8,60 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
-import Slider from '@react-native-community/slider';
+
 import {useNavigation} from '@react-navigation/native';
-import {
-  Text,
-  TextInput,
-  Button,
-  ActivityIndicator,
-  Chip,
-  RadioButton,
-} from 'react-native-paper';
 import {colors, commonStyles} from '../theme/globalTheme';
 import GridImage from '../components/GridImage';
 import {AuthContext} from '../context/authContext/authContext';
 import FormEditProfile from '../components/FormEditProfile';
+import {
+  InterestResponse,
+  GenderResponse,
+  CompleteInfoUser,
+} from '../interfaces/interfacesApp';
 
 export const InfoUser = () => {
   const navigation = useNavigation();
   const [images, setImages] = useState<string[]>([]);
-  const {signUp} = useContext(AuthContext);
+  const {signUpResponseWithInfoUser, completeInfoUser} =
+    useContext(AuthContext);
 
   // Estados para los nuevos campos
   const [formData, setFormData] = useState({
     age: '',
     aboutYou: '',
-    selectedInterests: [] as string[],
-    gender: '',
+    selectedInterests: [] as InterestResponse[],
+    gender: null as GenderResponse | null,
+    genderId: '',
     maxDistance: 1,
-    showMe: '',
-    firstName: '',
-    lastName: '',
+    showMe: null as GenderResponse | null,
+    showMeId: '',
+    firstName: signUpResponseWithInfoUser?.payload.name,
+    lastName: signUpResponseWithInfoUser?.payload.lastname,
     ageRangeMin: 18,
     ageRangeMax: 100,
   });
+
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
 
   // Función para manejar cambios en showMe (ya no se usa con radio buttons)
 
   // Función para calcular campos llenos
   const getFilledFieldsCount = () => {
     let count = 0;
-    const totalFields = 11; // Total de campos que necesitamos validar
+    const totalFields = 10; // Total de campos que necesitamos validar
 
-    if (formData.firstName.length >= 3) count++;
-    if (formData.lastName.length >= 3) count++;
-    if (images.length === 6) count++;
+    if (formData.firstName && formData.firstName.length >= 3) count++;
+    if (formData.lastName && formData.lastName.length >= 3) count++;
+    // if (images.length === 6) count++;
     if (formData.age.trim() !== '') count++;
     if (formData.aboutYou.trim() !== '') count++;
     if (formData.selectedInterests.length > 0) count++;
-    if (formData.gender !== '') count++;
+    if (formData.genderId !== '') count++;
     if (formData.maxDistance < 999) count++; // Si cambió del valor por defecto
-    if (Object.values(formData.showMe).some(value => value)) count++;
+    if (formData.showMeId !== '') count++;
     if (formData.ageRangeMin > 18) count++; // Si cambió del rango por defecto
     if (formData.ageRangeMax < 100) count++;
 
@@ -70,22 +74,45 @@ export const InfoUser = () => {
     return filled >= total;
   };
 
+  function formatToISO8601(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   // Función para manejar el botón Save
   const handleSave = () => {
     if (areAllFieldsFilled()) {
-      console.log('Todos los campos están llenos:', formData);
-      console.log('Image', images);
+      Keyboard.dismiss();
 
-      setTimeout(() => {
-        signUp({
-          firstName: 'as',
-          lastName: 's',
-          email: 's',
-          password: 'd',
-          passwordVerification: 's',
-        });
-      }, 2000);
+      // Extraer IDs de selectedInterests y unirlos con comas
+      const categories = formData.selectedInterests
+        .map(interest => interest.id)
+        .join(',');
+
+      // Preparar date_of_birth asumiendo que formData.age es el año de nacimiento
+      const dateOfBirth = formData.age
+        ? formatToISO8601(new Date(parseInt(formData.age, 10), 7, 14))
+        : '';
+
+      // Preparar el objeto CompleteInfoUser
+      const completeInfoData: CompleteInfoUser = {
+        categories,
+        date_of_birth: dateOfBirth,
+        gender_id: parseInt(formData.genderId, 10),
+        interested_gender_id: parseInt(formData.showMeId, 10),
+        max_distance_km: formData.maxDistance,
+        min_age: formData.ageRangeMin,
+        max_age: formData.ageRangeMax,
+        email: signUpResponseWithInfoUser?.payload.email || '',
+      };
+
+      // Llamar a completeInfoUser con los datos preparados
+      completeInfoUser(completeInfoData);
     }
+
+    Keyboard.dismiss();
   };
 
   useEffect(() => {
@@ -115,227 +142,3 @@ export const InfoUser = () => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  header: {
-    alignItems: 'center',
-    marginVertical: 40,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-    color: colors.text,
-  },
-  subtitle: {
-    textAlign: 'center',
-    marginBottom: 4,
-    color: colors.secondary,
-  },
-  recommendation: {
-    textAlign: 'center',
-    color: colors.textSecondary,
-  },
-  gridContainer: {
-    marginVertical: 0,
-    borderRadius: 16,
-    padding: 20,
-    backgroundColor: colors.backgroundSecondary,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  imageSlot: {
-    width: '30%',
-    aspectRatio: 0.75,
-    borderRadius: 12,
-    marginBottom: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  imageContainer: {
-    width: '100%',
-    height: '100%',
-    position: 'relative',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  addFab: {
-    backgroundColor: 'transparent',
-  },
-  removeFab: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    backgroundColor: colors.textDisabled,
-  },
-  imageCount: {
-    textAlign: 'center',
-    marginTop: 8,
-    color: colors.textSecondary,
-  },
-  // Nuevos estilos para el formulario
-  formSection: {
-    marginTop: 20,
-  },
-  sectionTitle: {
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: colors.text,
-    textAlign: 'center',
-  },
-  nameContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  nameField: {
-    flex: 0.48,
-  },
-  field: {
-    marginBottom: 20,
-  },
-  label: {
-    marginBottom: 8,
-    color: colors.text,
-  },
-  input: {
-    backgroundColor: colors.background,
-  },
-  inputOutline: {
-    borderRadius: 8,
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  interestsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  interestChip: {
-    margin: 2,
-  },
-  selectedChip: {
-    backgroundColor: colors.primary,
-  },
-  selectedChipText: {
-    color: colors.background,
-  },
-  radioOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  radioLabel: {
-    marginLeft: 8,
-    color: colors.text,
-  },
-  modalContainer: {
-    paddingHorizontal: 20,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 8,
-  },
-  modalTitle: {
-    textAlign: 'center',
-    marginVertical: 16,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  listItem: {
-    paddingVertical: 12,
-  },
-  cancelButton: {
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  cancelButtonLabel: {
-    color: colors.text,
-  },
-  loadingContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    zIndex: 1000,
-  },
-  loadingText: {
-    marginTop: 12,
-    color: colors.accent,
-  },
-  // Nuevos estilos para campos adicionales
-  sliderContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  distanceValue: {
-    color: colors.accent,
-    fontWeight: 'bold',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  checkboxLabel: {
-    marginLeft: 8,
-    color: colors.text,
-  },
-  saveContainer: {
-    padding: 20,
-    paddingTop: 10,
-  },
-  saveButton: {
-    borderRadius: 25,
-    backgroundColor: colors.textSecondary,
-  },
-  saveButtonEnabled: {
-    backgroundColor: colors.secondary,
-  },
-  saveButtonContent: {
-    paddingVertical: 8,
-  },
-  saveButtonLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  // Estilos adicionales para nuevos campos
-  helperText: {
-    color: colors.text,
-    marginTop: 4,
-  },
-  ageRangeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  ageInput: {
-    flex: 1,
-  },
-  ageSeparator: {
-    color: colors.text,
-    fontSize: 16,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-});

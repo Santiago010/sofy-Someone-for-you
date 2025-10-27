@@ -1,15 +1,15 @@
-import React, {useContext, useState} from 'react';
-import {View, ScrollView, Image, StyleSheet, SafeAreaView} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {View, ScrollView, StyleSheet, SafeAreaView} from 'react-native';
 import {Text, TextInput, Button} from 'react-native-paper';
-import {useNavigation, useRoute} from '@react-navigation/native';
 import {commonStyles} from '../theme/globalTheme';
 import {AuthContext} from '../context/authContext/authContext';
 import LogoSofy from '../components/LogoSofy';
 import {useForm} from '../hooks/useForm';
+import {showError} from '../helpers/ShowError';
 
 export const CodeVerificationEmail = () => {
-  const navigation = useNavigation();
-  const {verificationCode, transactionId} = useContext(AuthContext);
+  const {verificationCode, transactionId, errorMessage, removeError} =
+    useContext(AuthContext);
 
   const {onChange, form, code} = useForm({
     code: '',
@@ -21,6 +21,12 @@ export const CodeVerificationEmail = () => {
 
     // Aquí iría la lógica para verificar el código con formData
   };
+
+  useEffect(() => {
+    if (errorMessage.length > 0) {
+      showError({screen: 'Code Verification', errorMessage, removeError});
+    }
+  }, [errorMessage]);
 
   return (
     <ScrollView style={commonStyles.container}>

@@ -6,7 +6,18 @@ import ContactUs from '../screens/ContactUs';
 import Privacy from '../screens/Privacy';
 import TermsAndServices from '../screens/TermsAndServices';
 import Settings from '../screens/Setting';
-const Stack = createStackNavigator();
+
+export type RootStackParamsStackSetttings = {
+  Settings: undefined;
+  EditPhoneNumber: undefined;
+  EditEmail: undefined;
+  SeeLocation: undefined;
+  ContactUs: undefined;
+  Privacy: undefined;
+  TermsAndServices: undefined;
+};
+
+const Stack = createStackNavigator<RootStackParamsStackSetttings>();
 
 export const StackSettingsApps = () => {
   return (

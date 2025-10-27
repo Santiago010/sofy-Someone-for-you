@@ -1,16 +1,34 @@
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {
+  BottomTabScreenProps,
+  createBottomTabNavigator,
+} from '@react-navigation/bottom-tabs';
 import {CardsUsers} from '../screens/CardsUsers';
-import {Likes} from '../screens/Likes';
-import {Chat} from '../screens/Chat';
-import {Profile} from '../screens/Profile';
 import {MaterialDesignIcons} from '@react-native-vector-icons/material-design-icons';
 import {colors} from '../theme/globalTheme';
 import {StackProfile} from './StackProfile';
 import TopTapNavigatorLikes from './TopTabNavigatorLikes';
+import {StackChats} from './StackChats';
+import {useContext, useEffect} from 'react';
+import {AuthContext} from '../context/authContext/authContext';
 
-const Tab = createBottomTabNavigator();
+export type RootBottonTabNavigator = {
+  Home: undefined;
+  Likes: undefined;
+  StackChats: undefined;
+  StackProfile: undefined;
+};
+
+interface Props extends BottomTabScreenProps<RootBottonTabNavigator, 'Home'> {}
+
+const Tab = createBottomTabNavigator<RootBottonTabNavigator>();
 
 export const BottonTabNavigator = () => {
+  const {GetDetailsUser} = useContext(AuthContext);
+
+  useEffect(() => {
+    GetDetailsUser();
+  }, []);
+
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -23,7 +41,7 @@ export const BottonTabNavigator = () => {
             iconName = focused ? 'fire' : 'fire-circle';
           } else if (route.name === 'Likes') {
             iconName = focused ? 'heart' : 'heart-outline';
-          } else if (route.name === 'Chat') {
+          } else if (route.name === 'StacksChats') {
             iconName = focused ? 'chat' : 'chat-outline';
           } else if (route.name === 'StackProfile') {
             iconName = focused ? 'account' : 'account-outline';
@@ -55,7 +73,7 @@ export const BottonTabNavigator = () => {
       })}>
       <Tab.Screen name="Home" component={CardsUsers} />
       <Tab.Screen name="Likes" component={TopTapNavigatorLikes} />
-      <Tab.Screen name="Chat" component={Chat} />
+      <Tab.Screen name="StacksChats" component={StackChats} />
       <Tab.Screen name="StackProfile" component={StackProfile} />
     </Tab.Navigator>
   );

@@ -1,8 +1,11 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, ActivityIndicator} from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {Button, Chip, RadioButton, Text, TextInput} from 'react-native-paper';
 import Slider from '@react-native-community/slider';
+import useGetInterest from '../hooks/getInterest';
+import useGetGender from '../hooks/getGenders';
+import {InterestResponse} from '../interfaces/interfacesApp';
 
 export default function FormEditProfile({
   formData,
@@ -11,21 +14,15 @@ export default function FormEditProfile({
   areAllFieldsFilled,
   getFilledFieldsCount,
 }: any) {
-  // Opciones de intereses
-  const interests = [
-    'Dancing',
-    'Music',
-    'Movies',
-    'Play an instrument',
-    'Sports',
-    'Reading',
-    'Cooking',
-    'Travel',
-    'Photography',
-    'Gaming',
-    'Art',
-    'Fitness',
-  ];
+  // Usar el hook para obtener intereses
+  const {data, loading, error} = useGetInterest();
+
+  // Usar el hook para obtener géneros
+  const {
+    data: genders,
+    loading: genderLoading,
+    error: genderError,
+  } = useGetGender();
 
   // Función para manejar cambios en inputs
   const handleInputChange = (field: string, value: string) => {
@@ -42,14 +39,42 @@ export default function FormEditProfile({
     }));
   };
 
-  const toggleInterest = (interest: string) => {
+  const toggleInterest = (interest: InterestResponse) => {
+    setFormData(prev => {
+      const isSelected = prev.selectedInterests.some(i => i.id === interest.id);
+      if (isSelected) {
+        return {
+          ...prev,
+          selectedInterests: prev.selectedInterests.filter(
+            i => i.id !== interest.id,
+          ),
+        };
+      } else if (prev.selectedInterests.length < 5) {
+        return {
+          ...prev,
+          selectedInterests: [...prev.selectedInterests, interest],
+        };
+      }
+      return prev; // Máximo 5 intereses
+    });
+  };
+
+  const handleGenderChange = (genderId: string) => {
+    const selectedGender = genders.find(g => g.id.toString() === genderId);
     setFormData(prev => ({
       ...prev,
-      selectedInterests: prev.selectedInterests.includes(interest)
-        ? prev.selectedInterests.filter(i => i !== interest)
-        : prev.selectedInterests.length < 5
-        ? [...prev.selectedInterests, interest]
-        : prev.selectedInterests, // Máximo 5 intereses
+      genderId,
+      gender: selectedGender || null,
+    }));
+  };
+
+  const handleShowMe = (showMeId: string) => {
+    const selectedShowMe = genders.find(g => g.id.toString() === showMeId);
+
+    setFormData(prev => ({
+      ...prev,
+      showMeId,
+      showMe: selectedShowMe || null,
     }));
   };
 
@@ -122,65 +147,79 @@ export default function FormEditProfile({
         </View>
 
         {/* Selector de intereses */}
-        <View style={styles.field}>
-          <Text variant="labelMedium" style={styles.label}>
-            Select up to 5 interest
-          </Text>
-          <View style={styles.interestsContainer}>
-            {interests.map(interest => (
-              <Chip
-                key={interest}
-                mode={
-                  formData.selectedInterests.includes(interest)
-                    ? 'flat'
-                    : 'outlined'
-                }
-                onPress={() => toggleInterest(interest)}
-                style={[
-                  styles.interestChip,
-                  formData.selectedInterests.includes(interest) &&
-                    styles.selectedChip,
-                ]}
-                textStyle={
-                  formData.selectedInterests.includes(interest) &&
-                  styles.selectedChipText
-                }>
-                {interest}
-              </Chip>
-            ))}
+        {loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={styles.loadingText}>Cargando intereses...</Text>
           </View>
-        </View>
+        )}
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+        {!loading && !error && (
+          <View style={styles.field}>
+            <Text variant="labelMedium" style={styles.label}>
+              Select up to 5 interest
+            </Text>
+            <View style={styles.interestsContainer}>
+              {data.map(interest => {
+                const isSelected = formData.selectedInterests.some(
+                  i => i.id === interest.id,
+                );
+                return (
+                  <Chip
+                    key={interest.id}
+                    mode={isSelected ? 'flat' : 'outlined'}
+                    onPress={() => toggleInterest(interest)}
+                    style={[
+                      styles.interestChip,
+                      isSelected && styles.selectedChip,
+                    ]}
+                    textStyle={isSelected && styles.selectedChipText}>
+                    {interest.name}
+                  </Chip>
+                );
+              })}
+            </View>
+          </View>
+        )}
 
         {/* Selector de género */}
-        <View style={styles.field}>
-          <Text variant="labelMedium" style={styles.label}>
-            Gender*
-          </Text>
-          <RadioButton.Group
-            onValueChange={value => handleInputChange('gender', value)}
-            value={formData.gender}>
-            <View style={styles.radioOption}>
-              <RadioButton value="male" color={colors.accent} />
-              <Text variant="bodyMedium" style={styles.radioLabel}>
-                Male
-              </Text>
-            </View>
-
-            <View style={styles.radioOption}>
-              <RadioButton value="female" color={colors.accent} />
-              <Text variant="bodyMedium" style={styles.radioLabel}>
-                Female
-              </Text>
-            </View>
-
-            <View style={styles.radioOption}>
-              <RadioButton value="non-binary" color={colors.accent} />
-              <Text variant="bodyMedium" style={styles.radioLabel}>
-                Non-binary
-              </Text>
-            </View>
-          </RadioButton.Group>
-        </View>
+        {genderLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={styles.loadingText}>Cargando géneros...</Text>
+          </View>
+        )}
+        {genderError && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{genderError}</Text>
+          </View>
+        )}
+        {!genderLoading && !genderError && (
+          <View style={styles.field}>
+            <Text variant="labelMedium" style={styles.label}>
+              Gender*
+            </Text>
+            <RadioButton.Group
+              onValueChange={handleGenderChange}
+              value={formData.genderId}>
+              {genders.map(gender => (
+                <View key={gender.id} style={styles.radioOption}>
+                  <RadioButton
+                    value={gender.id.toString()}
+                    color={colors.accent}
+                  />
+                  <Text variant="bodyMedium" style={styles.radioLabel}>
+                    {gender.name}
+                  </Text>
+                </View>
+              ))}
+            </RadioButton.Group>
+          </View>
+        )}
 
         {/* Maximum Distance */}
         <View style={styles.field}>
@@ -189,7 +228,7 @@ export default function FormEditProfile({
               Maximum Distance
             </Text>
             <Text variant="bodyMedium" style={styles.distanceValue}>
-              {formData.maxDistance} mi.
+              {formData.maxDistance} KM.
             </Text>
           </View>
           {/* TODO:SLIDEE */}
@@ -210,37 +249,40 @@ export default function FormEditProfile({
           <View style={styles.radioOption}></View>
         </View>
 
-        {/* Show me */}
-        <View style={styles.field}>
-          <Text variant="labelMedium" style={styles.label}>
-            Show me*
-          </Text>
-
-          <RadioButton.Group
-            onValueChange={value => handleInputChange('showMe', value)}
-            value={formData.showMe}>
-            <View style={styles.radioOption}>
-              <RadioButton value="men" color={colors.accent} />
-              <Text variant="bodyMedium" style={styles.radioLabel}>
-                Men
-              </Text>
-            </View>
-
-            <View style={styles.radioOption}>
-              <RadioButton value="women" color={colors.accent} />
-              <Text variant="bodyMedium" style={styles.radioLabel}>
-                Women
-              </Text>
-            </View>
-
-            <View style={styles.radioOption}>
-              <RadioButton value="non-binary" color={colors.accent} />
-              <Text variant="bodyMedium" style={styles.radioLabel}>
-                Non-binary
-              </Text>
-            </View>
-          </RadioButton.Group>
-        </View>
+        {/* Selector de género */}
+        {genderLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={styles.loadingText}>Cargando géneros...</Text>
+          </View>
+        )}
+        {genderError && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{genderError}</Text>
+          </View>
+        )}
+        {!genderLoading && !genderError && (
+          <View style={styles.field}>
+            <Text variant="labelMedium" style={styles.label}>
+              Show Me*
+            </Text>
+            <RadioButton.Group
+              onValueChange={handleShowMe}
+              value={formData.showMeId}>
+              {genders.map(gender => (
+                <View key={gender.id} style={styles.radioOption}>
+                  <RadioButton
+                    value={gender.id.toString()}
+                    color={colors.accent}
+                  />
+                  <Text variant="bodyMedium" style={styles.radioLabel}>
+                    {gender.name}
+                  </Text>
+                </View>
+              ))}
+            </RadioButton.Group>
+          </View>
+        )}
 
         {/* Age Range */}
         <View style={styles.field}>
@@ -290,14 +332,6 @@ export default function FormEditProfile({
           Save ({getFilledFieldsCount().filled}/{getFilledFieldsCount().total})
         </Button>
       </View>
-
-      {/* Loading Indicator
-            {loading && (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={theme.colors.primary} />
-                <Text style={styles.loadingText}>Cargando imagen...</Text>
-              </View>
-            )} */}
     </>
   );
 }
@@ -382,5 +416,23 @@ const styles = StyleSheet.create({
   distanceValue: {
     color: colors.accent,
     fontWeight: 'bold',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: colors.text,
+    fontSize: 16,
+  },
+  errorContainer: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
   },
 });

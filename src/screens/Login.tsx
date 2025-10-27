@@ -13,19 +13,27 @@ import {commonStyles} from '../theme/globalTheme';
 import LogoSofy from '../components/LogoSofy';
 import {useForm} from '../hooks/useForm';
 import {AuthContext} from '../context/authContext/authContext';
+import {showError} from '../helpers/ShowError';
 
 export const Login = () => {
   const navigation = useNavigation();
-  const {login, transactionId} = useContext(AuthContext);
+  const {login, transactionId, errorMessage, removeError} =
+    useContext(AuthContext);
   const {onChange, form, email, password} = useForm({
-    email: 'santiago.dev06@gmail.com',
-    password: 'hola12',
+    email: 'sadhana@gmail.com',
+    password: 'p7EhCx33jwkQ*',
   });
 
   const sendData = () => {
     Keyboard.dismiss();
     login(form);
   };
+
+  useEffect(() => {
+    if (errorMessage.length > 0) {
+      showError({screen: 'Login', errorMessage, removeError});
+    }
+  }, [errorMessage]);
 
   // Navegar automáticamente cuando transactionId esté disponible
   useEffect(() => {

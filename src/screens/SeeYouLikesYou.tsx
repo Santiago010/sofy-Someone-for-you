@@ -5,6 +5,7 @@ import {CardViewWithoutAnimation} from '../components/CardViewWithoutAnimation';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
 import {ModalInfoUser} from '../components/ModalInfoUser';
 import {data} from '../animations/data/data';
+import {CardSwipe} from '../interfaces/interfacesApp';
 
 export default function SeeWhoLikesYou() {
   const {widthWindow} = DeviceDimensions();

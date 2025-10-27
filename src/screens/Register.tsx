@@ -1,11 +1,14 @@
-import React, {useState} from 'react';
-import {View, ScrollView, StyleSheet} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {View, ScrollView, Keyboard} from 'react-native';
 import {Text, TextInput, Button} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {commonStyles} from '../theme/globalTheme';
 import {RootStackParamList} from '../navigator/types';
 import LogoSofy from '../components/LogoSofy';
+import {AuthContext} from '../context/authContext/authContext';
+import {useForm} from '../hooks/useForm';
+import {showError} from '../helpers/ShowError';
 
 type RegisterScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -13,24 +16,40 @@ type RegisterScreenNavigationProp = StackNavigationProp<
 >;
 
 export const Register = () => {
+  const {signUp, errorMessage, removeError, signUpResponseWithInfoUser} =
+    useContext(AuthContext);
   const navigation = useNavigation<RegisterScreenNavigationProp>();
-  const [formData, setFormData] = useState({
-    firstName: 'santiago',
+  const {onChange, form} = useForm({
+    firstName: 'elliot',
     lastName: 'ortiz',
-    email: 'santiago.dev06@gmail.com',
-    password: 'hola',
-    passwordVerification: 'hola',
+    email: 'elliot@gmail.com',
+    password: 'p7EhCx33jwkQ*',
+    passwordVerification: 'p7EhCx33jwkQ*',
   });
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  useEffect(() => {
+    if (signUpResponseWithInfoUser !== null) {
+      navigation.navigate('InfoUser');
+    }
+  }, [signUpResponseWithInfoUser]);
+
+  useEffect(() => {
+    if (errorMessage.length > 0) {
+      showError({errorMessage, removeError});
+    }
+  }, [errorMessage]);
 
   const signUpPress = () => {
-    navigation.navigate('InfoUser');
+    Keyboard.dismiss();
+    if (form.password === form.passwordVerification) {
+      signUp(form);
+    } else {
+      showError({
+        screen: 'Register',
+        errorMessage: 'Password and Password Verification must be equals',
+        removeError,
+      });
+    }
   };
 
   return (
@@ -48,8 +67,8 @@ export const Register = () => {
             </Text>
             <TextInput
               mode="outlined"
-              value={formData.firstName}
-              onChangeText={text => handleInputChange('firstName', text)}
+              value={form.firstName}
+              onChangeText={text => onChange(text, 'firstName')}
               style={commonStyles.input}
               outlineStyle={commonStyles.inputOutline}
             />
@@ -61,8 +80,8 @@ export const Register = () => {
             </Text>
             <TextInput
               mode="outlined"
-              value={formData.lastName}
-              onChangeText={text => handleInputChange('lastName', text)}
+              value={form.lastName}
+              onChangeText={text => onChange(text, 'lastName')}
               style={commonStyles.input}
               outlineStyle={commonStyles.inputOutline}
             />
@@ -76,8 +95,8 @@ export const Register = () => {
           <TextInput
             mode="outlined"
             placeholder="Email"
-            value={formData.email}
-            onChangeText={text => handleInputChange('email', text)}
+            value={form.email}
+            onChangeText={text => onChange(text, 'email')}
             keyboardType="email-address"
             autoCapitalize="none"
             style={commonStyles.input}
@@ -93,8 +112,8 @@ export const Register = () => {
             <TextInput
               mode="outlined"
               placeholder="Password"
-              value={formData.password}
-              onChangeText={text => handleInputChange('password', text)}
+              value={form.password}
+              onChangeText={text => onChange(text, 'password')}
               secureTextEntry
               style={commonStyles.input}
               outlineStyle={commonStyles.inputOutline}
@@ -107,10 +126,8 @@ export const Register = () => {
             <TextInput
               mode="outlined"
               placeholder="Password Verification"
-              value={formData.passwordVerification}
-              onChangeText={text =>
-                handleInputChange('passwordVerification', text)
-              }
+              value={form.passwordVerification}
+              onChangeText={text => onChange(text, 'passwordVerification')}
               secureTextEntry
               style={commonStyles.input}
               outlineStyle={commonStyles.inputOutline}
@@ -140,12 +157,3 @@ export const Register = () => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  logo: {
-    width: 120,
-    height: 120,
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-});
