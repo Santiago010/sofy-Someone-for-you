@@ -19,15 +19,22 @@ import {
 } from 'react-native-paper';
 import {colors} from '../theme/globalTheme';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {UploadFile} from '../interfaces/interfacesApp';
 
 interface GridImageProps {
   images: string[];
   setImages: React.Dispatch<React.SetStateAction<string[]>>;
+  onImageFilesChange?: (files: UploadFile[]) => void;
 }
 
-export default function GridImage({images, setImages}: GridImageProps) {
+export default function GridImage({
+  images,
+  setImages,
+  onImageFilesChange,
+}: GridImageProps) {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imageFiles, setImageFiles] = useState<UploadFile[]>([]);
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
@@ -35,7 +42,12 @@ export default function GridImage({images, setImages}: GridImageProps) {
   // Eliminar imagen
   const removeImage = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
+    const newFiles = imageFiles.filter((_, i) => i !== index);
     setImages(newImages);
+    setImageFiles(newFiles);
+    if (onImageFilesChange) {
+      onImageFilesChange(newFiles);
+    }
   };
 
   // Opciones para image picker
@@ -110,14 +122,28 @@ export default function GridImage({images, setImages}: GridImageProps) {
     }
 
     if (response.assets && response.assets[0]) {
-      const newImage = response.assets[0].uri;
+      const asset = response.assets[0];
+      const newImage = asset.uri;
 
       if (images.length >= 6) {
         Alert.alert('Límite alcanzado', 'Solo puedes agregar hasta 6 imágenes');
         return;
       }
 
+      // Crear objeto UploadFile para React Native
+      const file: UploadFile = {
+        uri: asset.uri || '',
+        type: asset.type || 'image/jpeg',
+        name: asset.fileName || `photo_${Date.now()}.jpg`,
+      };
+
       setImages(prev => [...prev, newImage]);
+      const newFiles = [...imageFiles, file];
+      setImageFiles(newFiles);
+
+      if (onImageFilesChange) {
+        onImageFilesChange(newFiles);
+      }
     }
   };
 

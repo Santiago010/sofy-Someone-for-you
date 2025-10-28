@@ -15,6 +15,8 @@ import {
   CompleteInfoUserError,
   GetDetailsResponse,
   ResponseEditDetailsUser,
+  PayloadDetails,
+  EditDetailsInfoUser,
 } from '../../interfaces/interfacesApp';
 import {AuthState, authReducer} from './authReducer';
 import {db, privateDB} from '../../db/db';
@@ -24,10 +26,12 @@ import {AxiosError} from 'axios';
 
 interface AuthContextProps {
   signUpResponseWithInfoUser: SignUpResponse | null;
+  detailsUser: PayloadDetails | null;
   errorMessage: string;
   transactionId: string;
   access_token: string;
   status: 'checking' | 'authenticated' | 'not-authenticated';
+  editDetailsSuccess: boolean;
   signUp: (data: SignUpData) => void;
   login: (data: loginData) => void;
   logout: () => void;
@@ -36,6 +40,7 @@ interface AuthContextProps {
   completeInfoUser: (completeInfoUser: CompleteInfoUser) => void;
   GetDetailsUser: () => void;
   EditDetailsInfo: (data: any) => void;
+  setEditDetailsSuccessFun: (stateEdit: boolean) => void;
 }
 
 const authInicialState: AuthState = {
@@ -45,6 +50,7 @@ const authInicialState: AuthState = {
   errorMessage: '',
   signUpResponseWithInfoUser: null,
   detailsUser: null,
+  editDetailsSuccess: false,
 };
 
 export const AuthContext = createContext({} as AuthContextProps);
@@ -138,7 +144,6 @@ export const AuthProvider = ({
           refreshToken: refreshTokenData,
         },
       );
-      console.log({access_token: data.payload.access_token});
       AsyncStorage.setItem('access_token', data.payload.access_token);
       dispatch({
         type: 'setAccess_token',
@@ -149,7 +154,6 @@ export const AuthProvider = ({
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response) {
-          console.log({...error.response});
         } else if (error.request) {
           console.error('No response received:', error.request);
         } else {
@@ -161,15 +165,40 @@ export const AuthProvider = ({
     }
   };
 
-  const EditDetailsInfo = async (dataToEdit: any) => {
+  const setEditDetailsSuccessFun = (stateEdit: boolean) => {
+    dispatch({type: 'setEditDetailsSuccess', payload: stateEdit});
+  };
+
+  const EditDetailsInfo = async (editDetailsInfoUser: EditDetailsInfoUser) => {
+    console.log({
+      'data recibida': 'data recibida del formulario',
+      editDetailsInfoUser,
+    });
     try {
-      const {data} = await privateDB.patch<ResponseEditDetailsUser>(
+      await privateDB.patch<ResponseEditDetailsUser>(
         '/individuals/me',
-        dataToEdit,
+        editDetailsInfoUser,
       );
-      console.log(data);
+      setEditDetailsSuccessFun(true);
+      GetDetailsUser();
     } catch (error) {
-      console.error(error);
+      setEditDetailsSuccessFun(false);
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          const errorData = error.response.data;
+
+          dispatch({type: 'addError', payload: errorData.message});
+        } else if (error.request) {
+          dispatch({type: 'addError', payload: 'Error in the Request'});
+        } else {
+          dispatch({type: 'addError', payload: error.message});
+        }
+      } else {
+        dispatch({
+          type: 'addError',
+          payload: 'Unexpected error in the server',
+        });
+      }
     }
   };
 
@@ -182,7 +211,7 @@ export const AuthProvider = ({
       dispatch({
         type: 'GetDetailsUser',
         payload: {
-          detailsUser: data,
+          detailsUser: data.payload,
         },
       });
       console.log(data);
@@ -191,7 +220,7 @@ export const AuthProvider = ({
         if (error.response) {
           const errorData = error.response.data;
 
-          console.log(errorData);
+          console.error(errorData);
           //   dispatch({type: 'addError', payload: errorData.message});
         } else if (error.request) {
           //   dispatch({type: 'addError', payload: 'Error in the Request'});
@@ -233,16 +262,48 @@ export const AuthProvider = ({
         dispatch({type: 'addError', payload: 'Unexpected error in the server'});
       }
     }
-    // dispatch({type: 'authenticatedProv'});
   };
 
   const completeInfoUser = async (completeInfoUser: CompleteInfoUser) => {
-    console.log({data: 'data', complete: completeInfoUser});
     try {
+      const formData = new FormData();
+
+      // Agregar todos los campos excepto photos
+      formData.append('categories', completeInfoUser.categories);
+      formData.append('date_of_birth', completeInfoUser.date_of_birth);
+      formData.append('gender_id', completeInfoUser.gender_id.toString());
+      formData.append(
+        'interested_gender_id',
+        completeInfoUser.interested_gender_id.toString(),
+      );
+      formData.append(
+        'max_distance_km',
+        completeInfoUser.max_distance_km.toString(),
+      );
+      formData.append('min_age', completeInfoUser.min_age.toString());
+      formData.append('max_age', completeInfoUser.max_age.toString());
+      formData.append('email', completeInfoUser.email);
+
+      // Agregar las fotos
+      completeInfoUser.photos.forEach(photo => {
+        formData.append('photos', {
+          uri: photo.uri,
+          type: photo.type,
+          name: photo.name,
+        } as any);
+      });
+
       const {data} = await db.patch<CompleteInfoUSerResponse>(
         '/individuals/complete-profile',
-        completeInfoUser,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
       );
+
+      console.log(data);
 
       dispatch({type: 'authenticatedProv'});
     } catch (error) {
@@ -339,6 +400,7 @@ export const AuthProvider = ({
         removeError,
         completeInfoUser,
         EditDetailsInfo,
+        setEditDetailsSuccessFun,
       }}>
       {children}
     </AuthContext.Provider>

@@ -10,7 +10,7 @@ export const ForgotYourPassword = () => {
   const [email, setEmail] = useState('');
 
   const handleResetPassword = () => {
-    console.log('Reset password for:', email);
+    // console.log('Reset password for:', email);
     // Aquí iría la lógica para enviar el email de recuperación
   };
 

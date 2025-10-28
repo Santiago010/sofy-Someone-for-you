@@ -140,6 +140,12 @@ export interface GenderResponse {
   name: string;
 }
 
+export interface UploadFile {
+  uri: string;
+  type: string;
+  name: string;
+}
+
 export interface CompleteInfoUser {
   categories: string;
   date_of_birth: string; // ISO date format YYYY-MM-DD
@@ -149,9 +155,25 @@ export interface CompleteInfoUser {
   min_age: number;
   max_age: number;
   email: string;
+  photos?: UploadFile[];
+  //   TODO:PONER descripcion
 }
 
-export interface CompleteInfoUSerResponse {
+export interface EditDetailsInfoUser {
+  categories?: string;
+  date_of_birth?: string; // ISO date format YYYY-MM-DD
+  gender_id?: number;
+  interested_gender_id?: number;
+  max_distance_km?: number; // Cambié Float por number
+  min_age?: number;
+  max_age?: number;
+  email?: string;
+  name?: string;
+  lastname?: string;
+  //   TODO:PONER descripcion
+}
+
+export interface CompleteInfoUserResponse {
   id: number;
   name: string;
   lastname: string;
@@ -164,16 +186,11 @@ export interface CompleteInfoUSerResponse {
   updated_at: Date;
   is_active: boolean;
   date_of_birth: Date;
-  gender: Gender;
-  interested_gender: Gender;
+  gender: GenderResponse;
+  interested_gender: GenderResponse;
   max_distance_km: number;
   min_age: number;
   max_age: number;
-}
-
-export interface Gender {
-  id: number;
-  name: string;
 }
 
 export interface CompleteInfoUserError {
@@ -206,9 +223,36 @@ export interface PayloadDetails {
   updated_at: Date;
   is_active: boolean;
   date_of_birth: Date;
+  gender: GenderResponse;
+  interested_gender: GenderResponse;
   max_distance_km: number;
   min_age: number;
   max_age: number;
+  individualFiles: IndividualFile[];
+}
+
+export interface IndividualFile {
+  id: number;
+  file: File;
+  sort_order: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface File {
+  id: number;
+  versionId: string;
+  type: null;
+  size: number;
+  bucketName: string;
+  etag: null;
+  uploadedBy: null;
+  fileName: string;
+  mimeType: string;
+  isNotificated: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  url: string;
 }
 
 export interface ResponseEditDetailsUser {
@@ -234,15 +278,10 @@ export interface PayloadResponseEditDetailsUser {
   updated_at: Date;
   is_active: boolean;
   date_of_birth: Date;
-  gender: Gender;
-  interested_gender: Gender;
+  gender: GenderResponse;
+  interested_gender: GenderResponse;
   max_distance_km: number;
   min_age: number;
   max_age: number;
   individualFiles: any[];
-}
-
-export interface Gender {
-  id: number;
-  name: string;
 }

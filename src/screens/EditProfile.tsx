@@ -1,34 +1,89 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import {Keyboard, KeyboardAvoidingView, Platform} from 'react-native';
-import {colors, commonStyles} from '../theme/globalTheme';
+import {commonStyles} from '../theme/globalTheme';
 import LogoSofy from '../components/LogoSofy';
 import ButtonGoBack from '../components/ButtonGoBack';
 import FormEditProfile from '../components/FormEditProfile';
 import {AuthContext} from '../context/authContext/authContext';
+import {
+  EditDetailsInfoUser,
+  GenderResponse,
+  InterestResponse,
+} from '../interfaces/interfacesApp';
+import {formatToISO8601} from '../helpers/FormatToISO8601';
+import {showError} from '../helpers/ShowError';
+import {calculateAge} from '../helpers/CalcutateAge';
 
 export default function EditProfile({navigation}: any) {
+  const {
+    detailsUser,
+    EditDetailsInfo,
+    errorMessage,
+    removeError,
+    editDetailsSuccess,
+    setEditDetailsSuccessFun,
+  } = useContext(AuthContext);
   // Estados para los nuevos campos
+
   const [formData, setFormData] = useState({
     age: '',
     aboutYou: '',
-    selectedInterests: [] as string[],
-    gender: '',
+    selectedInterests: [] as InterestResponse[],
+    gender: null as GenderResponse | null,
+    genderId: '',
     maxDistance: 1,
-    showMe: '',
+    showMe: null as GenderResponse | null,
+    showMeId: '',
     firstName: '',
     lastName: '',
     ageRangeMin: 18,
     ageRangeMax: 100,
   });
 
-  const {EditDetailsInfo} = useContext(AuthContext);
+  useEffect(() => {
+    setEditDetailsSuccessFun(false);
+  }, []);
+
+  useEffect(() => {
+    if (errorMessage.length) {
+      showError({screen: 'Edit Profile', errorMessage, removeError});
+    }
+  }, [errorMessage]);
+
+  useEffect(() => {
+    if (editDetailsSuccess) {
+      navigation.goBack();
+    }
+  }, [editDetailsSuccess, navigation]);
+
+  useEffect(() => {
+    // Cargar datos del usuario en el formData cuando detailsUser esté disponible
+    if (detailsUser) {
+      // Calcular edad a partir de date_of_birth
+
+      setFormData(prev => ({
+        ...prev,
+        firstName: detailsUser.name || '',
+        lastName: detailsUser.lastname || '',
+        age: detailsUser.date_of_birth
+          ? `${calculateAge(detailsUser.date_of_birth)}`
+          : '',
+        gender: detailsUser.gender || null,
+        genderId: detailsUser.gender?.id?.toString() || '',
+        maxDistance: detailsUser.max_distance_km || 1,
+        showMe: detailsUser.interested_gender || null,
+        showMeId: detailsUser.interested_gender?.id?.toString() || '',
+        ageRangeMin: detailsUser.min_age || 18,
+        ageRangeMax: detailsUser.max_age || 100,
+      }));
+    }
+  }, [detailsUser]);
 
   // Función para manejar cambios en showMe (ya no se usa con radio buttons)
 
@@ -42,9 +97,9 @@ export default function EditProfile({navigation}: any) {
     if (formData.age.trim() !== '') count++;
     if (formData.aboutYou.trim() !== '') count++;
     if (formData.selectedInterests.length > 0) count++;
-    if (formData.gender !== '') count++;
+    if (formData.genderId !== '') count++;
     if (formData.maxDistance < 999) count++; // Si cambió del valor por defecto
-    if (Object.values(formData.showMe).some(value => value)) count++;
+    if (formData.showMeId !== '') count++;
     if (formData.ageRangeMin > 18) count++; // Si cambió del rango por defecto
     if (formData.ageRangeMax < 100) count++;
 
@@ -60,9 +115,31 @@ export default function EditProfile({navigation}: any) {
   // Función para manejar el botón Save
   const handleSave = () => {
     if (areAllFieldsFilled()) {
-      EditDetailsInfo({
-        min_age: 10,
-      });
+      Keyboard.dismiss();
+
+      // Extraer IDs de selectedInterests y unirlos con comas
+      const categories = formData.selectedInterests
+        .map(interest => interest.id)
+        .join(',');
+
+      // Preparar date_of_birth asumiendo que formData.age es el año de nacimiento
+      const dateOfBirth = formData.age
+        ? formatToISO8601(new Date(parseInt(formData.age, 10), 7, 14))
+        : '';
+
+      const editDetailsInfoUser: EditDetailsInfoUser = {
+        categories,
+        date_of_birth: dateOfBirth,
+        gender_id: parseInt(formData.genderId, 10),
+        interested_gender_id: parseInt(formData.showMeId, 10),
+        max_distance_km: formData.maxDistance,
+        min_age: formData.ageRangeMin,
+        max_age: formData.ageRangeMax,
+        name: formData.firstName,
+        lastname: formData.lastName,
+      };
+
+      EditDetailsInfo(editDetailsInfoUser);
     }
   };
   return (

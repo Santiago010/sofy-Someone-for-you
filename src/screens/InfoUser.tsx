@@ -2,15 +2,13 @@ import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   ScrollView,
-  StyleSheet,
   Platform,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
 
-import {useNavigation} from '@react-navigation/native';
-import {colors, commonStyles} from '../theme/globalTheme';
+import {commonStyles} from '../theme/globalTheme';
 import GridImage from '../components/GridImage';
 import {AuthContext} from '../context/authContext/authContext';
 import FormEditProfile from '../components/FormEditProfile';
@@ -18,11 +16,13 @@ import {
   InterestResponse,
   GenderResponse,
   CompleteInfoUser,
+  UploadFile,
 } from '../interfaces/interfacesApp';
+import {formatToISO8601} from '../helpers/FormatToISO8601';
 
 export const InfoUser = () => {
-  const navigation = useNavigation();
   const [images, setImages] = useState<string[]>([]);
+  const [photoFiles, setPhotoFiles] = useState<UploadFile[]>([]);
   const {signUpResponseWithInfoUser, completeInfoUser} =
     useContext(AuthContext);
 
@@ -42,20 +42,16 @@ export const InfoUser = () => {
     ageRangeMax: 100,
   });
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
-
   // Función para manejar cambios en showMe (ya no se usa con radio buttons)
 
   // Función para calcular campos llenos
   const getFilledFieldsCount = () => {
     let count = 0;
-    const totalFields = 10; // Total de campos que necesitamos validar
+    const totalFields = 11; // Total de campos que necesitamos validar
 
     if (formData.firstName && formData.firstName.length >= 3) count++;
     if (formData.lastName && formData.lastName.length >= 3) count++;
-    // if (images.length === 6) count++;
+    if (images.length === 6) count++;
     if (formData.age.trim() !== '') count++;
     if (formData.aboutYou.trim() !== '') count++;
     if (formData.selectedInterests.length > 0) count++;
@@ -74,12 +70,10 @@ export const InfoUser = () => {
     return filled >= total;
   };
 
-  function formatToISO8601(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
+  // Función para manejar cambios en los archivos de fotos
+  const handleImageFilesChange = (files: UploadFile[]) => {
+    setPhotoFiles(files);
+  };
 
   // Función para manejar el botón Save
   const handleSave = () => {
@@ -106,18 +100,13 @@ export const InfoUser = () => {
         min_age: formData.ageRangeMin,
         max_age: formData.ageRangeMax,
         email: signUpResponseWithInfoUser?.payload.email || '',
+        photos: photoFiles,
       };
 
       // Llamar a completeInfoUser con los datos preparados
       completeInfoUser(completeInfoData);
     }
-
-    Keyboard.dismiss();
   };
-
-  useEffect(() => {
-    console.log(images.length);
-  }, [images]);
 
   return (
     <KeyboardAvoidingView
@@ -127,7 +116,11 @@ export const InfoUser = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView style={commonStyles.container}>
           <View style={commonStyles.content}>
-            <GridImage images={images} setImages={setImages} />
+            <GridImage
+              images={images}
+              setImages={setImages}
+              onImageFilesChange={handleImageFilesChange}
+            />
 
             <FormEditProfile
               formData={formData}

@@ -4,9 +4,17 @@ import {Profile} from '../screens/Profile';
 
 import EditProfile from '../screens/EditProfile';
 import {StackSettingsApps} from './StackSettingsApp';
+import {useContext, useEffect} from 'react';
+import {AuthContext} from '../context/authContext/authContext';
 const Stack = createStackNavigator();
 
 export const StackProfile = () => {
+  const {GetDetailsUser} = useContext(AuthContext);
+
+  useEffect(() => {
+    GetDetailsUser();
+  }, []);
+
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="Profile" component={Profile} />

@@ -9,7 +9,7 @@ export default function EditPhotos({navigation}) {
   const [images, setImages] = useState<string[]>([]);
 
   const handleSave = () => {
-    console.log('Image', images);
+    // console.log('Image', images);
   };
 
   // Función para verificar si todos los campos están llenos

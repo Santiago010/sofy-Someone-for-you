@@ -8,8 +8,6 @@ import {colors} from '../theme/globalTheme';
 import {StackProfile} from './StackProfile';
 import TopTapNavigatorLikes from './TopTabNavigatorLikes';
 import {StackChats} from './StackChats';
-import {useContext, useEffect} from 'react';
-import {AuthContext} from '../context/authContext/authContext';
 
 export type RootBottonTabNavigator = {
   Home: undefined;
@@ -23,12 +21,6 @@ interface Props extends BottomTabScreenProps<RootBottonTabNavigator, 'Home'> {}
 const Tab = createBottomTabNavigator<RootBottonTabNavigator>();
 
 export const BottonTabNavigator = () => {
-  const {GetDetailsUser} = useContext(AuthContext);
-
-  useEffect(() => {
-    GetDetailsUser();
-  }, []);
-
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({

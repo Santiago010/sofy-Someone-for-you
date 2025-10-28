@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {View, Platform, TouchableOpacity} from 'react-native';
+import {PERMISSIONS, check, request} from 'react-native-permissions';
 import Geolocation from '@react-native-community/geolocation';
 import SwipeCard from '../components/SwipeCard';
 import {colors} from '../theme/globalTheme';
@@ -25,17 +26,29 @@ export const CardsUsers = () => {
 
     try {
       if (Platform.OS === 'ios') {
-        // Para iOS, solicitar autorización primero
-        Geolocation.requestAuthorization();
+        const permissionStatus = await check(
+          PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
+        );
+
+        if (permissionStatus === 'denied') {
+          const requestStatus = await request(
+            PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
+          );
+          if (requestStatus !== 'granted') {
+            throw new Error('Permisos de ubicación denegados');
+          }
+        } else if (permissionStatus !== 'granted') {
+          throw new Error('Permisos de ubicación requeridos');
+        }
       }
 
-      // Solicitar ubicación actual
+      // Solicitar ubicación actual con popup nativo
       Geolocation.getCurrentPosition(
         position => {
           const {latitude, longitude} = position.coords;
           setLocation({latitude, longitude});
           setIsLoadingLocation(false);
-          console.log('Ubicación obtenida:', {latitude, longitude});
+          //   console.log('Ubicación obtenida:', {latitude, longitude});
         },
         error => {
           setIsLoadingLocation(false);
@@ -107,7 +120,9 @@ export const CardsUsers = () => {
           textAlign: 'center',
           marginBottom: 30,
         }}>
-        {locationError || 'No se pudo obtener la ubicación'}
+        {locationError?.includes('denegados')
+          ? 'Activa los permisos de ubicación en Configuración > Sofy > Ubicación'
+          : locationError || 'No se pudo obtener la ubicación'}
       </Text>
       <TouchableOpacity
         onPress={retryLocationRequest}

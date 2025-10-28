@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {
   View,
@@ -13,15 +13,35 @@ import {colors, commonStyles} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import {data} from '../animations/data/data';
 import {ModalInfoUser} from '../components/ModalInfoUser';
+import {AuthContext} from '../context/authContext/authContext';
+import {calculateAge} from '../helpers/CalcutateAge';
 
 export const Profile = () => {
   const midata = data;
   const [user] = useState(midata[0]);
+
+  const [dataInfouser, setdataInfouser] = useState({
+    name: '',
+    lastName: '',
+    age: '',
+  });
+
+  const {detailsUser} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   const toggleModal = () => {
     setModalVisible(!modalVisible);
   };
+
+  useEffect(() => {
+    if (detailsUser !== null) {
+      setdataInfouser({
+        name: detailsUser.name,
+        lastName: detailsUser.lastname,
+        age: `${calculateAge(detailsUser.date_of_birth)}`,
+      });
+    }
+  }, [detailsUser]);
 
   return (
     <View style={styles.container}>
@@ -45,9 +65,9 @@ export const Profile = () => {
                   alignItems: 'center',
                 }}>
                 <Text style={styles.cardFooterName}>
-                  {user.firstName} {user.lastName}
+                  {dataInfouser?.name} {dataInfouser?.lastName}
                 </Text>
-                <Text style={styles.cardFooterAge}>, {user.age}</Text>
+                <Text style={styles.cardFooterAge}>{dataInfouser.age}</Text>
               </View>
             </View>
 

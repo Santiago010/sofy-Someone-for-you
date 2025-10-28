@@ -46,7 +46,7 @@ export default function Settings({navigation}: any) {
                 <MaterialDesignIcons name="chevron-right" size={24} />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('EditEmail')}
+                onPress={() => {}}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',

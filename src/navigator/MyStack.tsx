@@ -18,8 +18,6 @@ const Stack = createStackNavigator<RootStackParamList>();
 export const MyStack = () => {
   const {status} = useContext(AuthContext);
 
-  console.log(status);
-
   if (status === 'checking') {
     return <BarIndicator count={4} size={50} color={colors.primary} />;
   }

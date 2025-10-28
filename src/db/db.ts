@@ -18,7 +18,6 @@ export const privateDB = axios.create({
 
 privateDB.interceptors.request.use(async config => {
   const token = await AsyncStorage.getItem('access_token');
-  console.log({access_token: token, origen: 'privateDB'});
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
