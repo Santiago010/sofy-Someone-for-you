@@ -148,20 +148,21 @@ export interface UploadFile {
 
 export interface CompleteInfoUser {
   categories: string;
-  date_of_birth: string; // ISO date format YYYY-MM-DD
+  age: string; // ISO date format YYYY-MM-DD
   gender_id: number;
   interested_gender_id: number;
   max_distance_km: Float;
   min_age: number;
   max_age: number;
   email: string;
-  photos?: UploadFile[];
+  photos: UploadFile[];
+  description: string;
   //   TODO:PONER descripcion
 }
 
 export interface EditDetailsInfoUser {
   categories?: string;
-  date_of_birth?: string; // ISO date format YYYY-MM-DD
+  age?: string; // ISO date format YYYY-MM-DD
   gender_id?: number;
   interested_gender_id?: number;
   max_distance_km?: number; // Cambié Float por number
@@ -170,6 +171,8 @@ export interface EditDetailsInfoUser {
   email?: string;
   name?: string;
   lastname?: string;
+  phone?: string;
+  description?: string;
   //   TODO:PONER descripcion
 }
 
@@ -222,13 +225,14 @@ export interface PayloadDetails {
   created_at: Date;
   updated_at: Date;
   is_active: boolean;
-  date_of_birth: Date;
+  age: string;
   gender: GenderResponse;
   interested_gender: GenderResponse;
   max_distance_km: number;
   min_age: number;
   max_age: number;
   individualFiles: IndividualFile[];
+  description: string;
 }
 
 export interface IndividualFile {

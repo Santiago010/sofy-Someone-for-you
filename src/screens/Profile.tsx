@@ -14,7 +14,6 @@ import MaterialDesignIcons from '@react-native-vector-icons/material-design-icon
 import {data} from '../animations/data/data';
 import {ModalInfoUser} from '../components/ModalInfoUser';
 import {AuthContext} from '../context/authContext/authContext';
-import {calculateAge} from '../helpers/CalcutateAge';
 
 export const Profile = () => {
   const midata = data;
@@ -24,6 +23,7 @@ export const Profile = () => {
     name: '',
     lastName: '',
     age: '',
+    profile: '',
   });
 
   const {detailsUser} = useContext(AuthContext);
@@ -38,7 +38,8 @@ export const Profile = () => {
       setdataInfouser({
         name: detailsUser.name,
         lastName: detailsUser.lastname,
-        age: `${calculateAge(detailsUser.date_of_birth)}`,
+        age: detailsUser.age,
+        profile: detailsUser.individualFiles[0].file.url,
       });
     }
   }, [detailsUser]);
@@ -53,8 +54,12 @@ export const Profile = () => {
               <TouchableOpacity
                 style={styles.profileImage}
                 onPress={toggleModal}>
-                {user.images && user.images[0] ? (
-                  <Image source={user.images[0] as any} style={styles.image} />
+                {dataInfouser.profile.length !== 0 ? (
+                  <Image
+                    source={{uri: dataInfouser.profile}}
+                    style={styles.image}
+                    defaultSource={require('../assets/Logo.png')}
+                  />
                 ) : (
                   <Text style={styles.profileImageText}>👤</Text>
                 )}

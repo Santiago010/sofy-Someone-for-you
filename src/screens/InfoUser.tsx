@@ -18,7 +18,6 @@ import {
   CompleteInfoUser,
   UploadFile,
 } from '../interfaces/interfacesApp';
-import {formatToISO8601} from '../helpers/FormatToISO8601';
 
 export const InfoUser = () => {
   const [images, setImages] = useState<string[]>([]);
@@ -85,15 +84,10 @@ export const InfoUser = () => {
         .map(interest => interest.id)
         .join(',');
 
-      // Preparar date_of_birth asumiendo que formData.age es el año de nacimiento
-      const dateOfBirth = formData.age
-        ? formatToISO8601(new Date(parseInt(formData.age, 10), 7, 14))
-        : '';
-
       // Preparar el objeto CompleteInfoUser
       const completeInfoData: CompleteInfoUser = {
         categories,
-        date_of_birth: dateOfBirth,
+        age: formData.age,
         gender_id: parseInt(formData.genderId, 10),
         interested_gender_id: parseInt(formData.showMeId, 10),
         max_distance_km: formData.maxDistance,
@@ -101,6 +95,7 @@ export const InfoUser = () => {
         max_age: formData.ageRangeMax,
         email: signUpResponseWithInfoUser?.payload.email || '',
         photos: photoFiles,
+        description: formData.aboutYou,
       };
 
       // Llamar a completeInfoUser con los datos preparados

@@ -16,9 +16,7 @@ import {
   GenderResponse,
   InterestResponse,
 } from '../interfaces/interfacesApp';
-import {formatToISO8601} from '../helpers/FormatToISO8601';
 import {showError} from '../helpers/ShowError';
-import {calculateAge} from '../helpers/CalcutateAge';
 
 export default function EditProfile({navigation}: any) {
   const {
@@ -69,11 +67,10 @@ export default function EditProfile({navigation}: any) {
 
       setFormData(prev => ({
         ...prev,
+        aboutYou: detailsUser.description || '',
         firstName: detailsUser.name || '',
         lastName: detailsUser.lastname || '',
-        age: detailsUser.date_of_birth
-          ? `${calculateAge(detailsUser.date_of_birth)}`
-          : '',
+        age: detailsUser.age,
         gender: detailsUser.gender || null,
         genderId: detailsUser.gender?.id?.toString() || '',
         maxDistance: detailsUser.max_distance_km || 1,
@@ -94,8 +91,8 @@ export default function EditProfile({navigation}: any) {
 
     if (formData.firstName.length >= 3) count++;
     if (formData.lastName.length >= 3) count++;
-    if (formData.age.trim() !== '') count++;
-    if (formData.aboutYou.trim() !== '') count++;
+    if (formData.age.length !== 0) count++;
+    if (formData.aboutYou.length !== 0) count++;
     if (formData.selectedInterests.length > 0) count++;
     if (formData.genderId !== '') count++;
     if (formData.maxDistance < 999) count++; // Si cambió del valor por defecto
@@ -122,14 +119,9 @@ export default function EditProfile({navigation}: any) {
         .map(interest => interest.id)
         .join(',');
 
-      // Preparar date_of_birth asumiendo que formData.age es el año de nacimiento
-      const dateOfBirth = formData.age
-        ? formatToISO8601(new Date(parseInt(formData.age, 10), 7, 14))
-        : '';
-
       const editDetailsInfoUser: EditDetailsInfoUser = {
         categories,
-        date_of_birth: dateOfBirth,
+        age: formData.age,
         gender_id: parseInt(formData.genderId, 10),
         interested_gender_id: parseInt(formData.showMeId, 10),
         max_distance_km: formData.maxDistance,
@@ -137,6 +129,7 @@ export default function EditProfile({navigation}: any) {
         max_age: formData.ageRangeMax,
         name: formData.firstName,
         lastname: formData.lastName,
+        description: formData.aboutYou,
       };
 
       EditDetailsInfo(editDetailsInfoUser);

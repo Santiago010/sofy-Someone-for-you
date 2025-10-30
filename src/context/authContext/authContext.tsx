@@ -11,12 +11,13 @@ import {
   SignInError,
   VerificationCodeError,
   CompleteInfoUser,
-  CompleteInfoUSerResponse,
+  CompleteInfoUserResponse,
   CompleteInfoUserError,
   GetDetailsResponse,
   ResponseEditDetailsUser,
   PayloadDetails,
   EditDetailsInfoUser,
+  UploadFile,
 } from '../../interfaces/interfacesApp';
 import {AuthState, authReducer} from './authReducer';
 import {db, privateDB} from '../../db/db';
@@ -41,6 +42,8 @@ interface AuthContextProps {
   GetDetailsUser: () => void;
   EditDetailsInfo: (data: any) => void;
   setEditDetailsSuccessFun: (stateEdit: boolean) => void;
+  addImage: (photo: UploadFile) => void;
+  removeImage: (id: string) => void;
 }
 
 const authInicialState: AuthState = {
@@ -264,13 +267,53 @@ export const AuthProvider = ({
     }
   };
 
+  const addImage = async (photo: UploadFile) => {
+    try {
+      const formData = new FormData();
+
+      formData.append('photo', {
+        uri: photo.uri,
+        type: photo.type,
+        name: photo.name,
+      });
+
+      const {data} = await privateDB.post(
+        '/individuals-files/upload',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+
+      console.log(data);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          const errorData = error.response.data as CompleteInfoUserError;
+          dispatch({type: 'addError', payload: errorData.message});
+        } else if (error.request) {
+          dispatch({type: 'addError', payload: 'Error in the Request'});
+        } else {
+          dispatch({type: 'addError', payload: error.message});
+        }
+      } else {
+        dispatch({
+          type: 'addError',
+          payload: 'Unexpected error in the server',
+        });
+      }
+    }
+  };
+
   const completeInfoUser = async (completeInfoUser: CompleteInfoUser) => {
     try {
       const formData = new FormData();
 
       // Agregar todos los campos excepto photos
       formData.append('categories', completeInfoUser.categories);
-      formData.append('date_of_birth', completeInfoUser.date_of_birth);
+      formData.append('age', completeInfoUser.age);
       formData.append('gender_id', completeInfoUser.gender_id.toString());
       formData.append(
         'interested_gender_id',
@@ -293,7 +336,7 @@ export const AuthProvider = ({
         } as any);
       });
 
-      const {data} = await db.patch<CompleteInfoUSerResponse>(
+      const {data} = await db.patch<CompleteInfoUserResponse>(
         '/individuals/complete-profile',
         formData,
         {
@@ -325,8 +368,20 @@ export const AuthProvider = ({
     }
   };
 
-  function logout() {
-    dispatch({type: 'logout'});
+  const removeImage = async (id: string) => {
+    try {
+      const {data} = privateDB.delete(`individuals-files/${id}`);
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  async function logout() {
+    try {
+      await AsyncStorage.setItem('access_token', '');
+      dispatch({type: 'logout'});
+    } catch (error) {}
   }
 
   function removeError() {
@@ -401,6 +456,8 @@ export const AuthProvider = ({
         completeInfoUser,
         EditDetailsInfo,
         setEditDetailsSuccessFun,
+        removeImage,
+        addImage,
       }}>
       {children}
     </AuthContext.Provider>

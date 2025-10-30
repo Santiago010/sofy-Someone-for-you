@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {SafeAreaView, View, TouchableOpacity} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Text} from 'react-native-paper';
@@ -6,8 +6,10 @@ import MaterialDesignIcons from '@react-native-vector-icons/material-design-icon
 import {colors, commonStyles} from '../theme/globalTheme';
 import ButtonGoBack from '../components/ButtonGoBack';
 import LogoSofy from '../components/LogoSofy';
+import {AuthContext} from '../context/authContext/authContext';
 
 export default function Settings({navigation}: any) {
+  const {logout} = useContext(AuthContext);
   return (
     <ScrollView style={commonStyles.container}>
       <SafeAreaView>
@@ -192,6 +194,7 @@ export default function Settings({navigation}: any) {
 
             {/* Logout Button */}
             <TouchableOpacity
+              onPress={() => logout()}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
