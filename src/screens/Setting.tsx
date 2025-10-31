@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {SafeAreaView, View, TouchableOpacity} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Text} from 'react-native-paper';
@@ -7,9 +7,15 @@ import {colors, commonStyles} from '../theme/globalTheme';
 import ButtonGoBack from '../components/ButtonGoBack';
 import LogoSofy from '../components/LogoSofy';
 import {AuthContext} from '../context/authContext/authContext';
+import {useLocation} from '../hooks/useLocation';
 
 export default function Settings({navigation}: any) {
-  const {logout} = useContext(AuthContext);
+  const {logout, detailsUser, GetDetailsUser} = useContext(AuthContext);
+  const {address, isLoadingLocation} = useLocation();
+
+  useEffect(() => {
+    GetDetailsUser();
+  }, []);
   return (
     <ScrollView style={commonStyles.container}>
       <SafeAreaView>
@@ -42,12 +48,14 @@ export default function Settings({navigation}: any) {
                 <View style={{flex: 1}}>
                   <Text>Phone Number</Text>
                   <Text style={{color: colors.textSecondary}}>
-                    573194268291
+                    {detailsUser !== null
+                      ? detailsUser.phone
+                      : 'loading phone number'}
                   </Text>
                 </View>
                 <MaterialDesignIcons name="chevron-right" size={24} />
               </TouchableOpacity>
-              <TouchableOpacity
+              <View
                 onPress={() => {}}
                 style={{
                   flexDirection: 'row',
@@ -64,11 +72,10 @@ export default function Settings({navigation}: any) {
                 <View style={{flex: 1}}>
                   <Text>Email</Text>
                   <Text style={{color: colors.textSecondary}}>
-                    h95160746@gmail.com
+                    {detailsUser !== null ? detailsUser.email : 'loading email'}
                   </Text>
                 </View>
-                <MaterialDesignIcons name="chevron-right" size={24} />
-              </TouchableOpacity>
+              </View>
             </View>
 
             {/* Location Section */}
@@ -93,9 +100,13 @@ export default function Settings({navigation}: any) {
                   style={{marginRight: 10}}
                 />
                 <View style={{flex: 1}}>
-                  <Text>Bogotá, Bogotá</Text>
+                  <Text>
+                    {isLoadingLocation
+                      ? 'Cargando ubicación...'
+                      : address || 'Ubicación no disponible'}
+                  </Text>
                   <Text style={{color: colors.textSecondary}}>
-                    Change locations to find matches anywhere.
+                    {address || 'Activa la ubicación para ver tu dirección'}
                   </Text>
                 </View>
                 <MaterialDesignIcons name="chevron-right" size={24} />

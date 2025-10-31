@@ -42,8 +42,8 @@ interface AuthContextProps {
   GetDetailsUser: () => void;
   EditDetailsInfo: (data: any) => void;
   setEditDetailsSuccessFun: (stateEdit: boolean) => void;
-  addImage: (photo: UploadFile) => void;
-  removeImage: (id: string) => void;
+  addImage: (photo: UploadFile) => Promise<void>;
+  removeImage: (id: string) => Promise<void>;
 }
 
 const authInicialState: AuthState = {
@@ -173,10 +173,6 @@ export const AuthProvider = ({
   };
 
   const EditDetailsInfo = async (editDetailsInfoUser: EditDetailsInfoUser) => {
-    console.log({
-      'data recibida': 'data recibida del formulario',
-      editDetailsInfoUser,
-    });
     try {
       await privateDB.patch<ResponseEditDetailsUser>(
         '/individuals/me',
@@ -217,7 +213,6 @@ export const AuthProvider = ({
           detailsUser: data.payload,
         },
       });
-      console.log(data);
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response) {
@@ -267,7 +262,7 @@ export const AuthProvider = ({
     }
   };
 
-  const addImage = async (photo: UploadFile) => {
+  const addImage = async (photo: UploadFile): Promise<void> => {
     try {
       const formData = new FormData();
 
@@ -275,7 +270,7 @@ export const AuthProvider = ({
         uri: photo.uri,
         type: photo.type,
         name: photo.name,
-      });
+      } as any);
 
       const {data} = await privateDB.post(
         '/individuals-files/upload',
@@ -287,7 +282,8 @@ export const AuthProvider = ({
         },
       );
 
-      console.log(data);
+      console.log('Image uploaded successfully:', data);
+      return Promise.resolve();
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response) {
@@ -304,6 +300,7 @@ export const AuthProvider = ({
           payload: 'Unexpected error in the server',
         });
       }
+      return Promise.reject(error);
     }
   };
 
@@ -336,7 +333,7 @@ export const AuthProvider = ({
         } as any);
       });
 
-      const {data} = await db.patch<CompleteInfoUserResponse>(
+      await db.patch<CompleteInfoUserResponse>(
         '/individuals/complete-profile',
         formData,
         {
@@ -345,8 +342,6 @@ export const AuthProvider = ({
           },
         },
       );
-
-      console.log(data);
 
       dispatch({type: 'authenticatedProv'});
     } catch (error) {
@@ -368,12 +363,14 @@ export const AuthProvider = ({
     }
   };
 
-  const removeImage = async (id: string) => {
+  const removeImage = async (id: string): Promise<void> => {
     try {
-      const {data} = privateDB.delete(`individuals-files/${id}`);
-      console.log(data);
+      const {data} = await privateDB.delete(`individuals-files/${id}`);
+      console.log('Image deleted successfully:', data);
+      return Promise.resolve();
     } catch (error) {
-      console.error(error);
+      console.error('Error deleting image:', error);
+      return Promise.reject(error);
     }
   };
 

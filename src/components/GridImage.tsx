@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Alert,
   PermissionsAndroid,
@@ -6,6 +6,7 @@ import {
   Image,
   StyleSheet,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import LogoSofy from '../components/LogoSofy';
 import {
@@ -19,28 +20,112 @@ import {
 } from 'react-native-paper';
 import {colors} from '../theme/globalTheme';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {UploadFile} from '../interfaces/interfacesApp';
+import {UploadFile, IndividualFile} from '../interfaces/interfacesApp';
 
 interface GridImageProps {
   images: string[];
   setImages: React.Dispatch<React.SetStateAction<string[]>>;
   onImageFilesChange?: (files: UploadFile[]) => void;
+  individualFiles?: IndividualFile[];
+  onAddImage?: (photo: UploadFile) => Promise<void>;
+  onRemoveImage?: (fileId: string) => Promise<void>;
+  onRefreshData?: () => void;
 }
 
 export default function GridImage({
   images,
   setImages,
   onImageFilesChange,
+  individualFiles = [],
+  onAddImage,
+  onRemoveImage,
+  onRefreshData,
 }: GridImageProps) {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<UploadFile[]>([]);
+  const [loadingStates, setLoadingStates] = useState<boolean[]>(
+    Array(6).fill(false),
+  );
+  const [backendImages, setBackendImages] = useState<string[]>(
+    Array(6).fill(''),
+  );
+  const [backendFileIds, setBackendFileIds] = useState<string[]>(
+    Array(6).fill(''),
+  );
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(
+    null,
+  );
 
-  const showModal = () => setVisible(true);
-  const hideModal = () => setVisible(false);
+  // Cargar imágenes desde el backend cuando individualFiles cambia
+  useEffect(() => {
+    if (individualFiles && individualFiles.length > 0) {
+      const newBackendImages = Array(6).fill('');
+      const newBackendFileIds = Array(6).fill('');
 
-  // Eliminar imagen
-  const removeImage = (index: number) => {
+      individualFiles.forEach((individualFile, index) => {
+        if (index < 6 && individualFile.file && individualFile.file.url) {
+          newBackendImages[index] = individualFile.file.url;
+          newBackendFileIds[index] = individualFile.file.id.toString();
+        }
+      });
+
+      setBackendImages(newBackendImages);
+      setBackendFileIds(newBackendFileIds);
+    }
+  }, [individualFiles]);
+
+  const showModal = (index: number) => {
+    setSelectedSlotIndex(index);
+    setVisible(true);
+  };
+
+  const hideModal = () => {
+    setVisible(false);
+    setSelectedSlotIndex(null);
+  };
+
+  // Eliminar imagen del backend
+  const removeImageFromBackend = async (index: number) => {
+    const fileId = backendFileIds[index];
+
+    if (!fileId || !onRemoveImage) {
+      return;
+    }
+
+    // Activar loading para este slot
+    const newLoadingStates = [...loadingStates];
+    newLoadingStates[index] = true;
+    setLoadingStates(newLoadingStates);
+
+    try {
+      await onRemoveImage(fileId);
+
+      // Limpiar el slot después de eliminar exitosamente
+      const newBackendImages = [...backendImages];
+      const newBackendFileIds = [...backendFileIds];
+      newBackendImages[index] = '';
+      newBackendFileIds[index] = '';
+      setBackendImages(newBackendImages);
+      setBackendFileIds(newBackendFileIds);
+
+      // Refrescar datos si está disponible
+      if (onRefreshData) {
+        onRefreshData();
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo eliminar la imagen. Intenta de nuevo.');
+      console.error('Error removing image:', error);
+    } finally {
+      // Desactivar loading
+      const newLoadingStates = [...loadingStates];
+      newLoadingStates[index] = false;
+      setLoadingStates(newLoadingStates);
+    }
+  };
+
+  // Eliminar imagen local
+  const removeLocalImage = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
     const newFiles = imageFiles.filter((_, i) => i !== index);
     setImages(newImages);
@@ -82,14 +167,14 @@ export default function GridImage({
   };
 
   // Procesar respuesta de imagen
-  const handleImageResponse = (response: any) => {
+  const handleImageResponse = async (response: any) => {
     setLoading(false);
-    hideModal();
 
-    console.log('Image picker response:', response); // Debug log
+    console.log('Image picker response:', response);
 
     if (response.didCancel) {
       console.log('Usuario canceló la selección');
+      hideModal();
       return;
     }
 
@@ -99,7 +184,6 @@ export default function GridImage({
 
       let errorMessage = 'Error desconocido';
 
-      // Manejar diferentes tipos de errores comunes en iOS
       switch (response.errorCode) {
         case 'camera_unavailable':
           errorMessage = 'La cámara no está disponible en este dispositivo';
@@ -118,31 +202,64 @@ export default function GridImage({
       }
 
       Alert.alert('Error', `Error al seleccionar imagen: ${errorMessage}`);
+      hideModal();
       return;
     }
 
     if (response.assets && response.assets[0]) {
       const asset = response.assets[0];
-      const newImage = asset.uri;
 
-      if (images.length >= 6) {
+      // Verificar si hay espacio disponible
+      const totalImages =
+        backendImages.filter(img => img !== '').length + images.length;
+      if (totalImages >= 6) {
         Alert.alert('Límite alcanzado', 'Solo puedes agregar hasta 6 imágenes');
+        hideModal();
         return;
       }
 
-      // Crear objeto UploadFile para React Native
+      // Crear objeto UploadFile
       const file: UploadFile = {
         uri: asset.uri || '',
         type: asset.type || 'image/jpeg',
         name: asset.fileName || `photo_${Date.now()}.jpg`,
       };
 
-      setImages(prev => [...prev, newImage]);
-      const newFiles = [...imageFiles, file];
-      setImageFiles(newFiles);
+      // Si hay función para subir al backend, usarla
+      if (onAddImage && selectedSlotIndex !== null) {
+        // Activar loading para este slot
+        const newLoadingStates = [...loadingStates];
+        newLoadingStates[selectedSlotIndex] = true;
+        setLoadingStates(newLoadingStates);
 
-      if (onImageFilesChange) {
-        onImageFilesChange(newFiles);
+        hideModal();
+
+        try {
+          await onAddImage(file);
+
+          // Refrescar datos si está disponible
+          if (onRefreshData) {
+            onRefreshData();
+          }
+        } catch (error) {
+          Alert.alert('Error', 'No se pudo subir la imagen. Intenta de nuevo.');
+          console.error('Error uploading image:', error);
+        } finally {
+          // Desactivar loading
+          const newLoadingStates = [...loadingStates];
+          newLoadingStates[selectedSlotIndex] = false;
+          setLoadingStates(newLoadingStates);
+        }
+      } else {
+        // Modo local (sin backend)
+        setImages(prev => [...prev, asset.uri]);
+        const newFiles = [...imageFiles, file];
+        setImageFiles(newFiles);
+
+        if (onImageFilesChange) {
+          onImageFilesChange(newFiles);
+        }
+        hideModal();
       }
     }
   };
@@ -169,18 +286,35 @@ export default function GridImage({
   };
   // Renderizar slot de imagen
   const renderImageSlot = (index: number) => {
-    const hasImage = images[index];
+    const hasBackendImage = backendImages[index] !== '';
+    const hasLocalImage = images[index];
+    const isLoading = loadingStates[index];
 
     return (
       <Surface key={index} style={styles.imageSlot} elevation={2}>
-        {hasImage ? (
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : hasBackendImage ? (
           <View style={styles.imageContainer}>
-            <Image source={{uri: hasImage}} style={styles.image} />
+            <Image source={{uri: backendImages[index]}} style={styles.image} />
             <FAB
               icon="close"
               style={styles.removeFab}
               size="small"
-              onPress={() => removeImage(index)}
+              onPress={() => removeImageFromBackend(index)}
+              color={colors.background}
+            />
+          </View>
+        ) : hasLocalImage ? (
+          <View style={styles.imageContainer}>
+            <Image source={{uri: hasLocalImage}} style={styles.image} />
+            <FAB
+              icon="close"
+              style={styles.removeFab}
+              size="small"
+              onPress={() => removeLocalImage(index)}
               color={colors.background}
             />
           </View>
@@ -189,7 +323,7 @@ export default function GridImage({
             icon="plus"
             style={styles.addFab}
             size="small"
-            onPress={showModal}
+            onPress={() => showModal(index)}
             mode="flat"
             disabled={loading}
           />
@@ -212,7 +346,10 @@ export default function GridImage({
         <View style={styles.grid}>
           {[...Array(6)].map((_, index) => renderImageSlot(index))}
         </View>
-        <Text style={styles.imageCount}>{images.length}/6 photos</Text>
+        <Text style={styles.imageCount}>
+          {backendImages.filter(img => img !== '').length + images.length}/6
+          photos
+        </Text>
       </Surface>
 
       {/* Modal para seleccionar origen de imagen */}
@@ -313,6 +450,12 @@ const styles = StyleSheet.create({
     top: 6,
     right: 6,
     backgroundColor: colors.textDisabled,
+  },
+  loadingContainer: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   imageCount: {
     textAlign: 'center',

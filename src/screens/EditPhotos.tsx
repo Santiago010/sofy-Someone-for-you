@@ -1,57 +1,49 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState, useCallback} from 'react';
 import {View, SafeAreaView} from 'react-native';
 import {commonStyles} from '../theme/globalTheme';
 import GridImage from '../components/GridImage';
 import {Button} from 'react-native-paper';
 import ButtonGoBack from '../components/ButtonGoBack';
 import {AuthContext} from '../context/authContext/authContext';
-import {IndividualFile, UploadFile} from '../interfaces/interfacesApp';
+import {UploadFile} from '../interfaces/interfacesApp';
 
-export default function EditPhotos({navigation}) {
+interface EditPhotosProps {
+  navigation: any;
+}
+
+export default function EditPhotos({navigation}: EditPhotosProps) {
   const [images, setImages] = useState<string[]>([]);
-  const [imageFromUrl, setImagesFromUrl] = useState<IndividualFile[]>([]);
-  const [image, setImage] = useState<string>('');
-  const [photoFiles, setPhotoFiles] = useState<UploadFile[]>([]);
 
-  const {detailsUser, removeImage, addImage} = useContext(AuthContext);
+  const {detailsUser, removeImage, addImage, GetDetailsUser} =
+    useContext(AuthContext);
 
+  // Cargar detalles del usuario al montar el componente
   useEffect(() => {
-    if (detailsUser !== null) {
-      setImagesFromUrl(detailsUser.individualFiles);
-    }
-  }, [detailsUser]);
+    GetDetailsUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  useEffect(() => {
-    console.log(imageFromUrl);
-
-    if (imageFromUrl.length > 0) {
-      removeImage(`${imageFromUrl[0].id}`);
-    }
-  }, [imageFromUrl]);
-
-  // Función para manejar cambios en los archivos de fotos
-  const handleImageFilesChange = (files: UploadFile[]) => {
-    setPhotoFiles(files);
+  // Función para manejar cambios en los archivos de fotos (modo local)
+  const handleImageFilesChange = (_files: UploadFile[]) => {
+    // No se usa en modo backend, pero se mantiene para compatibilidad
   };
+
+  // Función para refrescar datos después de operaciones
+  const handleRefreshData = useCallback(() => {
+    GetDetailsUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSave = () => {
-    addImage(photoFiles[0]);
+    if (areAllFieldsFilled()) {
+      navigation.goBack();
+    }
   };
 
-  // Función para verificar si todos los campos están llenos
+  // Función para verificar si hay exactamente 6 fotos en el backend
   const areAllFieldsFilled = () => {
-    const {filled, total} = getFilledFieldsCount();
-    return filled >= total;
-  };
-
-  // Función para calcular campos llenos
-  const getFilledFieldsCount = () => {
-    let count = 0;
-    const totalFields = 0; // Total de campos que necesitamos validar
-
-    if (images.length === 6) count++;
-
-    return {filled: count, total: totalFields};
+    const backendImagesCount = detailsUser?.individualFiles?.length || 0;
+    return backendImagesCount === 6;
   };
 
   return (
@@ -63,6 +55,10 @@ export default function EditPhotos({navigation}) {
             images={images}
             setImages={setImages}
             onImageFilesChange={handleImageFilesChange}
+            individualFiles={detailsUser?.individualFiles || []}
+            onAddImage={addImage}
+            onRemoveImage={removeImage}
+            onRefreshData={handleRefreshData}
           />
 
           <View style={commonStyles.saveContainer}>
@@ -74,8 +70,7 @@ export default function EditPhotos({navigation}) {
                 commonStyles.saveButton,
                 areAllFieldsFilled() && commonStyles.saveButtonEnabled,
               ]}
-              contentStyle={commonStyles.saveButtonContent}
-              labelStyle={commonStyles.saveButtonLabel}>
+              contentStyle={commonStyles.saveButtonContent}>
               Save
             </Button>
           </View>

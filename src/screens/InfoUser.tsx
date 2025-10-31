@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -87,7 +87,7 @@ export const InfoUser = () => {
       // Preparar el objeto CompleteInfoUser
       const completeInfoData: CompleteInfoUser = {
         categories,
-        age: formData.age,
+        age: Number(formData.age),
         gender_id: parseInt(formData.genderId, 10),
         interested_gender_id: parseInt(formData.showMeId, 10),
         max_distance_km: formData.maxDistance,

@@ -49,6 +49,10 @@ export default function EditProfile({navigation}: any) {
   }, []);
 
   useEffect(() => {
+    console.log({origen: 'formData', formData});
+  }, [formData]);
+
+  useEffect(() => {
     if (errorMessage.length) {
       showError({screen: 'Edit Profile', errorMessage, removeError});
     }
@@ -70,7 +74,7 @@ export default function EditProfile({navigation}: any) {
         aboutYou: detailsUser.description || '',
         firstName: detailsUser.name || '',
         lastName: detailsUser.lastname || '',
-        age: detailsUser.age,
+        age: `${detailsUser.age}`,
         gender: detailsUser.gender || null,
         genderId: detailsUser.gender?.id?.toString() || '',
         maxDistance: detailsUser.max_distance_km || 1,
@@ -78,6 +82,7 @@ export default function EditProfile({navigation}: any) {
         showMeId: detailsUser.interested_gender?.id?.toString() || '',
         ageRangeMin: detailsUser.min_age || 18,
         ageRangeMax: detailsUser.max_age || 100,
+        selectedInterests: detailsUser.categories || [],
       }));
     }
   }, [detailsUser]);
@@ -87,7 +92,7 @@ export default function EditProfile({navigation}: any) {
   // Función para calcular campos llenos
   const getFilledFieldsCount = () => {
     let count = 0;
-    const totalFields = 0; // Total de campos que necesitamos validar
+    const totalFields = 10; // Total de campos que necesitamos validar
 
     if (formData.firstName.length >= 3) count++;
     if (formData.lastName.length >= 3) count++;
@@ -121,7 +126,7 @@ export default function EditProfile({navigation}: any) {
 
       const editDetailsInfoUser: EditDetailsInfoUser = {
         categories,
-        age: formData.age,
+        age: Number(formData.age),
         gender_id: parseInt(formData.genderId, 10),
         interested_gender_id: parseInt(formData.showMeId, 10),
         max_distance_km: formData.maxDistance,

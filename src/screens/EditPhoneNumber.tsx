@@ -18,10 +18,31 @@ import {AuthContext} from '../context/authContext/authContext';
 import {EditDetailsInfoUser} from '../interfaces/interfacesApp';
 
 export default function EditPhoneNumber({navigation}: any) {
-  const {EditDetailsInfo} = useContext(AuthContext);
+  const {
+    EditDetailsInfo,
+    editDetailsSuccess,
+    setEditDetailsSuccessFun,
+    detailsUser,
+  } = useContext(AuthContext);
   const {phoneNumber, onChange} = useForm({
     phoneNumber: '',
   });
+
+  useEffect(() => {
+    if (detailsUser) {
+      onChange(detailsUser.phone, 'phoneNumber');
+    }
+  }, []);
+
+  useEffect(() => {
+    setEditDetailsSuccessFun(false);
+  }, []);
+
+  useEffect(() => {
+    if (editDetailsSuccess) {
+      navigation.goBack();
+    }
+  }, [editDetailsSuccess, navigation]);
 
   const [isValid, setIsValid] = useState(false);
 
@@ -41,7 +62,6 @@ export default function EditPhoneNumber({navigation}: any) {
 
       EditDetailsInfo(editDetailsInfoUser);
       // Aquí puedes agregar la lógica para guardar el número de teléfono
-      console.log('Número de teléfono guardado:', phoneNumber);
 
       // navigation.goBack();
     }

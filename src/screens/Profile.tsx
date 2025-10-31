@@ -38,7 +38,7 @@ export const Profile = () => {
       setdataInfouser({
         name: detailsUser.name,
         lastName: detailsUser.lastname,
-        age: detailsUser.age,
+        age: `${detailsUser.age}`,
         profile: detailsUser.individualFiles[0].file.url,
       });
     }

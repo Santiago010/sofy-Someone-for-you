@@ -1,98 +1,14 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {View, Platform, TouchableOpacity} from 'react-native';
-import {PERMISSIONS, check, request} from 'react-native-permissions';
-import Geolocation from '@react-native-community/geolocation';
 import SwipeCard from '../components/SwipeCard';
 import {colors} from '../theme/globalTheme';
 import {Text} from 'react-native-paper';
 import LogoSofy from '../components/LogoSofy';
-
-interface Location {
-  latitude: number | null;
-  longitude: number | null;
-}
+import {useLocation} from '../hooks/useLocation';
 
 export const CardsUsers = () => {
-  const [location, setLocation] = useState<Location>({
-    latitude: null,
-    longitude: null,
-  });
-  const [locationError, setLocationError] = useState<string | null>(null);
-  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
-
-  const requestLocationPermission = async () => {
-    setIsLoadingLocation(true);
-    setLocationError(null);
-
-    try {
-      if (Platform.OS === 'ios') {
-        const permissionStatus = await check(
-          PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
-        );
-
-        if (permissionStatus === 'denied') {
-          const requestStatus = await request(
-            PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
-          );
-          if (requestStatus !== 'granted') {
-            throw new Error('Permisos de ubicación denegados');
-          }
-        } else if (permissionStatus !== 'granted') {
-          throw new Error('Permisos de ubicación requeridos');
-        }
-      }
-
-      // Solicitar ubicación actual con popup nativo
-      Geolocation.getCurrentPosition(
-        position => {
-          const {latitude, longitude} = position.coords;
-          setLocation({latitude, longitude});
-          setIsLoadingLocation(false);
-          //   console.log('Ubicación obtenida:', {latitude, longitude});
-        },
-        error => {
-          setIsLoadingLocation(false);
-          let errorMessage = 'Error al obtener ubicación';
-
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage = 'Permisos de ubicación denegados';
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage = 'Ubicación no disponible';
-              break;
-            case error.TIMEOUT:
-              errorMessage = 'Timeout al obtener ubicación';
-              break;
-            default:
-              errorMessage = `Error de ubicación: ${error.message}`;
-              break;
-          }
-
-          setLocationError(errorMessage);
-          console.error('Error de geolocalización:', error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 10000,
-        },
-      );
-    } catch (error) {
-      setIsLoadingLocation(false);
-      const errorMessage = 'Error inesperado al solicitar ubicación';
-      setLocationError(errorMessage);
-      console.error('Error inesperado:', error);
-    }
-  };
-
-  const retryLocationRequest = () => {
-    requestLocationPermission();
-  };
-
-  useEffect(() => {
-    requestLocationPermission();
-  }, []);
+  const {location, locationError, isLoadingLocation, retryLocationRequest} =
+    useLocation();
 
   const renderLocationError = () => (
     <View
