@@ -14,11 +14,9 @@ import MaterialDesignIcons from '@react-native-vector-icons/material-design-icon
 import {data} from '../animations/data/data';
 import {ModalInfoUser} from '../components/ModalInfoUser';
 import {AuthContext} from '../context/authContext/authContext';
+import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
 
 export const Profile = () => {
-  const midata = data;
-  const [user] = useState(midata[0]);
-
   const [dataInfouser, setdataInfouser] = useState({
     name: '',
     lastName: '',
@@ -42,6 +40,7 @@ export const Profile = () => {
         profile: detailsUser.individualFiles[0].file.url,
       });
     }
+    console.log(detailsUser);
   }, [detailsUser]);
 
   return (
@@ -56,9 +55,9 @@ export const Profile = () => {
                 onPress={toggleModal}>
                 {dataInfouser.profile.length !== 0 ? (
                   <Image
-                    source={{uri: dataInfouser.profile}}
+                    source={{uri: resolveLocalhostUrl(dataInfouser.profile)}}
                     style={styles.image}
-                    defaultSource={require('../assets/Logo.png')}
+                    resizeMode="cover"
                   />
                 ) : (
                   <Text style={styles.profileImageText}>👤</Text>
@@ -72,6 +71,7 @@ export const Profile = () => {
                 <Text style={styles.cardFooterName}>
                   {dataInfouser?.name} {dataInfouser?.lastName}
                 </Text>
+                <Text style={styles.cardFooterAge}>, </Text>
                 <Text style={styles.cardFooterAge}>{dataInfouser.age}</Text>
               </View>
             </View>
@@ -146,12 +146,16 @@ export const Profile = () => {
         </View>
       </SafeAreaView>
 
-      <ModalInfoUser
-        user={user}
-        modalVisible={modalVisible}
-        completeInfo={false}
-        toggleModal={toggleModal}
-      />
+      {detailsUser !== null ? (
+        <ModalInfoUser
+          user={detailsUser}
+          modalVisible={modalVisible}
+          completeInfo={false}
+          toggleModal={toggleModal}
+        />
+      ) : (
+        <></>
+      )}
     </View>
   );
 };
@@ -207,13 +211,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
+    overflow: 'hidden',
   },
   profileImageText: {
     fontSize: 99,
   },
   image: {
-    height: '100%',
-    width: '100%',
+    width: 193,
+    height: 193,
     resizeMode: 'cover',
     borderRadius: 50,
   },

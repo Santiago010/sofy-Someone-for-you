@@ -12,12 +12,14 @@ import {
 import Carousel from 'react-native-reanimated-carousel';
 import {colors} from '../theme/globalTheme';
 import {Chip} from 'react-native-paper';
+import {PayloadDetails} from '../interfaces/interfacesApp';
+import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
 
 interface ModalInfoProps {
   modalVisible: boolean;
   toggleModal: () => void;
   completeInfo: boolean;
-  user: any;
+  user: PayloadDetails;
 }
 
 export const ModalInfoUser: FC<ModalInfoProps> = ({
@@ -45,9 +47,11 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                 onPress={() => toggleModal()}>
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
-              {user.images && user.images[0] ? (
+              {user.individualFiles && user.individualFiles[0] ? (
                 <Image
-                  source={user.images[0] as any}
+                  source={{
+                    uri: resolveLocalhostUrl(user.individualFiles[0].file.url),
+                  }}
                   style={styles.modalImage}
                 />
               ) : (
@@ -56,17 +60,17 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                 </View>
               )}
               <Text style={styles.modalTitle}>
-                {user.firstName} {user.lastName}
+                {user.name} {user.lastname}
               </Text>
               <Text style={styles.modalAge}>{user.age} years</Text>
               {/* Carrusel Parallax de Imágenes */}
-              {user.images && user.images.length > 0 ? (
+              {user.individualFiles && user.individualFiles.length > 0 ? (
                 <View style={styles.carouselContainer}>
                   <Carousel
                     loop
                     width={Dimensions.get('window').width * 0.7}
                     height={200}
-                    data={user.images}
+                    data={user.individualFiles}
                     scrollAnimationDuration={1000}
                     mode="parallax"
                     modeConfig={{
@@ -77,13 +81,13 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                     renderItem={({item, index}) => (
                       <View style={styles.carouselItem}>
                         <Image
-                          source={item as any}
+                          source={{uri: resolveLocalhostUrl(item.file.url)}}
                           style={styles.carouselImage}
                           resizeMode="cover"
                         />
                         <View style={styles.imageIndicator}>
                           <Text style={styles.imageIndicatorText}>
-                            {index + 1} / {user.images.length}
+                            {index + 1} / {user.individualFiles.length}
                           </Text>
                         </View>
                       </View>
@@ -98,20 +102,20 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                   </Text>
                 </View>
               )}
-              <Text style={styles.modalBiography}>{user.biography}</Text>
+              <Text style={styles.modalBiography}>{user.description}</Text>
 
               {/* Mostrar intereses con Chips */}
-              {user.interest && user.interest.length > 0 && (
+              {user.categories && user.categories.length > 0 && (
                 <View style={styles.interestsContainer}>
                   <Text style={styles.interestsTitle}>Interest</Text>
                   <View style={styles.interestsChipsContainer}>
-                    {user.interest.map((interest: string, index: number) => (
+                    {user.categories.map(category => (
                       <Chip
-                        key={index}
+                        key={category.id}
                         style={styles.interestChip}
                         textStyle={styles.interestChipText}
                         mode="outlined">
-                        {interest}
+                        {category.name}
                       </Chip>
                     ))}
                   </View>
@@ -134,8 +138,20 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
             <TouchableOpacity style={styles.closeButton} onPress={toggleModal}>
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
+            {user.individualFiles && user.individualFiles[0] ? (
+              <Image
+                source={{
+                  uri: resolveLocalhostUrl(user.individualFiles[0].file.url),
+                }}
+                style={styles.modalImage}
+              />
+            ) : (
+              <View style={styles.modalImagePlaceholder}>
+                <Text style={styles.modalImageText}>👤</Text>
+              </View>
+            )}
             <Text style={styles.modalTitle}>
-              {user.firstName} {user.lastName}
+              {user.name} {user.lastname}
             </Text>
             <Text style={styles.modalAge}>{user.age} years</Text>
           </View>

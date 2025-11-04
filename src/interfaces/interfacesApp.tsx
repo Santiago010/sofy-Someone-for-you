@@ -104,6 +104,7 @@ export interface PayloadSignUp {
   max_distance_km: null;
   min_age: null;
   max_age: null;
+  access_token: string;
 }
 
 export interface UserChat {

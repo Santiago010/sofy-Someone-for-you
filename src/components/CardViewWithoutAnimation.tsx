@@ -3,10 +3,11 @@ import React, {FC} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {colors} from '../theme/globalTheme';
 import {Chip} from 'react-native-paper';
-import {CardSwipe} from '../interfaces/interfacesApp';
+import {PayloadDetails} from '../interfaces/interfacesApp';
+import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
 
 interface CardViewWithoutAnimationProps {
-  card: CardSwipe;
+  card: PayloadDetails;
   index: number;
   width?: number;
   height?: number;
@@ -26,7 +27,10 @@ export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
       style={dynamicStyles.card}
       onPress={() => toggleModalWithUser(card)}>
       <View style={dynamicStyles.cardImage}>
-        <Image source={card.images[0] as any} style={dynamicStyles.image} />
+        <Image
+          source={{uri: resolveLocalhostUrl(card.individualFiles[0]?.file.url)}}
+          style={dynamicStyles.image}
+        />
       </View>
       <View style={dynamicStyles.cardFooter}>
         <View
@@ -34,7 +38,7 @@ export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
             flexDirection: 'column',
           }}>
           <Text style={dynamicStyles.cardFooterName}>
-            {card.firstName} {card.lastName}
+            {card.name} {card.lastname}
           </Text>
           <Text style={dynamicStyles.cardFooterAge}>{card.age}</Text>
         </View>
@@ -57,9 +61,9 @@ export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
             </Text>
           </View>
           <View style={dynamicStyles.interestContainer}>
-            {card.interest.map(interest => (
+            {card.categories.map(category => (
               <Chip
-                key={interest}
+                key={category.id}
                 mode="flat"
                 onPress={() => {}}
                 style={{
@@ -71,7 +75,7 @@ export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
                   color: colors.backgroundSecondary,
                   fontSize: Math.min(width, height) * 0.07,
                 }}>
-                {interest}
+                {category.name}
               </Chip>
             ))}
           </View>

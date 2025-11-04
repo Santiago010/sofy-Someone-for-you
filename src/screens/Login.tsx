@@ -20,8 +20,8 @@ export const Login = () => {
   const {login, transactionId, errorMessage, removeError} =
     useContext(AuthContext);
   const {onChange, form, email, password} = useForm({
-    email: 'sadhana@gmail.com',
-    password: 'p7EhCx33jwkQ*',
+    email: '',
+    password: '',
   });
 
   const sendData = () => {
@@ -63,7 +63,7 @@ export const Login = () => {
                 </Text>
                 <TextInput
                   mode="outlined"
-                  placeholder="username@gmail.com"
+                  placeholder="Email"
                   value={email}
                   onChangeText={text => onChange(text, 'email')}
                   keyboardType="email-address"

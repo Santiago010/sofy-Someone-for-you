@@ -20,11 +20,11 @@ export const Register = () => {
     useContext(AuthContext);
   const navigation = useNavigation<RegisterScreenNavigationProp>();
   const {onChange, form} = useForm({
-    firstName: 'elliot',
-    lastName: 'ortiz',
-    email: 'elliot@gmail.com',
-    password: 'p7EhCx33jwkQ*',
-    passwordVerification: 'p7EhCx33jwkQ*',
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    passwordVerification: '',
   });
 
   useEffect(() => {

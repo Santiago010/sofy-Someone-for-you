@@ -30,9 +30,14 @@ export default function EditPhoneNumber({navigation}: any) {
 
   useEffect(() => {
     if (detailsUser) {
-      onChange(detailsUser.phone, 'phoneNumber');
+      if (detailsUser.phone === null) {
+        onChange('a', phoneNumber);
+      } else {
+        onChange(detailsUser.phone, 'phoneNumber');
+      }
     }
-  }, []);
+    console.log(detailsUser);
+  }, [detailsUser]);
 
   useEffect(() => {
     setEditDetailsSuccessFun(false);
@@ -61,9 +66,6 @@ export default function EditPhoneNumber({navigation}: any) {
       };
 
       EditDetailsInfo(editDetailsInfoUser);
-      // Aquí puedes agregar la lógica para guardar el número de teléfono
-
-      // navigation.goBack();
     }
   };
 

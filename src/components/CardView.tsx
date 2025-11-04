@@ -1,5 +1,5 @@
 import React, {FC, memo, useEffect, useState} from 'react';
-import {CardSwipe} from '../interfaces/interfacesApp';
+import {PayloadDetails} from '../interfaces/interfacesApp';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -14,18 +14,21 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {colors} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import {Chip} from 'react-native-paper';
+import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
 
 const {heightWindow, widthWindow} = DeviceDimensions();
 const ROTATION_RANGE = 15;
 
 interface CardViewProps {
-  card: CardSwipe;
+  card: PayloadDetails;
   index: number;
   totalCards: any;
   panHandlers: any;
   translateX: SharedValue<number>;
   translateY: SharedValue<number>;
   nextCardScale: SharedValue<number>;
+  onLike?: () => void;
+  onDislike?: () => void;
 }
 
 const CardView: FC<CardViewProps> = ({
@@ -36,6 +39,8 @@ const CardView: FC<CardViewProps> = ({
   translateY,
   nextCardScale,
   panHandlers,
+  onLike,
+  onDislike,
 }) => {
   const [showBtnChangeImagetoLeft, setShowBtnChangeImagetoLeft] =
     useState(false);
@@ -150,7 +155,11 @@ const CardView: FC<CardViewProps> = ({
     <Animated.View style={[styles.card, animationStyle]} {...panHandlers}>
       <Animated.View style={[styles.cardImage, backgroundStyle]}>
         <Image
-          source={card.images[positionContainerImage]}
+          source={{
+            uri: resolveLocalhostUrl(
+              card.individualFiles[positionContainerImage]?.file.url,
+            ),
+          }}
           style={styles.image}
         />
       </Animated.View>
@@ -186,7 +195,7 @@ const CardView: FC<CardViewProps> = ({
             alignItems: 'center',
           }}>
           <Text style={styles.cardFooterName}>
-            {card.firstName} {card.lastName}
+            {card.name} {card.lastname}
           </Text>
           <Text style={styles.cardFooterAge}>, {card.age}</Text>
         </View>
@@ -210,9 +219,9 @@ const CardView: FC<CardViewProps> = ({
               </Text>
             </View>
             <View style={styles.interestContainer}>
-              {card.interest.map(interest => (
+              {card.categories.map(category => (
                 <Chip
-                  key={interest}
+                  key={category.id}
                   mode="flat"
                   onPress={() => {}}
                   style={{
@@ -223,7 +232,7 @@ const CardView: FC<CardViewProps> = ({
                   textStyle={{
                     color: colors.backgroundSecondary,
                   }}>
-                  {interest}
+                  {category.name}
                 </Chip>
               ))}
             </View>
@@ -244,8 +253,27 @@ const CardView: FC<CardViewProps> = ({
                 color: colors.backgroundSecondary,
                 fontSize: 16,
               }}>
-              {card.biography}
+              {card.description}
             </Text>
+          </View>
+        )}
+
+        {isTopCard && onLike && onDislike && (
+          <View style={styles.actionButtonContainer}>
+            <TouchableOpacity onPress={onDislike} style={styles.actionBtn}>
+              <MaterialDesignIcons
+                name="close"
+                size={30}
+                color={colors.error}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onLike} style={styles.actionBtn}>
+              <MaterialDesignIcons
+                name="cards-heart"
+                size={30}
+                color={colors.success}
+              />
+            </TouchableOpacity>
           </View>
         )}
       </View>
@@ -257,7 +285,7 @@ export default memo(CardView);
 
 const styles = StyleSheet.create({
   card: {
-    marginTop: 30,
+    marginTop: 0,
     width: widthWindow * 0.8,
     height: heightWindow * 0.6,
     backgroundColor: colors.background,
@@ -309,5 +337,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+  },
+  actionButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginTop: 20,
+    width: '100%',
+  },
+  actionBtn: {
+    backgroundColor: colors.background,
+    height: 70,
+    width: 70,
+    borderRadius: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: colors.text,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowRadius: 6,
+    elevation: 5,
   },
 });

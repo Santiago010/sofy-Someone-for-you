@@ -5,7 +5,7 @@ import {CardViewWithoutAnimation} from '../components/CardViewWithoutAnimation';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
 import {ModalInfoUser} from '../components/ModalInfoUser';
 import {data} from '../animations/data/data';
-import {CardSwipe} from '../interfaces/interfacesApp';
+import {PayloadDetails} from '../interfaces/interfacesApp';
 
 export default function SeeWhoLikesYou() {
   const {widthWindow} = DeviceDimensions();
@@ -29,7 +29,7 @@ export default function SeeWhoLikesYou() {
     setModalVisible(!modalVisible);
   };
 
-  const renderCard = ({item, index}: {item: CardSwipe; index: number}) => (
+  const renderCard = ({item, index}: {item: PayloadDetails; index: number}) => (
     <View
       style={[
         styles.cardContainer,

@@ -4,7 +4,7 @@ import {Text} from 'react-native-paper';
 import {CardViewWithoutAnimation} from '../components/CardViewWithoutAnimation';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
 import {data} from '../animations/data/data';
-import {CardSwipe} from '../interfaces/interfacesApp';
+import {PayloadDetails} from '../interfaces/interfacesApp';
 import {colors} from '../theme/globalTheme';
 import {ModalInfoUser} from '../components/ModalInfoUser';
 
@@ -28,7 +28,7 @@ export default function YouLikedMe() {
     setModalVisible(!modalVisible);
   };
 
-  const renderCard = ({item, index}: {item: CardSwipe; index: number}) => (
+  const renderCard = ({item, index}: {item: PayloadDetails; index: number}) => (
     <View
       style={[
         styles.cardContainer,

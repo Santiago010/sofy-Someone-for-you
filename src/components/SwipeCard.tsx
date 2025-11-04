@@ -1,10 +1,9 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {PanResponder, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {PanResponder, StyleSheet, View} from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
 import {data} from '../animations/data/data';
-import {CardSwipe} from '../interfaces/interfacesApp';
-import {MaterialDesignIcons} from '@react-native-vector-icons/material-design-icons';
+import {PayloadDetails} from '../interfaces/interfacesApp';
 import {Text} from 'react-native-paper';
 import CardView from './CardView';
 import {
@@ -29,10 +28,9 @@ const SWIPE_THRESHOLD = widthWindow * 0.25;
 const SWIPE_OUT_DURATION = 250;
 const REST_DURATION = 300;
 const datami = data;
-const sizeIcons = 30;
 
 export default function SwipeCard({location}: SwipeCardProps) {
-  const [data, setData] = useState<CardSwipe[]>(datami);
+  const [data, setData] = useState<PayloadDetails[]>(datami);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const dummyTranslate = useSharedValue(0);
@@ -42,14 +40,14 @@ export default function SwipeCard({location}: SwipeCardProps) {
     translateX.value = withTiming(0, {duration: REST_DURATION});
     translateY.value = withTiming(0, {duration: REST_DURATION});
     nextCardScale.value = withTiming(0.9, {duration: REST_DURATION});
-  }, []);
+  }, [translateX, translateY, nextCardScale]);
 
   const onSwipeComplete = useCallback(
     (direccion: 'right' | 'left' | 'up' | 'down') => {
       const action =
         direccion === 'right' || direccion === 'up' ? 'LIKED' : 'DISLIKED';
 
-      console.log('action -->', action, data[0]?.firstName);
+      console.log('action -->', action, data[0]?.name);
 
       if (data.length > 0) {
         setData(pre => pre.slice(1));
@@ -146,7 +144,7 @@ export default function SwipeCard({location}: SwipeCardProps) {
     }),
   ).current;
   const renderCard = useCallback(
-    (card: CardSwipe, index: number) => (
+    (card: PayloadDetails, index: number) => (
       <CardView
         key={card.id}
         card={card}
@@ -156,6 +154,8 @@ export default function SwipeCard({location}: SwipeCardProps) {
         nextCardScale={index === 1 ? nextCardScale : dummyTranslate}
         translateX={index === 0 ? translateX : dummyTranslate}
         translateY={index === 0 ? translateY : dummyTranslate}
+        onLike={handleLike}
+        onDislike={handleDisliked}
       />
     ),
     [
@@ -165,6 +165,8 @@ export default function SwipeCard({location}: SwipeCardProps) {
       nextCardScale,
       panResponder.panHandlers,
       dummyTranslate,
+      handleLike,
+      handleDisliked,
     ],
   );
 
@@ -179,53 +181,13 @@ export default function SwipeCard({location}: SwipeCardProps) {
           <Text style={styles.emptyText}>No More Cards</Text>
         </View>
       ) : (
-        <>
-          {data.map(renderCard).reverse()}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={handleDisliked} style={styles.btn}>
-              <MaterialDesignIcons
-                name="close"
-                size={sizeIcons}
-                color={colors.error}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleLike} style={styles.btn}>
-              <MaterialDesignIcons
-                name="cards-heart"
-                size={sizeIcons}
-                color={colors.success}
-              />
-            </TouchableOpacity>
-          </View>
-        </>
+        <>{data.map(renderCard).reverse()}</>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-evenly',
-  },
-  btn: {
-    backgroundColor: colors.background,
-    height: 70,
-    width: 70,
-    borderRadius: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: colors.text,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowRadius: 6,
-    elevation: 5,
-  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',

@@ -147,7 +147,7 @@ export const AuthProvider = ({
           refreshToken: refreshTokenData,
         },
       );
-      AsyncStorage.setItem('access_token', data.payload.access_token);
+      await AsyncStorage.setItem('access_token', data.payload.access_token);
       dispatch({
         type: 'setAccess_token',
         payload: {
@@ -242,6 +242,7 @@ export const AuthProvider = ({
         email,
         password,
       });
+      await AsyncStorage.setItem('access_token', data.payload.access_token);
       dispatch({
         type: 'setsignUpResponseWithInfoUser',
         payload: {signUpResponseWithInfoUser: data},
