@@ -7,12 +7,12 @@ import {MaterialDesignIcons} from '@react-native-vector-icons/material-design-ic
 import {colors} from '../theme/globalTheme';
 import {StackProfile} from './StackProfile';
 import TopTapNavigatorLikes from './TopTabNavigatorLikes';
-import {StackChats} from './StackChats';
+import Chats from '../screens/Chats';
 
 export type RootBottonTabNavigator = {
   Home: undefined;
   Likes: undefined;
-  StackChats: undefined;
+  Chats: undefined;
   StackProfile: undefined;
 };
 
@@ -33,7 +33,7 @@ export const BottonTabNavigator = () => {
             iconName = focused ? 'fire' : 'fire-circle';
           } else if (route.name === 'Likes') {
             iconName = focused ? 'heart' : 'heart-outline';
-          } else if (route.name === 'StacksChats') {
+          } else if (route.name === 'Chats') {
             iconName = focused ? 'chat' : 'chat-outline';
           } else if (route.name === 'StackProfile') {
             iconName = focused ? 'account' : 'account-outline';
@@ -65,7 +65,7 @@ export const BottonTabNavigator = () => {
       })}>
       <Tab.Screen name="Home" component={CardsUsers} />
       <Tab.Screen name="Likes" component={TopTapNavigatorLikes} />
-      <Tab.Screen name="StacksChats" component={StackChats} />
+      <Tab.Screen name="Chats" component={Chats} />
       <Tab.Screen name="StackProfile" component={StackProfile} />
     </Tab.Navigator>
   );

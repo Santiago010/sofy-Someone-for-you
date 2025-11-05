@@ -1,4 +1,4 @@
-import React, {FC} from 'react';
+import React, {FC, useContext, useEffect} from 'react';
 import {
   Image,
   Modal,
@@ -10,10 +10,12 @@ import {
   ScrollView,
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
-import {colors} from '../theme/globalTheme';
-import {Chip} from 'react-native-paper';
+import {colors, commonStyles} from '../theme/globalTheme';
+import {Button, Chip} from 'react-native-paper';
 import {PayloadDetails} from '../interfaces/interfacesApp';
 import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
+import {useCometChat} from '../hooks/useCometChat';
+import {AuthContext} from '../context/authContext/authContext';
 
 interface ModalInfoProps {
   modalVisible: boolean;
@@ -28,8 +30,29 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
   user,
   completeInfo,
 }) => {
+  const {GetDetailsUser, detailsUser} = useContext(AuthContext);
+
+  useEffect(() => {
+    GetDetailsUser();
+  }, []);
+
+  const {sendMessageToUser} = useCometChat();
+
+  const handleReturnLike = async () => {
+    if (detailsUser !== null) {
+      const result = await sendMessageToUser(`${detailsUser.id}`, `${user.id}`);
+      if (result.success) {
+        console.log('Mensaje enviado correctamente');
+        toggleModal();
+      } else {
+        console.error('Error al enviar mensaje:', result.error);
+      }
+    } else {
+      console.log('no tenemos detailsUser aun');
+    }
+  };
+
   if (completeInfo) {
-    console.log(completeInfo);
     return (
       <Modal
         animationType="fade"
@@ -119,6 +142,13 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                       </Chip>
                     ))}
                   </View>
+                  <Button
+                    mode="contained"
+                    onPress={handleReturnLike}
+                    style={{...commonStyles.buttonAction, marginTop: 20}}
+                    labelStyle={commonStyles.loginButtonText}>
+                    Return Like
+                  </Button>
                 </View>
               )}
             </ScrollView>

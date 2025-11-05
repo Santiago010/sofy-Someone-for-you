@@ -282,8 +282,6 @@ export const AuthProvider = ({
           },
         },
       );
-
-      console.log('Image uploaded successfully:', data);
       return Promise.resolve();
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -367,7 +365,6 @@ export const AuthProvider = ({
   const removeImage = async (id: string): Promise<void> => {
     try {
       const {data} = await privateDB.delete(`individuals-files/${id}`);
-      console.log('Image deleted successfully:', data);
       return Promise.resolve();
     } catch (error) {
       console.error('Error deleting image:', error);

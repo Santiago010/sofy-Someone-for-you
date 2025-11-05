@@ -189,6 +189,13 @@ export const commonStyles = {
     marginBottom: 20,
   },
 
+  buttonAction: {
+    backgroundColor: colors.secondary,
+    borderRadius: 25,
+    paddingVertical: 8,
+    marginBottom: 20,
+  },
+
   loginButtonText: {
     fontSize: 16,
     fontWeight: 'bold' as const,

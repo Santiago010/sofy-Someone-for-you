@@ -36,7 +36,6 @@ export default function EditPhoneNumber({navigation}: any) {
         onChange(detailsUser.phone, 'phoneNumber');
       }
     }
-    console.log(detailsUser);
   }, [detailsUser]);
 
   useEffect(() => {

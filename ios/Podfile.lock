@@ -2,6 +2,7 @@ PODS:
   - boost (1.83.0)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
+  - DVAssetLoaderDelegate (0.3.3)
   - FBLazyVector (0.73.9)
   - FBReactNativeSpec (0.73.9):
     - RCT-Folly (= 2022.05.16.00)
@@ -944,6 +945,17 @@ PODS:
   - React-Mapbuffer (0.73.9):
     - glog
     - React-debug
+  - react-native-cometchat-ui-kit (5.2.1):
+    - React-Core
+    - react-native-cometchat-ui-kit/Video (= 5.2.1)
+    - react-native-cometchat-ui-kit/VideoCaching (= 5.2.1)
+  - react-native-cometchat-ui-kit/Video (5.2.1):
+    - React-Core
+  - react-native-cometchat-ui-kit/VideoCaching (5.2.1):
+    - DVAssetLoaderDelegate (~> 0.3.1)
+    - React-Core
+    - react-native-cometchat-ui-kit/Video
+    - SPTPersistentCache (~> 1.1.0)
   - react-native-geolocation (3.4.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
@@ -961,6 +973,11 @@ PODS:
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
   - react-native-vector-icons-material-design-icons (12.3.0)
+  - react-native-video (5.2.1):
+    - React-Core
+    - react-native-video/Video (= 5.2.1)
+  - react-native-video/Video (5.2.1):
+    - React-Core
   - React-nativeconfig (0.73.9)
   - React-NativeModulesApple (0.73.9):
     - glog
@@ -1128,7 +1145,11 @@ PODS:
     - React-jsi (= 0.73.9)
     - React-logger (= 0.73.9)
     - React-perflogger (= 0.73.9)
-  - RNCAsyncStorage (1.21.0):
+  - RNCAsyncStorage (1.24.0):
+    - React-Core
+  - RNCClipboard (1.16.3):
+    - React-Core
+  - RNDateTimePicker (8.5.0):
     - React-Core
   - RNGestureHandler (2.15.0):
     - glog
@@ -1145,7 +1166,10 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+  - RNSVG (13.9.0):
+    - React-Core
   - SocketRocket (0.6.1)
+  - SPTPersistentCache (1.1.0)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -1201,12 +1225,14 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector-modern`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - "react-native-cometchat-ui-kit (from `../node_modules/@cometchat/chat-uikit-react-native`)"
   - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - "react-native-vector-icons-material-design-icons (from `../node_modules/@react-native-vector-icons/material-design-icons`)"
+  - react-native-video (from `../node_modules/react-native-video`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -1228,15 +1254,19 @@ DEPENDENCIES:
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
+  - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
     - CocoaAsyncSocket
+    - DVAssetLoaderDelegate
     - Flipper
     - Flipper-Boost-iOSX
     - Flipper-DoubleConversion
@@ -1249,6 +1279,7 @@ SPEC REPOS:
     - libevent
     - OpenSSL-Universal
     - SocketRocket
+    - SPTPersistentCache
 
 EXTERNAL SOURCES:
   boost:
@@ -1306,6 +1337,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-cometchat-ui-kit:
+    :path: "../node_modules/@cometchat/chat-uikit-react-native"
   react-native-geolocation:
     :path: "../node_modules/@react-native-community/geolocation"
   react-native-image-picker:
@@ -1318,6 +1351,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/slider"
   react-native-vector-icons-material-design-icons:
     :path: "../node_modules/@react-native-vector-icons/material-design-icons"
+  react-native-video:
+    :path: "../node_modules/react-native-video"
   React-nativeconfig:
     :path: "../node_modules/react-native/ReactCommon"
   React-NativeModulesApple:
@@ -1360,6 +1395,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNCClipboard:
+    :path: "../node_modules/@react-native-clipboard/clipboard"
+  RNDateTimePicker:
+    :path: "../node_modules/@react-native-community/datetimepicker"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNPermissions:
@@ -1368,6 +1407,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -1375,6 +1416,7 @@ SPEC CHECKSUMS:
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
+  DVAssetLoaderDelegate: 0caec20e4e08b8560b691131539e9180024d4bce
   FBLazyVector: 98c189b92292d4bfeac13ffa8df3ce3d84e2fc5b
   FBReactNativeSpec: 4fe1d8c2fadc7949344b197d933f76b40401aac5
   Flipper: c7a0093234c4bdd456e363f2f19b2e4b27652d44
@@ -1411,12 +1453,14 @@ SPEC CHECKSUMS:
   React-jsinspector: aee04d04ef553d5e30e52a4de2af958cb060069f
   React-logger: ef76a6d8e04672f19be9b3a49f6ecc4c7141399b
   React-Mapbuffer: 3dd48fdc197c566c90774761e4799e86b1937572
+  react-native-cometchat-ui-kit: 4867d91a174da9bd7f7c5cb91c0f7e02d52c36d2
   react-native-geolocation: 49ea939d13f095705a71891555cc76215e63ec6a
   react-native-image-picker: bb3a66064010886b9472200945841e2cf79e1b52
   react-native-pager-view: 7c6ae059318d0e7e72ff474f13ff5b246ce7d826
   react-native-safe-area-context: 758e894ca5a9bd1868d2a9cfbca7326a2b6bf9dc
   react-native-slider: 70850a334f263882fc5bc864358d4f2aecbf2a8e
   react-native-vector-icons-material-design-icons: 6b7b503b1c6deabae8fea584dd4b22311130d564
+  react-native-video: 2aad0d963bf3952bd9ebb2f53fab799338e8e202
   React-nativeconfig: c1729ab95240ec80d47a2bb8354d8f31138e35a7
   React-NativeModulesApple: 521cf070f15e717221f440e8d9b7b508db2fd456
   React-perflogger: c93b6a895eca3f9196656bb20ce0e15ad597a4e9
@@ -1437,12 +1481,16 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 0143f14b1b4b6b68be0f68f75391e5ba9fedb733
   React-utils: 3914b10f3e2b95e78ab7cc53c98541d504ae387f
   ReactCommon: 03a07a32cbaf798b01e7025001d6fa5a862709f6
-  RNCAsyncStorage: a03b770a50541a761447cea9c24536047832124d
+  RNCAsyncStorage: b6410dead2732b5c72a7fdb1ecb5651bbcf4674b
+  RNCClipboard: f6679d470d0da2bce2a37b0af7b9e0bf369ecda5
+  RNDateTimePicker: 22c0ea66424371299c2fb82b342d9e384bc84d0b
   RNGestureHandler: 4fe9dbe20b22c597b3ac3eae5d87876dc6b6fff1
   RNPermissions: 76976d82be7cd892eee8402ed5f834fafae3614a
   RNReanimated: ad6fbfef871ca6c05a4892961ae3fb272aff0c1d
   RNScreens: 59f615aa0782077560c8eea46c2daec3a716dba9
+  RNSVG: 67c430ac7a54043cac37f6bd7bc94f8e22d8a64a
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  SPTPersistentCache: df36ea46762d7cf026502bbb86a8b79d0080dff4
   Yoga: 57d2ffe418d024d56f8b0047f335c677e4c4d9ac
 
 PODFILE CHECKSUM: de74496d321bf5cd3c8937d6185f47bcb29305cb

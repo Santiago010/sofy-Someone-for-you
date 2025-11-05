@@ -67,12 +67,8 @@ export default function SwipeCard({location}: SwipeCardProps) {
   );
 
   useEffect(() => {
-    console.log(data);
-  }, [data]);
-
-  useEffect(() => {
     if (location?.latitude && location?.longitude) {
-      console.log('Ubicación recibida en SwipeCard:', location);
+      //   console.log('Ubicación recibida en SwipeCard:', location);
       // Aquí puedes usar la ubicación para filtrar usuarios cercanos,
       // hacer llamadas API con parámetros de ubicación, etc.
     }

@@ -49,10 +49,6 @@ export default function EditProfile({navigation}: any) {
   }, []);
 
   useEffect(() => {
-    console.log({origen: 'formData', formData});
-  }, [formData]);
-
-  useEffect(() => {
     if (errorMessage.length) {
       showError({screen: 'Edit Profile', errorMessage, removeError});
     }

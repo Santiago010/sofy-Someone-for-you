@@ -91,7 +91,7 @@ export const useLocation = (): UseLocationReturn => {
           await reverseGeocode(latitude, longitude);
 
           setIsLoadingLocation(false);
-          console.log('Ubicación obtenida:', {latitude, longitude});
+          //   console.log('Ubicación obtenida:', {latitude, longitude});
         },
         error => {
           setIsLoadingLocation(false);

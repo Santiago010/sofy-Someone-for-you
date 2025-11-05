@@ -40,7 +40,6 @@ export const Profile = () => {
         profile: detailsUser.individualFiles[0].file.url,
       });
     }
-    console.log(detailsUser);
   }, [detailsUser]);
 
   return (

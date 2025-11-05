@@ -9,6 +9,7 @@ import LogoSofy from '../components/LogoSofy';
 import {AuthContext} from '../context/authContext/authContext';
 import {useForm} from '../hooks/useForm';
 import {showError} from '../helpers/ShowError';
+import {useCometChat} from '../hooks/useCometChat';
 
 type RegisterScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -18,6 +19,7 @@ type RegisterScreenNavigationProp = StackNavigationProp<
 export const Register = () => {
   const {signUp, errorMessage, removeError, signUpResponseWithInfoUser} =
     useContext(AuthContext);
+  const {createCometChatUser} = useCometChat();
   const navigation = useNavigation<RegisterScreenNavigationProp>();
   const {onChange, form} = useForm({
     firstName: '',
@@ -29,13 +31,26 @@ export const Register = () => {
 
   useEffect(() => {
     if (signUpResponseWithInfoUser !== null) {
-      navigation.navigate('InfoUser');
+      createCometChatUser(
+        `${signUpResponseWithInfoUser.payload.id}`,
+        signUpResponseWithInfoUser.payload.name,
+      )
+        .then(() => {
+          navigation.navigate('InfoUser');
+        })
+        .catch(() => {
+          showError({
+            screen: 'Register',
+            errorMessage: 'Error al crear usuario en CometChat',
+            removeError,
+          });
+        });
     }
   }, [signUpResponseWithInfoUser]);
 
   useEffect(() => {
     if (errorMessage.length > 0) {
-      showError({errorMessage, removeError});
+      showError({screen: 'Register', errorMessage, removeError});
     }
   }, [errorMessage]);
 
