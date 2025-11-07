@@ -43,7 +43,12 @@ const Messages = ({
       <CometChatMessageList user={user} group={group} />
 
       {/* Input field + action buttons (emoji, attach, send, etc.) */}
-      <CometChatMessageComposer user={user} group={group} />
+      <CometChatMessageComposer
+        hideVideoAttachmentOption={true}
+        hideFileAttachmentOption={true}
+        user={user}
+        group={group}
+      />
     </View>
   );
 };

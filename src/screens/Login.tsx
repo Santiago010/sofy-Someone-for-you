@@ -21,7 +21,7 @@ export const Login = () => {
     useContext(AuthContext);
   const {onChange, form, email, password} = useForm({
     email: '',
-    password: '',
+    password: 'p7EhCx33jwkQ*',
   });
 
   const sendData = () => {

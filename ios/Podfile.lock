@@ -1155,6 +1155,8 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+  - RNLocalize (3.2.1):
+    - React-Core
   - RNPermissions (5.4.3):
     - React-Core
   - RNReanimated (3.6.2):
@@ -1257,6 +1259,7 @@ DEPENDENCIES:
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -1401,6 +1404,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/datetimepicker"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNLocalize:
+    :path: "../node_modules/react-native-localize"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
   RNReanimated:
@@ -1485,6 +1490,7 @@ SPEC CHECKSUMS:
   RNCClipboard: f6679d470d0da2bce2a37b0af7b9e0bf369ecda5
   RNDateTimePicker: 22c0ea66424371299c2fb82b342d9e384bc84d0b
   RNGestureHandler: 4fe9dbe20b22c597b3ac3eae5d87876dc6b6fff1
+  RNLocalize: e7378161f0b6a6365407eb2377aab46cc38047d8
   RNPermissions: 76976d82be7cd892eee8402ed5f834fafae3614a
   RNReanimated: ad6fbfef871ca6c05a4892961ae3fb272aff0c1d
   RNScreens: 59f615aa0782077560c8eea46c2daec3a716dba9

@@ -5,7 +5,6 @@ import {colors} from '../theme/globalTheme';
 import {Chip} from 'react-native-paper';
 import {PayloadDetails} from '../interfaces/interfacesApp';
 import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
-
 interface CardViewWithoutAnimationProps {
   card: PayloadDetails;
   index: number;

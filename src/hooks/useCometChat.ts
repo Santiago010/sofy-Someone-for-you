@@ -6,7 +6,6 @@ import {
 import {CometChat} from '@cometchat/chat-sdk-react-native';
 import {appId, authKey, region, restKey} from '../assets/KeysCometChat';
 import axios, {AxiosError} from 'axios';
-import {err} from 'react-native-svg/lib/typescript/xml';
 
 export const useCometChat = () => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -100,7 +99,11 @@ export const useCometChat = () => {
     }
   };
 
-  const sendMessageToUser = async (senderUid: string, receiverId: string) => {
+  const sendMessageToUser = async (
+    senderUid: string,
+    receiverId: string,
+    message: string,
+  ) => {
     try {
       const body = {
         receiver: receiverId,
@@ -108,7 +111,7 @@ export const useCometChat = () => {
         category: 'message',
         type: 'text',
         data: {
-          text: 'Hola',
+          text: message,
         },
       };
 

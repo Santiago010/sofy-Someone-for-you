@@ -6,11 +6,13 @@ import {DeviceDimensions} from '../helpers/DeviceDimensiones';
 import {ModalInfoUser} from '../components/ModalInfoUser';
 import {data} from '../animations/data/data';
 import {PayloadDetails} from '../interfaces/interfacesApp';
+import {ModalMatch} from '../components/ModalMatch';
 
 export default function SeeWhoLikesYou() {
   const {widthWindow} = DeviceDimensions();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisibleMatch, setModalVisibleMatch] = useState(false);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [userToSee, setuserToSee] = useState({});
 
@@ -27,6 +29,15 @@ export default function SeeWhoLikesYou() {
   const toggleModalWithUser = (user: any) => {
     setuserToSee(user);
     setModalVisible(!modalVisible);
+  };
+
+  const toggleModalMatch = () => {
+    setModalVisibleMatch(!modalVisibleMatch);
+  };
+
+  const toggleModalToMatch = () => {
+    setModalVisible(false);
+    setModalVisibleMatch(true);
   };
 
   const renderCard = ({item, index}: {item: PayloadDetails; index: number}) => (
@@ -64,9 +75,17 @@ export default function SeeWhoLikesYou() {
 
       <ModalInfoUser
         user={userToSee}
+        originScreen={'SeeWhoLikesYou'}
         modalVisible={modalVisible}
         completeInfo={true}
         toggleModal={toggleModal}
+        toggleModalToMatch={toggleModalToMatch}
+      />
+
+      <ModalMatch
+        user={userToSee}
+        modalVisible={modalVisibleMatch}
+        toggleModal={toggleModalMatch}
       />
     </View>
   );

@@ -6,6 +6,7 @@ import {DeviceDimensions} from '../helpers/DeviceDimensiones';
 import {data} from '../animations/data/data';
 import {PayloadDetails} from '../interfaces/interfacesApp';
 import {colors} from '../theme/globalTheme';
+import {ModalMatch} from '../components/ModalMatch';
 import {ModalInfoUser} from '../components/ModalInfoUser';
 
 export default function YouLikedMe() {
@@ -65,6 +66,7 @@ export default function YouLikedMe() {
 
       <ModalInfoUser
         user={userToSee}
+        originScreen={'YouLikedMe'}
         modalVisible={modalVisible}
         completeInfo={true}
         toggleModal={toggleModal}

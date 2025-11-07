@@ -8,7 +8,7 @@
 import React from 'react';
 import 'react-native-gesture-handler';
 import 'react-native-reanimated';
-import {LogBox} from 'react-native';
+import {LogBox, Platform} from 'react-native';
 
 import {PaperProvider} from 'react-native-paper';
 import {AuthProvider} from './src/context/authContext/authContext';
@@ -37,6 +37,16 @@ function App(): React.JSX.Element {
   LogBox.ignoreLogs([
     "Sending 'onAnimatedValueUpdate' with no listeners registered.",
   ]);
+
+  LogBox.ignoreLogs([
+    'Attempted to register RCTBridgeModule class RCTVideoManager',
+  ]);
+
+  if (Platform.OS === 'ios') {
+    LogBox.ignoreLogs([
+      'PermissionsAndroid module works only for Android platform.',
+    ]);
+  }
 
   return (
     <AppState>

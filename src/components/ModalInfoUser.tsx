@@ -19,16 +19,20 @@ import {AuthContext} from '../context/authContext/authContext';
 
 interface ModalInfoProps {
   modalVisible: boolean;
+  originScreen: 'SeeWhoLikesYou' | 'YouLikedMe';
   toggleModal: () => void;
   completeInfo: boolean;
   user: PayloadDetails;
+  toggleModalToMatch?: () => void;
 }
 
 export const ModalInfoUser: FC<ModalInfoProps> = ({
   modalVisible,
   toggleModal,
   user,
+  originScreen,
   completeInfo,
+  toggleModalToMatch,
 }) => {
   const {GetDetailsUser, detailsUser} = useContext(AuthContext);
 
@@ -40,7 +44,11 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
 
   const handleReturnLike = async () => {
     if (detailsUser !== null) {
-      const result = await sendMessageToUser(`${detailsUser.id}`, `${user.id}`);
+      const result = await sendMessageToUser(
+        `${detailsUser.id}`,
+        `${user.id}`,
+        'hola',
+      );
       if (result.success) {
         console.log('Mensaje enviado correctamente');
         toggleModal();
@@ -142,13 +150,19 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                       </Chip>
                     ))}
                   </View>
-                  <Button
-                    mode="contained"
-                    onPress={handleReturnLike}
-                    style={{...commonStyles.buttonAction, marginTop: 20}}
-                    labelStyle={commonStyles.loginButtonText}>
-                    Return Like
-                  </Button>
+                  {originScreen === 'SeeWhoLikesYou' && (
+                    <Button
+                      mode="contained"
+                      onPress={() => {
+                        if (toggleModalToMatch) {
+                          toggleModalToMatch();
+                        }
+                      }}
+                      style={{...commonStyles.buttonAction, marginTop: 20}}
+                      labelStyle={commonStyles.loginButtonText}>
+                      Return Like
+                    </Button>
+                  )}
                 </View>
               )}
             </ScrollView>
