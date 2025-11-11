@@ -1,0 +1,8 @@
+-cuando envio el id del usuario actual logueado debo sacarlo del jwt y no de GetDetailsUser
+
+-cuando el backend se suba hay que quitar de las uri de las imagenes GetImageTemp
+
+he implementar y modificar los subIntereses en la interfaz y en las peticiones a la api
+
+
+verificar que se este actualizando la description

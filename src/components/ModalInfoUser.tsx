@@ -12,10 +12,7 @@ import {
 import Carousel from 'react-native-reanimated-carousel';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {Button, Chip} from 'react-native-paper';
-import {PayloadDetails} from '../interfaces/interfacesApp';
 import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
-import {useCometChat} from '../hooks/useCometChat';
-import {AuthContext} from '../context/authContext/authContext';
 
 interface ModalInfoProps {
   modalVisible: boolean;
@@ -34,32 +31,6 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
   completeInfo,
   toggleModalToMatch,
 }) => {
-  const {GetDetailsUser, detailsUser} = useContext(AuthContext);
-
-  useEffect(() => {
-    GetDetailsUser();
-  }, []);
-
-  const {sendMessageToUser} = useCometChat();
-
-  const handleReturnLike = async () => {
-    if (detailsUser !== null) {
-      const result = await sendMessageToUser(
-        `${detailsUser.id}`,
-        `${user.id}`,
-        'hola',
-      );
-      if (result.success) {
-        console.log('Mensaje enviado correctamente');
-        toggleModal();
-      } else {
-        console.error('Error al enviar mensaje:', result.error);
-      }
-    } else {
-      console.log('no tenemos detailsUser aun');
-    }
-  };
-
   if (completeInfo) {
     return (
       <Modal

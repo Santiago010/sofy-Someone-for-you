@@ -8,6 +8,7 @@ export interface AuthState {
   signUpResponseWithInfoUser: SignUpResponse | null;
   detailsUser: PayloadDetails | null;
   editDetailsSuccess: boolean;
+  idUserForChats?: number;
 }
 
 type AuthAction =
@@ -17,13 +18,13 @@ type AuthAction =
   | {type: 'notAuthenticated'}
   | {type: 'logout'}
   | {type: 'setAccess_token'; payload: {access_token: string}}
-  | {type: 'authenticatedProv'}
   | {type: 'GetDetailsUser'; payload: {detailsUser: PayloadDetails}}
   | {
       type: 'setsignUpResponseWithInfoUser';
       payload: {signUpResponseWithInfoUser: SignUpResponse};
     }
-  | {type: 'setEditDetailsSuccess'; payload: boolean};
+  | {type: 'setEditDetailsSuccess'; payload: boolean}
+  | {type: 'setIDUserForChats'; payload: {idUserForChats: number}};
 
 export const authReducer = (
   state: AuthState,
@@ -51,15 +52,15 @@ export const authReducer = (
         ...state,
         errorMessage: '',
       };
-    case 'authenticatedProv':
-      return {
-        ...state,
-        status: 'authenticated',
-      };
     case 'login':
       return {
         ...state,
         transactionId: action.payload.transactionId,
+      };
+    case 'setIDUserForChats':
+      return {
+        ...state,
+        idUserForChats: action.payload.idUserForChats,
       };
     case 'setAccess_token':
       return {

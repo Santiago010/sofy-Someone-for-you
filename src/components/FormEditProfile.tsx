@@ -1,11 +1,15 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, ActivityIndicator} from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {Button, Chip, RadioButton, Text, TextInput} from 'react-native-paper';
 import Slider from '@react-native-community/slider';
 import useGetInterest from '../hooks/getInterest';
 import useGetGender from '../hooks/getGenders';
-import {InterestResponse} from '../interfaces/interfacesApp';
+import {
+  InterestAndSubInterestResponse,
+  subcategories,
+} from '../interfaces/interfacesApp';
+import useGetInterestWithSubInterest from '../hooks/getInterestWithSubInterest';
 
 export default function FormEditProfile({
   formData,
@@ -15,7 +19,13 @@ export default function FormEditProfile({
   getFilledFieldsCount,
 }: any) {
   // Usar el hook para obtener intereses
-  const {data, loading, error} = useGetInterest();
+
+  // Usar el hook para obtener intereses con subintereses
+  const {
+    data: interestsWithSub,
+    loading: loadingWithSub,
+    error: errorWithSub,
+  } = useGetInterestWithSubInterest();
 
   // Usar el hook para obtener géneros
   const {
@@ -23,6 +33,9 @@ export default function FormEditProfile({
     loading: genderLoading,
     error: genderError,
   } = useGetGender();
+
+  // Estado para controlar mostrar todos los intereses
+  const [showAllInterests, setShowAllInterests] = useState(false);
 
   // Función para manejar cambios en inputs
   const handleInputChange = (field: string, value: string) => {
@@ -39,15 +52,26 @@ export default function FormEditProfile({
     }));
   };
 
-  const toggleInterest = (interest: InterestResponse) => {
-    setFormData(prev => {
-      const isSelected = prev.selectedInterests.some(i => i.id === interest.id);
+  // Toggle para intereses principales
+  const toggleInterest = (interest: InterestAndSubInterestResponse) => {
+    setFormData((prev: any) => {
+      const isSelected = prev.selectedInterests.some(
+        (i: InterestAndSubInterestResponse) => i.id === interest.id,
+      );
       if (isSelected) {
+        // Al desseleccionar, quitar también los subintereses relacionados
+        const filteredSubInterests = prev.selectedSubInterests.filter(
+          (sub: subcategories) =>
+            !interest.subcategories.some(
+              (si: subcategories) => si.id === sub.id,
+            ),
+        );
         return {
           ...prev,
           selectedInterests: prev.selectedInterests.filter(
-            i => i.id !== interest.id,
+            (i: InterestAndSubInterestResponse) => i.id !== interest.id,
           ),
+          selectedSubInterests: filteredSubInterests,
         };
       } else if (prev.selectedInterests.length < 5) {
         return {
@@ -55,7 +79,32 @@ export default function FormEditProfile({
           selectedInterests: [...prev.selectedInterests, interest],
         };
       }
-      return prev; // Máximo 5 intereses
+      return prev;
+    });
+  };
+
+  // Toggle para subintereses
+  const toggleSubInterest = (
+    interestId: number,
+    subInterest: subcategories,
+  ) => {
+    setFormData((prev: any) => {
+      const isSelected = prev.selectedSubInterests.some(
+        (si: subcategories) => si.id === subInterest.id,
+      );
+      if (isSelected) {
+        return {
+          ...prev,
+          selectedSubInterests: prev.selectedSubInterests.filter(
+            (si: subcategories) => si.id !== subInterest.id,
+          ),
+        };
+      } else {
+        return {
+          ...prev,
+          selectedSubInterests: [...prev.selectedSubInterests, subInterest],
+        };
+      }
     });
   };
 
@@ -146,42 +195,100 @@ export default function FormEditProfile({
           />
         </View>
 
-        {/* Selector de intereses */}
-        {loading && (
+        {/* Selector de intereses con subintereses */}
+        {loadingWithSub && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
             <Text style={styles.loadingText}>Cargando intereses...</Text>
           </View>
         )}
-        {error && (
+        {errorWithSub && (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.errorText}>{errorWithSub}</Text>
           </View>
         )}
-        {!loading && !error && (
+        {!loadingWithSub && !errorWithSub && (
           <View style={styles.field}>
             <Text variant="labelMedium" style={styles.label}>
               Select up to 5 interest
             </Text>
             <View style={styles.interestsContainer}>
-              {data.map(interest => {
+              {(showAllInterests
+                ? interestsWithSub
+                : interestsWithSub.slice(0, 13)
+              ).map((interest: InterestAndSubInterestResponse) => {
                 const isSelected = formData.selectedInterests.some(
-                  i => i.id === interest.id,
+                  (i: InterestAndSubInterestResponse) => i.id === interest.id,
                 );
                 return (
-                  <Chip
+                  <View
                     key={interest.id}
-                    mode={isSelected ? 'flat' : 'outlined'}
-                    onPress={() => toggleInterest(interest)}
-                    style={[
-                      styles.interestChip,
-                      isSelected && styles.selectedChip,
-                    ]}
-                    textStyle={isSelected && styles.selectedChipText}>
-                    {interest.name}
-                  </Chip>
+                    style={{marginBottom: 8, width: '100%'}}>
+                    <Chip
+                      mode={isSelected ? 'flat' : 'outlined'}
+                      onPress={() => toggleInterest(interest)}
+                      style={[
+                        styles.interestChip,
+                        isSelected && styles.selectedChip,
+                      ]}
+                      textStyle={isSelected && styles.selectedChipText}>
+                      {interest.name}
+                    </Chip>
+                    {/* Renderizar subintereses si el interés está seleccionado */}
+                    {isSelected && (
+                      <View style={styles.subInterestsContainer}>
+                        {interest.subcategories.map((sub: subcategories) => {
+                          const isSubSelected =
+                            formData.selectedSubInterests.some(
+                              (si: subcategories) => si.id === sub.id,
+                            );
+                          return (
+                            <Chip
+                              key={sub.id}
+                              mode={isSubSelected ? 'flat' : 'outlined'}
+                              onPress={() =>
+                                toggleSubInterest(interest.id, sub)
+                              }
+                              style={[
+                                styles.subInterestChip,
+                                isSubSelected && styles.selectedChip,
+                              ]}
+                              textStyle={
+                                isSubSelected && styles.selectedChipText
+                              }>
+                              {sub.name}
+                            </Chip>
+                          );
+                        })}
+                      </View>
+                    )}
+                  </View>
                 );
               })}
+              {/* Botón para ver más intereses si hay más de 13 */}
+              {interestsWithSub.length > 13 && !showAllInterests && (
+                <View
+                  style={{width: '100%', alignItems: 'center', marginTop: 8}}>
+                  <Button
+                    mode="outlined"
+                    onPress={() => setShowAllInterests(true)}
+                    style={{borderRadius: 8}}>
+                    Ver más
+                  </Button>
+                </View>
+              )}
+              {/* Botón para mostrar menos si se están mostrando todos */}
+              {interestsWithSub.length > 13 && showAllInterests && (
+                <View
+                  style={{width: '100%', alignItems: 'center', marginTop: 8}}>
+                  <Button
+                    mode="outlined"
+                    onPress={() => setShowAllInterests(false)}
+                    style={{borderRadius: 8}}>
+                    Mostrar menos
+                  </Button>
+                </View>
+              )}
             </View>
           </View>
         )}
@@ -389,8 +496,21 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
   },
+  subInterestsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 6,
+    marginLeft: 12,
+  },
   interestChip: {
     margin: 2,
+  },
+  subInterestChip: {
+    margin: 2,
+    backgroundColor: colors.background,
+    borderColor: colors.primary,
+    borderWidth: 1,
   },
   selectedChip: {
     backgroundColor: colors.primary,

@@ -93,7 +93,7 @@ export const CardsUsers = () => {
       style={{
         flex: 1,
         backgroundColor: colors.background,
-        paddingTop: Platform.OS === 'ios' ? 40 : 20,
+        paddingTop: Platform.OS === 'ios' ? 40 : 0,
       }}>
       <LogoSofy withMarginBotton={false} />
       <SwipeCard location={location} />

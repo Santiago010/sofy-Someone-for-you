@@ -136,6 +136,17 @@ export interface InterestResponse {
   name: string;
 }
 
+export interface InterestAndSubInterestResponse {
+  id: number;
+  name: string;
+  subcategories: subcategories[];
+}
+
+export interface subcategories {
+  id: number;
+  name: string;
+}
+
 export interface GenderResponse {
   id: number;
   name: string;
@@ -145,6 +156,20 @@ export interface UploadFile {
   uri: string;
   type: string;
   name: string;
+}
+
+export interface CompleteInfoUser2 {
+  subcategories: string;
+  age: number; // ISO date format YYYY-MM-DD
+  gender_id: number;
+  interested_gender_id: number;
+  max_distance_km: Float;
+  min_age: number;
+  max_age: number;
+  email: string;
+  photos: UploadFile[];
+  description: string;
+  //   TODO:PONER descripcion
 }
 
 export interface CompleteInfoUser {
@@ -158,6 +183,22 @@ export interface CompleteInfoUser {
   email: string;
   photos: UploadFile[];
   description: string;
+  //   TODO:PONER descripcion
+}
+
+export interface EditDetailsInfoUser2 {
+  subcategories?: string;
+  age?: number; // ISO date format YYYY-MM-DD
+  gender_id?: number;
+  interested_gender_id?: number;
+  max_distance_km?: number; // Cambié Float por number
+  min_age?: number;
+  max_age?: number;
+  email?: string;
+  name?: string;
+  lastname?: string;
+  phone?: string;
+  description?: string;
   //   TODO:PONER descripcion
 }
 
@@ -207,11 +248,11 @@ export interface CompleteInfoUserError {
 export interface GetDetailsResponse {
   error: boolean;
   statusCode: number;
-  payload: PayloadDetails;
+  payload: PayloadDetails2;
   message: string;
 }
 
-export interface PayloadDetails {
+export interface PayloadDetails2 {
   id: number;
   name: string;
   lastname: string;
@@ -227,7 +268,6 @@ export interface PayloadDetails {
   created_at: Date;
   updated_at: Date;
   is_active: boolean;
-  categories: InterestResponse[];
   age: number;
   gender: GenderResponse;
   interested_gender: GenderResponse;
@@ -235,6 +275,7 @@ export interface PayloadDetails {
   min_age: number;
   max_age: number;
   individualFiles: IndividualFile[];
+  categories: InterestAndSubInterestResponse[];
 }
 
 export interface IndividualFile {
@@ -314,4 +355,15 @@ export interface PayloadResponseEditDetailsUser {
   min_age: number;
   max_age: number;
   individualFiles: any[];
+}
+
+export interface IDResponse {
+  error: boolean;
+  statusCode: number;
+  payload: PayloadIDResponse;
+  message: string;
+}
+
+export interface PayloadIDResponse {
+  id: number;
 }

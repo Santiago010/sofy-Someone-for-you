@@ -10,40 +10,43 @@ import {
   SignUpError,
   SignInError,
   VerificationCodeError,
-  CompleteInfoUser,
   CompleteInfoUserResponse,
   CompleteInfoUserError,
   GetDetailsResponse,
   ResponseEditDetailsUser,
-  PayloadDetails,
-  EditDetailsInfoUser,
+  EditDetailsInfoUser2,
   UploadFile,
+  CompleteInfoUser2,
+  PayloadDetails2,
+  IDResponse,
 } from '../../interfaces/interfacesApp';
 import {AuthState, authReducer} from './authReducer';
-import {db, privateDB} from '../../db/db';
+import {db, privateDB, publicDBForCompleteUser} from '../../db/db';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {decodeJWT} from '../../helpers/DecodeJWT';
 import {AxiosError} from 'axios';
 
 interface AuthContextProps {
   signUpResponseWithInfoUser: SignUpResponse | null;
-  detailsUser: PayloadDetails | null;
+  detailsUser: PayloadDetails2 | null;
   errorMessage: string;
   transactionId: string;
   access_token: string;
   status: 'checking' | 'authenticated' | 'not-authenticated';
   editDetailsSuccess: boolean;
+  idUserForChats?: number;
   signUp: (data: SignUpData) => void;
   login: (data: loginData) => void;
   logout: () => void;
   removeError: () => void;
   verificationCode: (data: verificationCodeData) => void;
-  completeInfoUser: (completeInfoUser: CompleteInfoUser) => void;
+  completeInfoUser: (completeInfoUser: CompleteInfoUser2) => void;
   GetDetailsUser: () => void;
-  EditDetailsInfo: (data: any) => void;
+  EditDetailsInfo: (data: EditDetailsInfoUser2) => void;
   setEditDetailsSuccessFun: (stateEdit: boolean) => void;
   addImage: (photo: UploadFile) => Promise<void>;
   removeImage: (id: string) => Promise<void>;
+  getIDUserForChats: () => void;
 }
 
 const authInicialState: AuthState = {
@@ -54,6 +57,7 @@ const authInicialState: AuthState = {
   signUpResponseWithInfoUser: null,
   detailsUser: null,
   editDetailsSuccess: false,
+  idUserForChats: undefined,
 };
 
 export const AuthContext = createContext({} as AuthContextProps);
@@ -172,12 +176,20 @@ export const AuthProvider = ({
     dispatch({type: 'setEditDetailsSuccess', payload: stateEdit});
   };
 
-  const EditDetailsInfo = async (editDetailsInfoUser: EditDetailsInfoUser) => {
+  const EditDetailsInfo = async (editDetailsInfoUser: EditDetailsInfoUser2) => {
     try {
-      await privateDB.patch<ResponseEditDetailsUser>(
-        '/individuals/me',
-        editDetailsInfoUser,
-      );
+      await privateDB.patch<ResponseEditDetailsUser>('/individuals/me', {
+        subcategories: editDetailsInfoUser.subcategories,
+        age: editDetailsInfoUser.age,
+        gender_id: editDetailsInfoUser.gender_id,
+        interested_gender_id: editDetailsInfoUser.interested_gender_id,
+        max_distance_km: editDetailsInfoUser.max_distance_km,
+        min_age: editDetailsInfoUser.min_age,
+        max_age: editDetailsInfoUser.max_age,
+        name: editDetailsInfoUser.name,
+        lastname: editDetailsInfoUser.lastname,
+        description: editDetailsInfoUser.description,
+      });
       setEditDetailsSuccessFun(true);
       GetDetailsUser();
     } catch (error) {
@@ -242,7 +254,10 @@ export const AuthProvider = ({
         email,
         password,
       });
-      await AsyncStorage.setItem('access_token', data.payload.access_token);
+      await AsyncStorage.setItem(
+        'access_token_only_complete_user',
+        data.payload.access_token,
+      );
       dispatch({
         type: 'setsignUpResponseWithInfoUser',
         payload: {signUpResponseWithInfoUser: data},
@@ -303,12 +318,12 @@ export const AuthProvider = ({
     }
   };
 
-  const completeInfoUser = async (completeInfoUser: CompleteInfoUser) => {
+  const completeInfoUser = async (completeInfoUser: CompleteInfoUser2) => {
     try {
       const formData = new FormData();
 
       // Agregar todos los campos excepto photos
-      formData.append('categories', completeInfoUser.categories);
+      formData.append('subcategories', completeInfoUser.subcategories);
       formData.append('age', completeInfoUser.age);
       formData.append('gender_id', completeInfoUser.gender_id.toString());
       formData.append(
@@ -322,6 +337,7 @@ export const AuthProvider = ({
       formData.append('min_age', completeInfoUser.min_age.toString());
       formData.append('max_age', completeInfoUser.max_age.toString());
       formData.append('email', completeInfoUser.email);
+      formData.append('description', completeInfoUser.description);
 
       // Agregar las fotos
       completeInfoUser.photos.forEach(photo => {
@@ -332,7 +348,7 @@ export const AuthProvider = ({
         } as any);
       });
 
-      await db.patch<CompleteInfoUserResponse>(
+      await publicDBForCompleteUser.patch<CompleteInfoUserResponse>(
         '/individuals/complete-profile',
         formData,
         {
@@ -342,7 +358,22 @@ export const AuthProvider = ({
         },
       );
 
-      dispatch({type: 'authenticatedProv'});
+      const access_token_only_complete_user = await AsyncStorage.getItem(
+        'access_token_only_complete_user',
+      );
+      if (access_token_only_complete_user) {
+        dispatch({
+          type: 'setAccess_token',
+          payload: {
+            access_token: access_token_only_complete_user,
+          },
+        });
+        await AsyncStorage.setItem(
+          'access_token',
+          access_token_only_complete_user,
+        );
+        await AsyncStorage.setItem('access_token_only_complete_user', '');
+      }
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response) {
@@ -385,6 +416,16 @@ export const AuthProvider = ({
 
   const checkToken = async () => {
     const access_token = await AsyncStorage.getItem('access_token');
+    const access_token_only_complete_user = await AsyncStorage.getItem(
+      'access_token_only_complete_user',
+    );
+
+    if (access_token_only_complete_user) {
+      dispatch({
+        type: 'notAuthenticated',
+      });
+      return;
+    }
 
     if (!access_token) {
       dispatch({
@@ -434,6 +475,19 @@ export const AuthProvider = ({
     }
   };
 
+  const getIDUserForChats = async () => {
+    try {
+      const {data} = await privateDB.get<IDResponse>('/individuals/me/id');
+      console.log('ID User for Chats:', data.payload.id);
+      dispatch({
+        type: 'setIDUserForChats',
+        payload: {
+          idUserForChats: data.payload.id,
+        },
+      });
+    } catch (error) {}
+  };
+
   useEffect(() => {
     checkToken();
   }, []);
@@ -441,6 +495,7 @@ export const AuthProvider = ({
   return (
     <AuthContext.Provider
       value={{
+        getIDUserForChats,
         GetDetailsUser,
         ...state,
         verificationCode,

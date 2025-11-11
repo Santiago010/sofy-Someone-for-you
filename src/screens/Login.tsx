@@ -14,9 +14,11 @@ import LogoSofy from '../components/LogoSofy';
 import {useForm} from '../hooks/useForm';
 import {AuthContext} from '../context/authContext/authContext';
 import {showError} from '../helpers/ShowError';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const Login = () => {
   const navigation = useNavigation();
+
   const {login, transactionId, errorMessage, removeError} =
     useContext(AuthContext);
   const {onChange, form, email, password} = useForm({
@@ -27,6 +29,18 @@ export const Login = () => {
   const sendData = () => {
     Keyboard.dismiss();
     login(form);
+  };
+
+  useEffect(() => {
+    verificarionToken();
+  }, []);
+
+  const verificarionToken = async () => {
+    const token = await AsyncStorage.getItem('access_token_only_complete_user');
+
+    if (token) {
+      navigation.navigate('InfoUser' as never);
+    }
   };
 
   useEffect(() => {

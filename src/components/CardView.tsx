@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   card: {
     marginTop: 0,
     width: widthWindow * 0.8,
-    height: heightWindow * 0.6,
+    height: heightWindow * 0.7,
     backgroundColor: colors.background,
     borderRadius: 15,
     position: 'absolute',

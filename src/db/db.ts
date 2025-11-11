@@ -23,3 +23,15 @@ privateDB.interceptors.request.use(async config => {
   }
   return config;
 });
+
+export const publicDBForCompleteUser = axios.create({
+  baseURL,
+});
+
+publicDBForCompleteUser.interceptors.request.use(async config => {
+  const token = await AsyncStorage.getItem('access_token_only_complete_user');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+});

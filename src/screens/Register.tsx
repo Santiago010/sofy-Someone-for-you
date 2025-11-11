@@ -22,11 +22,11 @@ export const Register = () => {
   const {createCometChatUser} = useCometChat();
   const navigation = useNavigation<RegisterScreenNavigationProp>();
   const {onChange, form} = useForm({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    passwordVerification: '',
+    firstName: 'michu',
+    lastName: 'elliot',
+    email: 'michu@gmail.com',
+    password: 'p7EhCx33jwkQ*',
+    passwordVerification: 'p7EhCx33jwkQ*',
   });
 
   useEffect(() => {

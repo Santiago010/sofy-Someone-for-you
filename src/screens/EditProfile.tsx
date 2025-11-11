@@ -12,9 +12,11 @@ import ButtonGoBack from '../components/ButtonGoBack';
 import FormEditProfile from '../components/FormEditProfile';
 import {AuthContext} from '../context/authContext/authContext';
 import {
-  EditDetailsInfoUser,
+  EditDetailsInfoUser2,
   GenderResponse,
-  InterestResponse,
+  InterestAndSubInterestResponse,
+  subcategories,
+  PayloadDetails2,
 } from '../interfaces/interfacesApp';
 import {showError} from '../helpers/ShowError';
 
@@ -32,7 +34,8 @@ export default function EditProfile({navigation}: any) {
   const [formData, setFormData] = useState({
     age: '',
     aboutYou: '',
-    selectedInterests: [] as InterestResponse[],
+    selectedInterests: [] as InterestAndSubInterestResponse[],
+    selectedSubInterests: [] as subcategories[],
     gender: null as GenderResponse | null,
     genderId: '',
     maxDistance: 1,
@@ -49,7 +52,7 @@ export default function EditProfile({navigation}: any) {
   }, []);
 
   useEffect(() => {
-    if (errorMessage.length) {
+    if (errorMessage.length > 0) {
       showError({screen: 'Edit Profile', errorMessage, removeError});
     }
   }, [errorMessage]);
@@ -63,7 +66,18 @@ export default function EditProfile({navigation}: any) {
   useEffect(() => {
     // Cargar datos del usuario en el formData cuando detailsUser esté disponible
     if (detailsUser) {
-      // Calcular edad a partir de date_of_birth
+      // Inicializar intereses principales y subintereses seleccionados
+      const interests = detailsUser.categories || [];
+      const subInterests: subcategories[] = [];
+      interests.forEach((interest: InterestAndSubInterestResponse) => {
+        if (interest.subcategories && Array.isArray(interest.subcategories)) {
+          interest.subcategories.forEach((sub: subcategories) => {
+            if (sub) {
+              subInterests.push(sub);
+            }
+          });
+        }
+      });
 
       setFormData(prev => ({
         ...prev,
@@ -78,7 +92,8 @@ export default function EditProfile({navigation}: any) {
         showMeId: detailsUser.interested_gender?.id?.toString() || '',
         ageRangeMin: detailsUser.min_age || 18,
         ageRangeMax: detailsUser.max_age || 100,
-        selectedInterests: detailsUser.categories || [],
+        selectedInterests: interests,
+        selectedSubInterests: subInterests,
       }));
     }
   }, [detailsUser]);
@@ -94,7 +109,7 @@ export default function EditProfile({navigation}: any) {
     if (formData.lastName.length >= 3) count++;
     if (formData.age.length !== 0) count++;
     if (formData.aboutYou.length !== 0) count++;
-    if (formData.selectedInterests.length > 0) count++;
+    if (formData.selectedSubInterests.length > 0) count++;
     if (formData.genderId !== '') count++;
     if (formData.maxDistance < 999) count++; // Si cambió del valor por defecto
     if (formData.showMeId !== '') count++;
@@ -115,13 +130,13 @@ export default function EditProfile({navigation}: any) {
     if (areAllFieldsFilled()) {
       Keyboard.dismiss();
 
-      // Extraer IDs de selectedInterests y unirlos con comas
-      const categories = formData.selectedInterests
-        .map(interest => interest.id)
+      // Extraer IDs de los subintereses seleccionados
+      const subcategories = formData.selectedSubInterests
+        .map(sub => sub.id)
         .join(',');
 
-      const editDetailsInfoUser: EditDetailsInfoUser = {
-        categories,
+      const editDetailsInfoUser: EditDetailsInfoUser2 = {
+        subcategories,
         age: Number(formData.age),
         gender_id: parseInt(formData.genderId, 10),
         interested_gender_id: parseInt(formData.showMeId, 10),

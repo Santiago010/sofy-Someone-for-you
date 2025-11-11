@@ -31,26 +31,22 @@ export const ModalMatch: React.FC<ModalMatchProps> = ({
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const {sendMessageToUser} = useCometChat();
-  const {GetDetailsUser, detailsUser} = useContext(AuthContext);
+  const {idUserForChats} = useContext(AuthContext);
   const navigation = useNavigation();
-
-  useEffect(() => {
-    GetDetailsUser();
-  }, []);
-
   const handleSend = async () => {
     if (!message.trim()) return;
 
-    if (detailsUser !== null) {
-      setSending(true);
-      const senderUid = detailsUser?.id;
-      const receiverId = user?.id;
-      const res = await sendMessageToUser(senderUid, receiverId, message);
-      setSending(false);
-      if (res?.success) {
-        toggleModal();
-        navigation.navigate('Chats');
-      }
+    setSending(true);
+    const receiverId = user?.id;
+    const res = await sendMessageToUser(
+      `${idUserForChats}`,
+      receiverId,
+      message,
+    );
+    setSending(false);
+    if (res?.success) {
+      toggleModal();
+      navigation.navigate('Chats');
     }
   };
 

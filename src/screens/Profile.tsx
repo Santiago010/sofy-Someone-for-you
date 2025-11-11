@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
-import {data} from '../animations/data/data';
 import {ModalInfoUser} from '../components/ModalInfoUser';
 import {AuthContext} from '../context/authContext/authContext';
 import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
@@ -40,6 +39,8 @@ export const Profile = () => {
         profile: detailsUser.individualFiles[0].file.url,
       });
     }
+
+    console.log('dataInfouser', dataInfouser);
   }, [detailsUser]);
 
   return (

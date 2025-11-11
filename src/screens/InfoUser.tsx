@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -13,23 +13,36 @@ import GridImage from '../components/GridImage';
 import {AuthContext} from '../context/authContext/authContext';
 import FormEditProfile from '../components/FormEditProfile';
 import {
-  InterestResponse,
   GenderResponse,
-  CompleteInfoUser,
   UploadFile,
+  InterestAndSubInterestResponse,
+  CompleteInfoUser2,
+  subcategories,
 } from '../interfaces/interfacesApp';
+import {showError} from '../helpers/ShowError';
 
 export const InfoUser = () => {
   const [images, setImages] = useState<string[]>([]);
   const [photoFiles, setPhotoFiles] = useState<UploadFile[]>([]);
-  const {signUpResponseWithInfoUser, completeInfoUser} =
-    useContext(AuthContext);
+  const {
+    signUpResponseWithInfoUser,
+    completeInfoUser,
+    removeError,
+    errorMessage,
+  } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (errorMessage.length > 0) {
+      showError({screen: 'Edit Profile', errorMessage, removeError});
+    }
+  }, [errorMessage]);
 
   // Estados para los nuevos campos
-  const [formData, setFormData] = useState({
+  const [formDataNew, setFormDataNew] = useState({
     age: '',
     aboutYou: '',
-    selectedInterests: [] as InterestResponse[],
+    selectedInterests: [] as InterestAndSubInterestResponse[],
+    selectedSubInterests: [] as subcategories[],
     gender: null as GenderResponse | null,
     genderId: '',
     maxDistance: 1,
@@ -41,29 +54,30 @@ export const InfoUser = () => {
     ageRangeMax: 100,
   });
 
-  // Función para manejar cambios en showMe (ya no se usa con radio buttons)
-
-  // Función para calcular campos llenos
+  useEffect(() => {
+    console.log(formDataNew);
+  }, [formDataNew]);
+  // Función para calcular campos llenos usando formDataNew
   const getFilledFieldsCount = () => {
     let count = 0;
-    const totalFields = 11; // Total de campos que necesitamos validar
+    const totalFields = 10; // Total de campos que necesitamos validar
 
-    if (formData.firstName && formData.firstName.length >= 3) count++;
-    if (formData.lastName && formData.lastName.length >= 3) count++;
+    if (formDataNew.firstName && formDataNew.firstName.length >= 3) count++;
+    if (formDataNew.lastName && formDataNew.lastName.length >= 3) count++;
     if (images.length === 6) count++;
-    if (formData.age.trim() !== '') count++;
-    if (formData.aboutYou.trim() !== '') count++;
-    if (formData.selectedInterests.length > 0) count++;
-    if (formData.genderId !== '') count++;
-    if (formData.maxDistance < 999) count++; // Si cambió del valor por defecto
-    if (formData.showMeId !== '') count++;
-    if (formData.ageRangeMin > 18) count++; // Si cambió del rango por defecto
-    if (formData.ageRangeMax < 100) count++;
+    if (formDataNew.age.trim() !== '') count++;
+    if (formDataNew.aboutYou.trim() !== '') count++;
+    if (formDataNew.selectedSubInterests.length > 0) count++;
+    if (formDataNew.genderId !== '') count++;
+    if (formDataNew.maxDistance < 999) count++; // Si cambió del valor por defecto
+    if (formDataNew.showMeId !== '') count++;
+    if (formDataNew.ageRangeMin > 18) count++; // Si cambió del rango por defecto
+    if (formDataNew.ageRangeMax < 100) count++;
 
     return {filled: count, total: totalFields};
   };
 
-  // Función para verificar si todos los campos están llenos
+  // Verifica si todos los campos están llenos usando formDataNew
   const areAllFieldsFilled = () => {
     const {filled, total} = getFilledFieldsCount();
     return filled >= total;
@@ -74,31 +88,30 @@ export const InfoUser = () => {
     setPhotoFiles(files);
   };
 
-  // Función para manejar el botón Save
+  // Función para manejar el botón Save usando formDataNew
   const handleSave = () => {
     if (areAllFieldsFilled()) {
       Keyboard.dismiss();
 
-      // Extraer IDs de selectedInterests y unirlos con comas
-      const categories = formData.selectedInterests
-        .map(interest => interest.id)
+      // Extraer IDs de los subintereses seleccionados
+      const subcategories = formDataNew.selectedSubInterests
+        .map(sub => sub.id)
         .join(',');
 
-      // Preparar el objeto CompleteInfoUser
-      const completeInfoData: CompleteInfoUser = {
-        categories,
-        age: Number(formData.age),
-        gender_id: parseInt(formData.genderId, 10),
-        interested_gender_id: parseInt(formData.showMeId, 10),
-        max_distance_km: formData.maxDistance,
-        min_age: formData.ageRangeMin,
-        max_age: formData.ageRangeMax,
+      // Preparar el objeto CompleteInfoUser2
+      const completeInfoData: CompleteInfoUser2 = {
+        subcategories,
+        age: Number(formDataNew.age),
+        gender_id: parseInt(formDataNew.genderId, 10),
+        interested_gender_id: parseInt(formDataNew.showMeId, 10),
+        max_distance_km: formDataNew.maxDistance,
+        min_age: formDataNew.ageRangeMin,
+        max_age: formDataNew.ageRangeMax,
         email: signUpResponseWithInfoUser?.payload.email || '',
         photos: photoFiles,
-        description: formData.aboutYou,
+        description: formDataNew.aboutYou,
       };
 
-      // Llamar a completeInfoUser con los datos preparados
       completeInfoUser(completeInfoData);
     }
   };
@@ -118,8 +131,8 @@ export const InfoUser = () => {
             />
 
             <FormEditProfile
-              formData={formData}
-              setFormData={setFormData}
+              formData={formDataNew}
+              setFormData={setFormDataNew}
               getFilledFieldsCount={getFilledFieldsCount}
               areAllFieldsFilled={areAllFieldsFilled}
               handleSave={handleSave}
