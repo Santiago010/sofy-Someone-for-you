@@ -1,12 +1,13 @@
-import {PayloadDetails, SignUpResponse} from '../../interfaces/interfacesApp';
+import {PayloadDetails2, SignUpResponse} from '../../interfaces/interfacesApp';
 
 export interface AuthState {
   status: 'checking' | 'authenticated' | 'not-authenticated';
   transactionId: string;
   errorMessage: string;
+  loading: boolean;
   access_token: string;
   signUpResponseWithInfoUser: SignUpResponse | null;
-  detailsUser: PayloadDetails | null;
+  detailsUser: PayloadDetails2 | null;
   editDetailsSuccess: boolean;
   idUserForChats?: number;
 }
@@ -15,10 +16,11 @@ type AuthAction =
   | {type: 'login'; payload: {transactionId: string}}
   | {type: 'addError'; payload: string}
   | {type: 'removeError'}
+  | {type: 'setLoading'; payload: boolean}
   | {type: 'notAuthenticated'}
   | {type: 'logout'}
   | {type: 'setAccess_token'; payload: {access_token: string}}
-  | {type: 'GetDetailsUser'; payload: {detailsUser: PayloadDetails}}
+  | {type: 'GetDetailsUser'; payload: {detailsUser: PayloadDetails2}}
   | {
       type: 'setsignUpResponseWithInfoUser';
       payload: {signUpResponseWithInfoUser: SignUpResponse};
@@ -36,6 +38,17 @@ export const authReducer = (
         ...state,
         status: 'not-authenticated',
         errorMessage: action.payload,
+        loading: false,
+      };
+    case 'removeError':
+      return {
+        ...state,
+        errorMessage: '',
+      };
+    case 'setLoading':
+      return {
+        ...state,
+        loading: action.payload,
       };
     case 'GetDetailsUser':
       return {
@@ -45,17 +58,15 @@ export const authReducer = (
     case 'setsignUpResponseWithInfoUser':
       return {
         ...state,
+        loading: false,
         signUpResponseWithInfoUser: action.payload.signUpResponseWithInfoUser,
       };
-    case 'removeError':
-      return {
-        ...state,
-        errorMessage: '',
-      };
+
     case 'login':
       return {
         ...state,
         transactionId: action.payload.transactionId,
+        loading: false,
       };
     case 'setIDUserForChats':
       return {
@@ -72,6 +83,8 @@ export const authReducer = (
     case 'notAuthenticated':
       return {
         ...state,
+        access_token: '',
+        transactionId: '',
         status: 'not-authenticated',
       };
 

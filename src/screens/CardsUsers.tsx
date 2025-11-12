@@ -5,6 +5,7 @@ import {colors} from '../theme/globalTheme';
 import {Text} from 'react-native-paper';
 import LogoSofy from '../components/LogoSofy';
 import {useLocation} from '../hooks/useLocation';
+import {BarIndicator} from 'react-native-indicators';
 
 export const CardsUsers = () => {
   const {location, locationError, isLoadingLocation, retryLocationRequest} =
@@ -27,18 +28,18 @@ export const CardsUsers = () => {
           textAlign: 'center',
           marginBottom: 20,
         }}>
-        Sin ubicación, Activa la ubicación para ver a tus usuarios de prefencia
+        No location, enable location to see your preferred users
       </Text>
       <Text
         style={{
-          fontSize: 14,
-          color: colors.textSecondary || colors.text,
+          fontSize: 18,
+          color: colors.text,
           textAlign: 'center',
           marginBottom: 30,
         }}>
-        {locationError?.includes('denegados')
-          ? 'Activa los permisos de ubicación en Configuración > Sofy > Ubicación'
-          : locationError || 'No se pudo obtener la ubicación'}
+        {locationError?.includes('denied')
+          ? 'Enable location permissions in Settings > Sofy > Location'
+          : locationError || 'Unable to get location'}
       </Text>
       <TouchableOpacity
         onPress={retryLocationRequest}
@@ -69,14 +70,7 @@ export const CardsUsers = () => {
         backgroundColor: colors.background,
         paddingTop: Platform.OS === 'ios' ? 100 : 20,
       }}>
-      <Text
-        style={{
-          fontSize: 16,
-          color: colors.text,
-          textAlign: 'center',
-        }}>
-        Obteniendo ubicación...
-      </Text>
+      <BarIndicator count={4} size={50} color={colors.primary} />
     </View>
   );
 

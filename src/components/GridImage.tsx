@@ -21,6 +21,7 @@ import {
 import {colors} from '../theme/globalTheme';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {UploadFile, IndividualFile} from '../interfaces/interfacesApp';
+import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
 
 interface GridImageProps {
   images: string[];
@@ -298,7 +299,10 @@ export default function GridImage({
           </View>
         ) : hasBackendImage ? (
           <View style={styles.imageContainer}>
-            <Image source={{uri: backendImages[index]}} style={styles.image} />
+            <Image
+              source={{uri: resolveLocalhostUrl(backendImages[index])}}
+              style={styles.image}
+            />
             <FAB
               icon="close"
               style={styles.removeFab}

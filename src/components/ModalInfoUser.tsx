@@ -13,13 +13,14 @@ import Carousel from 'react-native-reanimated-carousel';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {Button, Chip} from 'react-native-paper';
 import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
+import {PayloadDetails2} from '../interfaces/interfacesApp';
 
 interface ModalInfoProps {
   modalVisible: boolean;
   originScreen: 'SeeWhoLikesYou' | 'YouLikedMe';
   toggleModal: () => void;
   completeInfo: boolean;
-  user: PayloadDetails;
+  user: PayloadDetails2;
   toggleModalToMatch?: () => void;
 }
 

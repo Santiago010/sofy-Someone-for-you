@@ -1,14 +1,14 @@
 import React, {useContext, useEffect} from 'react';
 import {View, ScrollView, StyleSheet, SafeAreaView} from 'react-native';
-import {Text, TextInput, Button} from 'react-native-paper';
-import {commonStyles} from '../theme/globalTheme';
+import {Text, TextInput, Button, ActivityIndicator} from 'react-native-paper';
+import {colors, commonStyles} from '../theme/globalTheme';
 import {AuthContext} from '../context/authContext/authContext';
 import LogoSofy from '../components/LogoSofy';
 import {useForm} from '../hooks/useForm';
 import {showError} from '../helpers/ShowError';
 
 export const CodeVerificationEmail = () => {
-  const {verificationCode, transactionId, errorMessage, removeError} =
+  const {verificationCode, transactionId, errorMessage, removeError, loading} =
     useContext(AuthContext);
 
   const {onChange, form, code} = useForm({
@@ -18,8 +18,6 @@ export const CodeVerificationEmail = () => {
 
   const handleCode = () => {
     verificationCode({code: form.code, transactionId: form.transactionIdValue});
-
-    // Aquí iría la lógica para verificar el código con formData
   };
 
   useEffect(() => {
@@ -62,8 +60,12 @@ export const CodeVerificationEmail = () => {
             onPress={handleCode}
             style={commonStyles.resetButton}
             labelStyle={commonStyles.resetButtonText}
-            disabled={!code.trim()}>
-            Check
+            disabled={!code.trim() || loading}>
+            {loading ? (
+              <ActivityIndicator size="large" color={colors.secondary} />
+            ) : (
+              'Check'
+            )}
           </Button>
         </View>
       </SafeAreaView>

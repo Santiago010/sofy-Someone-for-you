@@ -4,8 +4,7 @@ import {
   CometChatConversations,
   CometChatThemeProvider,
   CometChatUiKitConstants,
-  CometChatI18nProvider, // 👈 importa este provider
-  // 👈 y las traducciones por defecto
+  CometChatI18nProvider,
 } from '@cometchat/chat-uikit-react-native';
 import {CometChat} from '@cometchat/chat-sdk-react-native';
 import Messages from '../components/Messages';

@@ -102,11 +102,11 @@ export default function Settings({navigation}: any) {
                 <View style={{flex: 1}}>
                   <Text>
                     {isLoadingLocation
-                      ? 'Cargando ubicación...'
-                      : address || 'Ubicación no disponible'}
+                      ? 'Loading location...'
+                      : address || 'location not available'}
                   </Text>
                   <Text style={{color: colors.textSecondary}}>
-                    {address || 'Activa la ubicación para ver tu dirección'}
+                    {address || 'Enable location to see your address'}
                   </Text>
                 </View>
                 <MaterialDesignIcons name="chevron-right" size={24} />

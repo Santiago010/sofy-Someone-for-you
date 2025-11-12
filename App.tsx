@@ -14,7 +14,6 @@ import {PaperProvider} from 'react-native-paper';
 import {AuthProvider} from './src/context/authContext/authContext';
 import {MyStack} from './src/navigator/MyStack';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {ChatProviver} from './src/context/chatsContext/chatContext';
 
 function AppState({
   children,
@@ -24,9 +23,7 @@ function AppState({
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <ChatProviver>
-          <PaperProvider>{children}</PaperProvider>
-        </ChatProviver>
+        <PaperProvider>{children}</PaperProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

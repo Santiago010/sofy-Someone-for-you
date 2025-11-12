@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import {Text, TextInput, Button} from 'react-native-paper';
+import {Text, TextInput, Button, ActivityIndicator} from 'react-native-paper';
 import {colors, commonStyles} from '../theme/globalTheme';
 import LogoSofy from '../components/LogoSofy';
 import ButtonGoBack from '../components/ButtonGoBack';
@@ -23,6 +23,7 @@ export default function EditPhoneNumber({navigation}: any) {
     editDetailsSuccess,
     setEditDetailsSuccessFun,
     detailsUser,
+    loading,
   } = useContext(AuthContext);
   const {phoneNumber, onChange} = useForm({
     phoneNumber: '',
@@ -116,14 +117,18 @@ export default function EditPhoneNumber({navigation}: any) {
                 <Button
                   mode="contained"
                   onPress={handleSave}
-                  disabled={!isValid}
+                  disabled={!isValid || loading}
                   style={[
                     styles.saveButton,
                     isValid && styles.saveButtonEnabled,
                   ]}
                   contentStyle={styles.saveButtonContent}
                   labelStyle={styles.saveButtonLabel}>
-                  Save Changes
+                  {loading ? (
+                    <ActivityIndicator size="large" color={colors.secondary} />
+                  ) : (
+                    'Save'
+                  )}
                 </Button>
               </View>
             </View>

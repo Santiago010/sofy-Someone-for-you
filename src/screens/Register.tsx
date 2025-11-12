@@ -1,9 +1,9 @@
 import React, {useContext, useEffect} from 'react';
-import {View, ScrollView, Keyboard} from 'react-native';
+import {View, ScrollView, Keyboard, ActivityIndicator} from 'react-native';
 import {Text, TextInput, Button} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {commonStyles} from '../theme/globalTheme';
+import {colors, commonStyles} from '../theme/globalTheme';
 import {RootStackParamList} from '../navigator/types';
 import LogoSofy from '../components/LogoSofy';
 import {AuthContext} from '../context/authContext/authContext';
@@ -17,8 +17,13 @@ type RegisterScreenNavigationProp = StackNavigationProp<
 >;
 
 export const Register = () => {
-  const {signUp, errorMessage, removeError, signUpResponseWithInfoUser} =
-    useContext(AuthContext);
+  const {
+    signUp,
+    errorMessage,
+    removeError,
+    signUpResponseWithInfoUser,
+    loading,
+  } = useContext(AuthContext);
   const {createCometChatUser} = useCometChat();
   const navigation = useNavigation<RegisterScreenNavigationProp>();
   const {onChange, form} = useForm({
@@ -152,10 +157,15 @@ export const Register = () => {
 
         <Button
           mode="contained"
+          disabled={loading}
           onPress={() => signUpPress()}
           style={commonStyles.signUpButton}
           labelStyle={commonStyles.signUpButtonText}>
-          Sign up
+          {loading ? (
+            <ActivityIndicator size="large" color={colors.secondary} />
+          ) : (
+            'Sign Up'
+          )}
         </Button>
 
         <View style={commonStyles.footer}>

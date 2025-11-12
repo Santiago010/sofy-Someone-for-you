@@ -28,6 +28,7 @@ export default function EditProfile({navigation}: any) {
     removeError,
     editDetailsSuccess,
     setEditDetailsSuccessFun,
+    loading,
   } = useContext(AuthContext);
   // Estados para los nuevos campos
 
@@ -169,6 +170,7 @@ export default function EditProfile({navigation}: any) {
                 getFilledFieldsCount={getFilledFieldsCount}
                 areAllFieldsFilled={areAllFieldsFilled}
                 handleSave={handleSave}
+                loading={loading}
               />
             </View>
           </SafeAreaView>

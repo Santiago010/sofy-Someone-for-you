@@ -30,6 +30,7 @@ interface AuthContextProps {
   signUpResponseWithInfoUser: SignUpResponse | null;
   detailsUser: PayloadDetails2 | null;
   errorMessage: string;
+  loading: boolean;
   transactionId: string;
   access_token: string;
   status: 'checking' | 'authenticated' | 'not-authenticated';
@@ -54,6 +55,7 @@ const authInicialState: AuthState = {
   access_token: '',
   transactionId: '',
   errorMessage: '',
+  loading: false,
   signUpResponseWithInfoUser: null,
   detailsUser: null,
   editDetailsSuccess: false,
@@ -70,6 +72,7 @@ export const AuthProvider = ({
   const [state, dispatch] = useReducer(authReducer, authInicialState);
 
   const login = async ({email, password}: loginData) => {
+    dispatch({type: 'setLoading', payload: true});
     try {
       const {data} = await db.post<LoginResponse>('/auth/login', {
         username: email,
@@ -111,6 +114,7 @@ export const AuthProvider = ({
     transactionId,
     code,
   }: verificationCodeData) => {
+    dispatch({type: 'setLoading', payload: true});
     try {
       const {data} = await db.post<VerificationCodeResponse>(
         '/auth/verify-code',
@@ -119,6 +123,7 @@ export const AuthProvider = ({
           code,
         },
       );
+      dispatch({type: 'setLoading', payload: false});
       refreshToken(data.payload.messageAuth.refreshToken);
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -177,6 +182,7 @@ export const AuthProvider = ({
   };
 
   const EditDetailsInfo = async (editDetailsInfoUser: EditDetailsInfoUser2) => {
+    dispatch({type: 'setLoading', payload: true});
     try {
       await privateDB.patch<ResponseEditDetailsUser>('/individuals/me', {
         subcategories: editDetailsInfoUser.subcategories,
@@ -191,6 +197,7 @@ export const AuthProvider = ({
         description: editDetailsInfoUser.description,
       });
       setEditDetailsSuccessFun(true);
+      dispatch({type: 'setLoading', payload: false});
       GetDetailsUser();
     } catch (error) {
       setEditDetailsSuccessFun(false);
@@ -230,12 +237,11 @@ export const AuthProvider = ({
         if (error.response) {
           const errorData = error.response.data;
 
-          console.error(errorData);
-          //   dispatch({type: 'addError', payload: errorData.message});
+          dispatch({type: 'addError', payload: errorData.message});
         } else if (error.request) {
-          //   dispatch({type: 'addError', payload: 'Error in the Request'});
+          dispatch({type: 'addError', payload: 'Error in the Request'});
         } else {
-          //   dispatch({type: 'addError', payload: error.message});
+          dispatch({type: 'addError', payload: error.message});
         }
       } else {
         dispatch({
@@ -247,6 +253,7 @@ export const AuthProvider = ({
   };
 
   const signUp = async ({firstName, lastName, email, password}: SignUpData) => {
+    dispatch({type: 'setLoading', payload: true});
     try {
       const {data} = await db.post<SignUpResponse>('/signup', {
         name: firstName,
@@ -258,6 +265,8 @@ export const AuthProvider = ({
         'access_token_only_complete_user',
         data.payload.access_token,
       );
+      await AsyncStorage.setItem('firstname', firstName);
+      await AsyncStorage.setItem('lastname', lastName);
       dispatch({
         type: 'setsignUpResponseWithInfoUser',
         payload: {signUpResponseWithInfoUser: data},
@@ -319,6 +328,7 @@ export const AuthProvider = ({
   };
 
   const completeInfoUser = async (completeInfoUser: CompleteInfoUser2) => {
+    dispatch({type: 'setLoading', payload: true});
     try {
       const formData = new FormData();
 
@@ -374,6 +384,7 @@ export const AuthProvider = ({
         );
         await AsyncStorage.setItem('access_token_only_complete_user', '');
       }
+      dispatch({type: 'setLoading', payload: false});
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response) {

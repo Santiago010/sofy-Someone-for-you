@@ -2,6 +2,7 @@ import {useState, useEffect, useCallback} from 'react';
 import {Platform} from 'react-native';
 import {PERMISSIONS, check, request} from 'react-native-permissions';
 import Geolocation from '@react-native-community/geolocation';
+import axios, {AxiosError} from 'axios';
 
 interface Location {
   latitude: number | null;
@@ -27,8 +28,9 @@ export const useLocation = (): UseLocationReturn => {
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
   const reverseGeocode = async (latitude: number, longitude: number) => {
+    console.log('Reverse geocoding for:', {latitude, longitude});
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
         {
           headers: {
@@ -37,11 +39,7 @@ export const useLocation = (): UseLocationReturn => {
         },
       );
 
-      if (!response.ok) {
-        throw new Error('Error al obtener dirección');
-      }
-
-      const data = await response.json();
+      const data = await response.data;
 
       // Construir dirección legible
       const addressParts = [];
@@ -54,8 +52,16 @@ export const useLocation = (): UseLocationReturn => {
       const formattedAddress = addressParts.join(', ') || data.display_name;
       setAddress(formattedAddress);
     } catch (error) {
-      console.error('Error en geocodificación inversa:', error);
-      setAddress('Dirección no disponible');
+      if (error instanceof AxiosError) {
+        if (error.response) {
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+        } else {
+          console.error('Error message:', error.message);
+        }
+      } else {
+        console.error('Unexpected error:', error);
+      }
     }
   };
 

@@ -1,9 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, View, ActivityIndicator} from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {Button, Chip, RadioButton, Text, TextInput} from 'react-native-paper';
 import Slider from '@react-native-community/slider';
-import useGetInterest from '../hooks/getInterest';
 import useGetGender from '../hooks/getGenders';
 import {
   InterestAndSubInterestResponse,
@@ -17,6 +16,7 @@ export default function FormEditProfile({
   handleSave,
   areAllFieldsFilled,
   getFilledFieldsCount,
+  loading,
 }: any) {
   // Usar el hook para obtener intereses
 
@@ -273,7 +273,7 @@ export default function FormEditProfile({
                     mode="outlined"
                     onPress={() => setShowAllInterests(true)}
                     style={{borderRadius: 8}}>
-                    Ver más
+                    Show more
                   </Button>
                 </View>
               )}
@@ -285,7 +285,7 @@ export default function FormEditProfile({
                     mode="outlined"
                     onPress={() => setShowAllInterests(false)}
                     style={{borderRadius: 8}}>
-                    Mostrar menos
+                    Show less
                   </Button>
                 </View>
               )}
@@ -429,14 +429,20 @@ export default function FormEditProfile({
         <Button
           mode="contained"
           onPress={handleSave}
-          disabled={!areAllFieldsFilled()}
+          disabled={!areAllFieldsFilled() || loading}
           style={[
             commonStyles.saveButton,
             areAllFieldsFilled() && commonStyles.saveButtonEnabled,
           ]}
           contentStyle={commonStyles.saveButtonContent}
           labelStyle={commonStyles.saveButtonLabel}>
-          Save ({getFilledFieldsCount().filled}/{getFilledFieldsCount().total})
+          {loading ? (
+            <ActivityIndicator size="large" color={colors.secondary} />
+          ) : (
+            `Save (${getFilledFieldsCount().filled}/${
+              getFilledFieldsCount().total
+            })`
+          )}
         </Button>
       </View>
     </>

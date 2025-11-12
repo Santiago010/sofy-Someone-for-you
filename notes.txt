@@ -1,8 +1,17 @@
--cuando envio el id del usuario actual logueado debo sacarlo del jwt y no de GetDetailsUser
 
 -cuando el backend se suba hay que quitar de las uri de las imagenes GetImageTemp
 
-he implementar y modificar los subIntereses en la interfaz y en las peticiones a la api
 
 
-verificar que se este actualizando la description
+-Recuerda decirle a esteban que haga un endpoint para retirar a usuarios que me dieron like cuyando yo retorne el like, he internamente cuando un usuario al que yo le di like hace match conmigo retirarlo de la lista de usuarios a los que yo le di like
+
+-ATENCION:ten en cuenta que grabar audio en ios no funcional del todo bien no se envian los audios 
+
+-ATENCION : hay que definir con ricardo con ricardo la seccion de Help and support
+
+-ATENCION: hay que definir Privacy policy and terms and services
+
+
+-recuperar contraseña endpoint
+
+

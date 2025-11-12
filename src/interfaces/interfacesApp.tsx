@@ -367,3 +367,86 @@ export interface IDResponse {
 export interface PayloadIDResponse {
   id: number;
 }
+
+export interface RecomendationsResponse {
+  error: boolean;
+  statusCode: number;
+  payload: any[];
+  message: string;
+}
+
+export interface LikeResponse {
+  error: boolean;
+  statusCode: number;
+  payload: PayloadLikeResponse;
+  message: string;
+}
+
+export interface PayloadLikeResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface MyLikesResponse {
+  error: boolean;
+  statusCode: number;
+  payload: PayloadMyLikeResponse[];
+  message: string;
+}
+
+export interface PayloadMyLikeResponse {
+  id: number;
+  toIndividual: ToIndividual;
+  isLike: boolean;
+  created_at: Date;
+}
+
+export interface ToIndividual {
+  id: number;
+  name: string;
+  lastname: string;
+  address: null;
+  email: string;
+  phone: null;
+  description: null;
+  identification_number: null;
+  profile_image: null;
+  created_at: Date;
+  updated_at: Date;
+  is_active: boolean;
+  age: number;
+  gender: Gender;
+  max_distance_km: number;
+  min_age: number;
+  max_age: number;
+  individualFiles: IndividualFile[];
+}
+
+export interface Gender {
+  id: number;
+  name: string;
+}
+
+export interface IndividualFile {
+  id: number;
+  file: File;
+  sort_order: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface File {
+  id: number;
+  versionId: string;
+  type: null;
+  size: number;
+  bucketName: string;
+  etag: null;
+  uploadedBy: null;
+  fileName: string;
+  mimeType: string;
+  isNotificated: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  url: string;
+}

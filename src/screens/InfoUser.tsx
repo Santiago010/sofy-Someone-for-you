@@ -20,6 +20,7 @@ import {
   subcategories,
 } from '../interfaces/interfacesApp';
 import {showError} from '../helpers/ShowError';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const InfoUser = () => {
   const [images, setImages] = useState<string[]>([]);
@@ -29,6 +30,7 @@ export const InfoUser = () => {
     completeInfoUser,
     removeError,
     errorMessage,
+    loading,
   } = useContext(AuthContext);
 
   useEffect(() => {
@@ -48,15 +50,25 @@ export const InfoUser = () => {
     maxDistance: 1,
     showMe: null as GenderResponse | null,
     showMeId: '',
-    firstName: signUpResponseWithInfoUser?.payload.name,
-    lastName: signUpResponseWithInfoUser?.payload.lastname,
+    firstName: '',
+    lastName: '',
     ageRangeMin: 18,
     ageRangeMax: 100,
   });
 
+  const getFirstNameAndLastName = async () => {
+    const firstName = await AsyncStorage.getItem('firstname');
+    const lastName = await AsyncStorage.getItem('lastname');
+    setFormDataNew(prevState => ({
+      ...prevState,
+      firstName: signUpResponseWithInfoUser?.payload.name || firstName || '',
+      lastName: signUpResponseWithInfoUser?.payload.lastname || lastName || '',
+    }));
+  };
+
   useEffect(() => {
-    console.log(formDataNew);
-  }, [formDataNew]);
+    getFirstNameAndLastName();
+  }, []);
   // Función para calcular campos llenos usando formDataNew
   const getFilledFieldsCount = () => {
     let count = 0;
@@ -136,6 +148,7 @@ export const InfoUser = () => {
               getFilledFieldsCount={getFilledFieldsCount}
               areAllFieldsFilled={areAllFieldsFilled}
               handleSave={handleSave}
+              loading={loading}
             />
           </View>
         </ScrollView>

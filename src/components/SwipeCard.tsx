@@ -3,7 +3,7 @@ import {PanResponder, StyleSheet, View} from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
 import {data} from '../animations/data/data';
-import {PayloadDetails} from '../interfaces/interfacesApp';
+import {PayloadDetails2} from '../interfaces/interfacesApp';
 import {Text} from 'react-native-paper';
 import CardView from './CardView';
 import {
@@ -13,6 +13,7 @@ import {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
+import useRecomendations from '../hooks/useRecomendations';
 
 interface Location {
   latitude: number | null;
@@ -30,7 +31,8 @@ const REST_DURATION = 300;
 const datami = data;
 
 export default function SwipeCard({location}: SwipeCardProps) {
-  const [data, setData] = useState<PayloadDetails[]>(datami);
+  const {fetchRecomendations, recomendations} = useRecomendations();
+  const [data, setData] = useState<PayloadDetails2[]>(datami);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const dummyTranslate = useSharedValue(0);
@@ -68,11 +70,16 @@ export default function SwipeCard({location}: SwipeCardProps) {
 
   useEffect(() => {
     if (location?.latitude && location?.longitude) {
+      fetchRecomendations(location.latitude, location.longitude, 20);
       //   console.log('Ubicación recibida en SwipeCard:', location);
       // Aquí puedes usar la ubicación para filtrar usuarios cercanos,
       // hacer llamadas API con parámetros de ubicación, etc.
     }
   }, [location]);
+
+  useEffect(() => {
+    console.log('Recomendaciones actualizadas:', recomendations);
+  }, [recomendations]);
 
   const forceSwipe = useCallback(
     (direccion: 'right' | 'left' | 'up' | 'down') => {

@@ -6,10 +6,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import {Text, TextInput, Button} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
-import {commonStyles} from '../theme/globalTheme';
+import {colors, commonStyles} from '../theme/globalTheme';
 import LogoSofy from '../components/LogoSofy';
 import {useForm} from '../hooks/useForm';
 import {AuthContext} from '../context/authContext/authContext';
@@ -19,7 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const Login = () => {
   const navigation = useNavigation();
 
-  const {login, transactionId, errorMessage, removeError} =
+  const {login, transactionId, errorMessage, removeError, loading} =
     useContext(AuthContext);
   const {onChange, form, email, password} = useForm({
     email: '',
@@ -112,11 +113,16 @@ export const Login = () => {
               </View>
 
               <Button
+                disabled={loading}
                 mode="contained"
                 onPress={() => sendData()}
                 style={commonStyles.loginButton}
                 labelStyle={commonStyles.loginButtonText}>
-                Log in
+                {loading ? (
+                  <ActivityIndicator size="large" color={colors.secondary} />
+                ) : (
+                  'Log in'
+                )}
               </Button>
 
               <View style={commonStyles.footer}>
