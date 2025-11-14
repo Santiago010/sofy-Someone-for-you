@@ -171,18 +171,12 @@ export default function GridImage({
   const handleImageResponse = async (response: any) => {
     setLoading(false);
 
-    console.log('Image picker response:', response);
-
     if (response.didCancel) {
-      console.log('Usuario canceló la selección');
       hideModal();
       return;
     }
 
     if (response.errorCode) {
-      console.log('Error code:', response.errorCode);
-      console.log('Error message:', response.errorMessage);
-
       let errorMessage = 'Error desconocido';
 
       switch (response.errorCode) {

@@ -6,12 +6,20 @@ import {Button} from 'react-native-paper';
 import ButtonGoBack from '../components/ButtonGoBack';
 import {AuthContext} from '../context/authContext/authContext';
 import {UploadFile} from '../interfaces/interfacesApp';
+import {StackNavigationProp} from '@react-navigation/stack';
 
-interface EditPhotosProps {
-  navigation: any;
-}
+type RootStackParamList = {
+  EditPhotos: undefined;
+  // ...otras rutas si las tienes...
+};
 
-export default function EditPhotos({navigation}: EditPhotosProps) {
+type EditPhotosScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+
+export default function EditPhotos({
+  navigation,
+}: {
+  navigation: EditPhotosScreenNavigationProp;
+}) {
   const [images, setImages] = useState<string[]>([]);
 
   const {detailsUser, removeImage, addImage, GetDetailsUser} =

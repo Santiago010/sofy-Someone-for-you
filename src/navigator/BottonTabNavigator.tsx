@@ -10,6 +10,7 @@ import TopTapNavigatorLikes from './TopTabNavigatorLikes';
 import Chats from '../screens/Chats';
 import {useContext, useEffect} from 'react';
 import {AuthContext} from '../context/authContext/authContext';
+import {useMatchSocket} from '../hooks/useMatchSocket'; // Importa el nuevo hook
 
 export type RootBottonTabNavigator = {
   Home: undefined;
@@ -23,11 +24,15 @@ interface Props extends BottomTabScreenProps<RootBottonTabNavigator, 'Home'> {}
 const Tab = createBottomTabNavigator<RootBottonTabNavigator>();
 
 export const BottonTabNavigator = () => {
-  const {getIDUserForChats} = useContext(AuthContext);
+  const {getIDUserForChats, idUserForChats} = useContext(AuthContext);
 
   useEffect(() => {
     getIDUserForChats();
   }, []);
+
+  // Usa el hook personalizado para conectar y escuchar el evento match
+  useMatchSocket(idUserForChats);
+
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({

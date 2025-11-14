@@ -354,7 +354,7 @@ export interface PayloadResponseEditDetailsUser {
   max_distance_km: number;
   min_age: number;
   max_age: number;
-  individualFiles: any[];
+  individualFiles: IndividualFile[];
 }
 
 export interface IDResponse {
@@ -367,59 +367,56 @@ export interface IDResponse {
 export interface PayloadIDResponse {
   id: number;
 }
-
 export interface RecomendationsResponse {
   error: boolean;
   statusCode: number;
-  payload: any[];
+  payload: PayloadRecomendationsResponse[];
+  meta: Meta;
   message: string;
 }
 
-export interface LikeResponse {
-  error: boolean;
-  statusCode: number;
-  payload: PayloadLikeResponse;
-  message: string;
+export interface Meta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasSubcategories: boolean;
 }
 
-export interface PayloadLikeResponse {
-  success: boolean;
-  message: string;
-}
-
-export interface MyLikesResponse {
-  error: boolean;
-  statusCode: number;
-  payload: PayloadMyLikeResponse[];
-  message: string;
-}
-
-export interface PayloadMyLikeResponse {
-  id: number;
-  toIndividual: ToIndividual;
-  isLike: boolean;
-  created_at: Date;
-}
-
-export interface ToIndividual {
+export interface PayloadRecomendationsResponse {
   id: number;
   name: string;
   lastname: string;
   address: null;
   email: string;
-  phone: null;
-  description: null;
+  phone: null | string;
+  description: null | string;
   identification_number: null;
   profile_image: null;
   created_at: Date;
   updated_at: Date;
   is_active: boolean;
   age: number;
-  gender: Gender;
+  gender: GenderResponse;
   max_distance_km: number;
   min_age: number;
   max_age: number;
   individualFiles: IndividualFile[];
+  categories: Category[];
+  matchScore: number;
+  subcategoryMatches: number;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  subcategories: Subcategory[];
+}
+
+export interface Subcategory {
+  id: number;
+  name: string;
+  category: Gender;
 }
 
 export interface Gender {
@@ -435,18 +432,74 @@ export interface IndividualFile {
   updated_at: Date;
 }
 
-export interface File {
+export interface ResponseWhoLikedMe {
+  error: boolean;
+  statusCode: number;
+  payload: PayloadWhoLikedMe[];
+  message: string;
+}
+
+export interface PayloadWhoLikedMe {
   id: number;
-  versionId: string;
-  type: null;
-  size: number;
-  bucketName: string;
-  etag: null;
-  uploadedBy: null;
-  fileName: string;
-  mimeType: string;
-  isNotificated: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  url: string;
+  fromIndividual: FromIndividual;
+  isLike: boolean;
+  created_at: Date;
+}
+
+export interface FromIndividual {
+  id: number;
+  name: string;
+  lastname: string;
+  address: null;
+  email: string;
+  phone: null;
+  description: string;
+  identification_number: null;
+  profile_image: null;
+  created_at: Date;
+  updated_at: Date;
+  is_active: boolean;
+  age: number;
+  gender: GenderResponse;
+  max_distance_km: number;
+  min_age: number;
+  max_age: number;
+  individualFiles: IndividualFile[];
+  categories: Category[];
+}
+
+export interface ResponseMyLikes {
+  error: boolean;
+  statusCode: number;
+  payload: PayloadResponseMyLikes[];
+  message: string;
+}
+
+export interface PayloadResponseMyLikes {
+  id: number;
+  toIndividual: ToIndividual;
+  isLike: boolean;
+  created_at: Date;
+}
+
+export interface ToIndividual {
+  id: number;
+  name: string;
+  lastname: string;
+  address: null;
+  email: string;
+  phone: null;
+  description: null | string;
+  identification_number: null;
+  profile_image: null;
+  created_at: Date;
+  updated_at: Date;
+  is_active: boolean;
+  age: number | null;
+  gender: GenderResponse | null;
+  max_distance_km: number | null;
+  min_age: number | null;
+  max_age: number | null;
+  individualFiles: IndividualFile[];
+  categories: Category[];
 }

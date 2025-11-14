@@ -14,8 +14,21 @@ import {colors, commonStyles} from '../theme/globalTheme';
 import LogoSofy from '../components/LogoSofy';
 import ButtonGoBack from '../components/ButtonGoBack';
 import {useLocation} from '../hooks/useLocation';
+import {StackNavigationProp} from '@react-navigation/stack';
 
-export default function SeeLocation({navigation}: any) {
+type RootStackParamList = {
+  // Agrega aquí las rutas que usas en tu stack
+  SeeLocation: undefined;
+  // ...otras rutas si las tienes...
+};
+
+type SeeLocationScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+
+export default function SeeLocation({
+  navigation,
+}: {
+  navigation: SeeLocationScreenNavigationProp;
+}) {
   const {address, isLoadingLocation, requestLocationPermission} = useLocation();
   const [isUpdating, setIsUpdating] = useState(false);
 

@@ -10,6 +10,7 @@ import {AuthContext} from '../context/authContext/authContext';
 import {useForm} from '../hooks/useForm';
 import {showError} from '../helpers/ShowError';
 import {useCometChat} from '../hooks/useCometChat';
+import {useIsFocused} from '@react-navigation/native';
 
 type RegisterScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -33,6 +34,7 @@ export const Register = () => {
     password: 'p7EhCx33jwkQ*',
     passwordVerification: 'p7EhCx33jwkQ*',
   });
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     if (signUpResponseWithInfoUser !== null) {
@@ -54,10 +56,10 @@ export const Register = () => {
   }, [signUpResponseWithInfoUser]);
 
   useEffect(() => {
-    if (errorMessage.length > 0) {
+    if (errorMessage.length > 0 && isFocused) {
       showError({screen: 'Register', errorMessage, removeError});
     }
-  }, [errorMessage]);
+  }, [errorMessage, isFocused]);
 
   const signUpPress = () => {
     Keyboard.dismiss();
@@ -159,10 +161,14 @@ export const Register = () => {
           mode="contained"
           disabled={loading}
           onPress={() => signUpPress()}
-          style={commonStyles.signUpButton}
+          style={[
+            commonStyles.saveButton,
+            !loading && commonStyles.saveButtonEnabled,
+          ]}
+          contentStyle={commonStyles.saveButtonContent}
           labelStyle={commonStyles.signUpButtonText}>
           {loading ? (
-            <ActivityIndicator size="large" color={colors.secondary} />
+            <ActivityIndicator size="large" color={colors.textDisabled} />
           ) : (
             'Sign Up'
           )}

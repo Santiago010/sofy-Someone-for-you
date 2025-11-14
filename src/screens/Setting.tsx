@@ -8,8 +8,24 @@ import ButtonGoBack from '../components/ButtonGoBack';
 import LogoSofy from '../components/LogoSofy';
 import {AuthContext} from '../context/authContext/authContext';
 import {useLocation} from '../hooks/useLocation';
+import {StackNavigationProp} from '@react-navigation/stack';
 
-export default function Settings({navigation}: any) {
+type RootStackParamList = {
+  EditPhoneNumber: undefined;
+  SeeLocation: undefined;
+  ContactUs: undefined;
+  Privacy: undefined;
+  TermsAndServices: undefined;
+  // ...agrega otras rutas si las tienes...
+};
+
+type SettingsScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+
+export default function Settings({
+  navigation,
+}: {
+  navigation: SettingsScreenNavigationProp;
+}) {
   const {logout, detailsUser, GetDetailsUser} = useContext(AuthContext);
   const {address, isLoadingLocation} = useLocation();
 

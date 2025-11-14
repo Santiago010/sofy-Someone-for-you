@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {Text, TextInput, Button} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import LogoSofy from '../components/LogoSofy';
 import {useForm} from '../hooks/useForm';
@@ -19,6 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const Login = () => {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
 
   const {login, transactionId, errorMessage, removeError, loading} =
     useContext(AuthContext);
@@ -26,6 +27,8 @@ export const Login = () => {
     email: '',
     password: 'p7EhCx33jwkQ*',
   });
+
+  console.log(loading);
 
   const sendData = () => {
     Keyboard.dismiss();
@@ -45,10 +48,10 @@ export const Login = () => {
   };
 
   useEffect(() => {
-    if (errorMessage.length > 0) {
+    if (errorMessage.length > 0 && isFocused) {
       showError({screen: 'Login', errorMessage, removeError});
     }
-  }, [errorMessage]);
+  }, [errorMessage, isFocused]);
 
   // Navegar automáticamente cuando transactionId esté disponible
   useEffect(() => {
@@ -116,10 +119,14 @@ export const Login = () => {
                 disabled={loading}
                 mode="contained"
                 onPress={() => sendData()}
-                style={commonStyles.loginButton}
+                style={[
+                  commonStyles.saveButton,
+                  !loading && commonStyles.saveButtonEnabled,
+                ]}
+                contentStyle={commonStyles.saveButtonContent}
                 labelStyle={commonStyles.loginButtonText}>
                 {loading ? (
-                  <ActivityIndicator size="large" color={colors.secondary} />
+                  <ActivityIndicator size="large" color={colors.textDisabled} />
                 ) : (
                   'Log in'
                 )}

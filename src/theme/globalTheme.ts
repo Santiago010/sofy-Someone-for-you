@@ -145,6 +145,7 @@ export const commonStyles = {
 
   // Footer y enlaces
   footer: {
+    marginTop: 20,
     alignItems: 'center' as const,
   },
 

@@ -184,18 +184,23 @@ export const AuthProvider = ({
   const EditDetailsInfo = async (editDetailsInfoUser: EditDetailsInfoUser2) => {
     dispatch({type: 'setLoading', payload: true});
     try {
-      await privateDB.patch<ResponseEditDetailsUser>('/individuals/me', {
-        subcategories: editDetailsInfoUser.subcategories,
-        age: editDetailsInfoUser.age,
-        gender_id: editDetailsInfoUser.gender_id,
-        interested_gender_id: editDetailsInfoUser.interested_gender_id,
-        max_distance_km: editDetailsInfoUser.max_distance_km,
-        min_age: editDetailsInfoUser.min_age,
-        max_age: editDetailsInfoUser.max_age,
-        name: editDetailsInfoUser.name,
-        lastname: editDetailsInfoUser.lastname,
-        description: editDetailsInfoUser.description,
-      });
+      const {data} = await privateDB.patch<ResponseEditDetailsUser>(
+        '/individuals/me',
+        {
+          subcategories: editDetailsInfoUser.subcategories,
+          age: editDetailsInfoUser.age,
+          gender_id: editDetailsInfoUser.gender_id,
+          interested_gender_id: editDetailsInfoUser.interested_gender_id,
+          max_distance_km: editDetailsInfoUser.max_distance_km,
+          min_age: editDetailsInfoUser.min_age,
+          max_age: editDetailsInfoUser.max_age,
+          name: editDetailsInfoUser.name,
+          lastname: editDetailsInfoUser.lastname,
+          description: editDetailsInfoUser.description,
+          phone: editDetailsInfoUser.phone,
+        },
+      );
+      console.log('EditDetailsInfo Response:', data);
       setEditDetailsSuccessFun(true);
       dispatch({type: 'setLoading', payload: false});
       GetDetailsUser();
@@ -261,6 +266,7 @@ export const AuthProvider = ({
         email,
         password,
       });
+      console.log('SignUp Response:', data);
       await AsyncStorage.setItem(
         'access_token_only_complete_user',
         data.payload.access_token,
@@ -297,15 +303,11 @@ export const AuthProvider = ({
         name: photo.name,
       } as any);
 
-      const {data} = await privateDB.post(
-        '/individuals-files/upload',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+      await privateDB.post('/individuals-files/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
         },
-      );
+      });
       return Promise.resolve();
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -489,7 +491,6 @@ export const AuthProvider = ({
   const getIDUserForChats = async () => {
     try {
       const {data} = await privateDB.get<IDResponse>('/individuals/me/id');
-      console.log('ID User for Chats:', data.payload.id);
       dispatch({
         type: 'setIDUserForChats',
         payload: {

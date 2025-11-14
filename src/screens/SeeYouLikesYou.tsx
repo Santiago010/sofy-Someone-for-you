@@ -1,20 +1,23 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
 import {colors} from '../theme/globalTheme';
-import {CardViewWithoutAnimation} from '../components/CardViewWithoutAnimation';
+import {CardViewWithoutAnimation2} from '../components/CardViewWithoutAnimation2';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
-import {ModalInfoUser} from '../components/ModalInfoUser';
-import {data} from '../animations/data/data';
-import {PayloadDetails} from '../interfaces/interfacesApp';
 import {ModalMatch} from '../components/ModalMatch';
+import {useWhoLikesMe} from '../hooks/useWhoLikeMe';
+import {PayloadWhoLikedMe} from '../interfaces/interfacesApp';
+import {ModalInfoUser2} from '../components/ModalInfoUser2';
 
 export default function SeeWhoLikesYou() {
+  const {whoLikesMe, loading, error} = useWhoLikesMe();
   const {widthWindow} = DeviceDimensions();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisibleMatch, setModalVisibleMatch] = useState(false);
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [userToSee, setuserToSee] = useState({});
+  const [userToSee, setuserToSee] = useState<PayloadWhoLikedMe>(
+    {} as PayloadWhoLikedMe,
+  );
 
   // Calcular dimensiones para el grid
   const numColumns = 2;
@@ -26,7 +29,7 @@ export default function SeeWhoLikesYou() {
     setModalVisible(!modalVisible);
   };
 
-  const toggleModalWithUser = (user: any) => {
+  const toggleModalWithUser = (user: PayloadWhoLikedMe) => {
     setuserToSee(user);
     setModalVisible(!modalVisible);
   };
@@ -40,13 +43,19 @@ export default function SeeWhoLikesYou() {
     setModalVisibleMatch(true);
   };
 
-  const renderCard = ({item, index}: {item: PayloadDetails; index: number}) => (
+  const renderCard = ({
+    item,
+    index,
+  }: {
+    item: PayloadWhoLikedMe;
+    index: number;
+  }) => (
     <View
       style={[
         styles.cardContainer,
         {marginLeft: index % numColumns === 0 ? spacing : spacing / 2},
       ]}>
-      <CardViewWithoutAnimation
+      <CardViewWithoutAnimation2
         card={item}
         index={index}
         width={cardWidth}
@@ -64,29 +73,43 @@ export default function SeeWhoLikesYou() {
         </Text>
       </View>
 
-      <FlatList
-        data={data}
-        renderItem={renderCard}
-        keyExtractor={item => item.id.toString()}
-        numColumns={numColumns}
-        contentContainerStyle={styles.gridContainer}
-        showsVerticalScrollIndicator={false}
-      />
+      {loading ? (
+        <Text style={styles.subtitle}>Loading...</Text>
+      ) : error ? (
+        <Text style={styles.subtitle}>Try later or close section</Text>
+      ) : whoLikesMe.length === 0 ? (
+        <Text style={styles.subtitle}>
+          you have not yet given any user a like
+        </Text>
+      ) : (
+        <FlatList
+          data={whoLikesMe}
+          renderItem={renderCard}
+          keyExtractor={item => item.id.toString()}
+          numColumns={numColumns}
+          contentContainerStyle={styles.gridContainer}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
-      <ModalInfoUser
-        user={userToSee}
-        originScreen={'SeeWhoLikesYou'}
-        modalVisible={modalVisible}
-        completeInfo={true}
-        toggleModal={toggleModal}
-        toggleModalToMatch={toggleModalToMatch}
-      />
+      {/* Renderizar el modal solo si está visible y hay usuario válido */}
+      {modalVisible && userToSee.fromIndividual !== null && (
+        <ModalInfoUser2
+          user={userToSee}
+          originScreen={'SeeWhoLikesYou'}
+          modalVisible={modalVisible}
+          toggleModal={toggleModal}
+          toggleModalToMatch={toggleModalToMatch}
+        />
+      )}
 
-      <ModalMatch
-        user={userToSee}
-        modalVisible={modalVisibleMatch}
-        toggleModal={toggleModalMatch}
-      />
+      {modalVisibleMatch && userToSee.fromIndividual !== null && (
+        <ModalMatch
+          user={userToSee}
+          modalVisible={modalVisibleMatch}
+          toggleModal={toggleModalMatch}
+        />
+      )}
     </View>
   );
 }

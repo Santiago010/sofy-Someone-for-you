@@ -30,7 +30,7 @@ export const useCometChat = () => {
     CometChatUIKit.init(uikitSettings)
       .then(value => {
         setIsInitialized(true);
-        console.log('CometChatUiKit successfully initialized');
+        // console.log('CometChatUiKit successfully initialized');
       })
       .catch(error => {
         console.error('Initialization failed with exception:', error);
@@ -50,7 +50,7 @@ export const useCometChat = () => {
       const user = await CometChatUIKit.login({uid});
       setCurrentUser(user);
       setIsLoggedIn(true);
-      console.log(`Usuario logeado: ${user.getName()}`);
+      //   console.log(`Usuario logeado: ${user.getName()}`);
       return {success: true, user};
     } catch (err) {
       console.error('Error en login:', err);
@@ -67,7 +67,6 @@ export const useCometChat = () => {
       await CometChatUIKit.logout();
       setCurrentUser(null);
       setIsLoggedIn(false);
-      console.log('Usuario deslogueado');
     } catch (err) {
       console.error('Error en logout:', err);
     }
@@ -92,7 +91,6 @@ export const useCometChat = () => {
         },
       });
 
-      console.log('Usuario creado en CometChat:', response.data);
       return {success: true, data: response.data};
     } catch (error) {
       return {success: false, error};
@@ -123,7 +121,6 @@ export const useCometChat = () => {
         },
       });
 
-      console.log('Mensaje enviado en CometChat:', response.data);
       return {success: true, data: response.data};
     } catch (error) {
       if (error instanceof AxiosError) {

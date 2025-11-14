@@ -3,16 +3,19 @@ import {FlatList, StyleSheet, View} from 'react-native';
 import {Text} from 'react-native-paper';
 import {CardViewWithoutAnimation} from '../components/CardViewWithoutAnimation';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
-import {data} from '../animations/data/data';
-import {PayloadDetails} from '../interfaces/interfacesApp';
+
+import {PayloadResponseMyLikes} from '../interfaces/interfacesApp';
 import {colors} from '../theme/globalTheme';
-import {ModalMatch} from '../components/ModalMatch';
 import {ModalInfoUser} from '../components/ModalInfoUser';
+import {useMyLikes} from '../hooks/useMyLikes';
 
 export default function YouLikedMe() {
   const {widthWindow} = DeviceDimensions();
   const [modalVisible, setModalVisible] = useState(false);
-  const [userToSee, setuserToSee] = useState({});
+  const [userToSee, setuserToSee] = useState<PayloadResponseMyLikes>(
+    {} as PayloadResponseMyLikes,
+  );
+  const {myUsersLikes, loading, error} = useMyLikes();
 
   // Calcular dimensiones para el grid
   const numColumns = 2;
@@ -24,12 +27,18 @@ export default function YouLikedMe() {
     setModalVisible(!modalVisible);
   };
 
-  const toggleModalWithUser = (user: any) => {
+  const toggleModalWithUser = (user: PayloadResponseMyLikes) => {
     setuserToSee(user);
     setModalVisible(!modalVisible);
   };
 
-  const renderCard = ({item, index}: {item: PayloadDetails; index: number}) => (
+  const renderCard = ({
+    item,
+    index,
+  }: {
+    item: PayloadResponseMyLikes;
+    index: number;
+  }) => (
     <View
       style={[
         styles.cardContainer,
@@ -50,27 +59,37 @@ export default function YouLikedMe() {
       <View style={styles.header}>
         <Text style={styles.title}>Users you like</Text>
         <Text style={styles.subtitle}>Find out who you like</Text>
-        {/* <Text style={styles.subtitle}>
-          Descubre quién mostró interés en tu perfil
-        </Text> */}
       </View>
 
-      <FlatList
-        data={data}
-        renderItem={renderCard}
-        keyExtractor={item => item.id.toString()}
-        numColumns={numColumns}
-        contentContainerStyle={styles.gridContainer}
-        showsVerticalScrollIndicator={false}
-      />
+      {loading ? (
+        <Text style={styles.subtitle}>Loading...</Text>
+      ) : error ? (
+        <Text style={styles.subtitle}>Try later or close section</Text>
+      ) : myUsersLikes.length === 0 ? (
+        <Text style={styles.subtitle}>
+          you have not yet given any user a like
+        </Text>
+      ) : (
+        <FlatList
+          data={myUsersLikes}
+          renderItem={renderCard}
+          keyExtractor={item => item.id.toString()}
+          numColumns={numColumns}
+          contentContainerStyle={styles.gridContainer}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
-      <ModalInfoUser
-        user={userToSee}
-        originScreen={'YouLikedMe'}
-        modalVisible={modalVisible}
-        completeInfo={true}
-        toggleModal={toggleModal}
-      />
+      {/* Renderizar el modal solo si está visible y hay usuario válido */}
+      {modalVisible && userToSee.toIndividual !== null && (
+        <ModalInfoUser
+          user={userToSee}
+          originScreen={'YouLikedMe'}
+          modalVisible={modalVisible}
+          completeInfo={true}
+          toggleModal={toggleModal}
+        />
+      )}
     </View>
   );
 }

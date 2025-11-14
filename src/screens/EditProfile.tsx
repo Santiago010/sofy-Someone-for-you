@@ -16,11 +16,22 @@ import {
   GenderResponse,
   InterestAndSubInterestResponse,
   subcategories,
-  PayloadDetails2,
 } from '../interfaces/interfacesApp';
 import {showError} from '../helpers/ShowError';
+import {StackNavigationProp} from '@react-navigation/stack';
 
-export default function EditProfile({navigation}: any) {
+type RootStackParamList = {
+  EditProfile: undefined;
+  // ...otras rutas si las tienes...
+};
+
+type EditProfileScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+
+export default function EditProfile({
+  navigation,
+}: {
+  navigation: EditProfileScreenNavigationProp;
+}) {
   const {
     detailsUser,
     EditDetailsInfo,

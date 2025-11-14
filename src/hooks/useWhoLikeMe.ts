@@ -1,14 +1,12 @@
 import {useEffect, useState} from 'react';
 import {privateDB} from '../db/db';
 import {
-  PayloadResponseMyLikes,
-  ResponseMyLikes,
+  PayloadWhoLikedMe,
+  ResponseWhoLikedMe,
 } from '../interfaces/interfacesApp';
 
-export function useMyLikes() {
-  const [myUsersLikes, setMyUsersLikes] = useState<PayloadResponseMyLikes[]>(
-    [],
-  );
+export function useWhoLikesMe() {
+  const [whoLikesMe, setWhoLikesMe] = useState<PayloadWhoLikedMe[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,10 +15,10 @@ export function useMyLikes() {
       setLoading(true);
       setError(null);
       try {
-        const {data} = await privateDB.get<ResponseMyLikes>(
-          '/individuals/my-likes',
+        const {data} = await privateDB.get<ResponseWhoLikedMe>(
+          '/individuals/who-liked-me',
         );
-        setMyUsersLikes(data.payload);
+        setWhoLikesMe(data.payload);
       } catch (err) {
         setError('Error get my users likes');
       } finally {
@@ -30,5 +28,5 @@ export function useMyLikes() {
     fetchLikes();
   }, []);
 
-  return {myUsersLikes, loading, error};
+  return {whoLikesMe, loading, error};
 }

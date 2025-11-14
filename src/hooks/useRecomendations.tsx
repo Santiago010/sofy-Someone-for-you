@@ -1,38 +1,68 @@
-import {useState} from 'react';
+import {useState, useCallback} from 'react';
 import {privateDB} from '../db/db';
-import {RecomendationsResponse} from '../interfaces/interfacesApp';
+import {
+  PayloadRecomendationsResponse,
+  RecomendationsResponse,
+} from '../interfaces/interfacesApp';
 
 const useRecomendations = () => {
-  // Placeholder for future recommendation logic
-
-  const [recomendations, setRecomendations] = useState<any[]>([]);
+  const [recomendations, setRecomendations] = useState<
+    PayloadRecomendationsResponse[]
+  >([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [hasMorePages, setHasMorePages] = useState<boolean>(true);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const fetchRecomendations = async (
-    lat: number,
-    log: number,
-    limit: number,
-  ) => {
-    try {
-      setLoading(true);
-      // Placeholder for fetching recommendations logic
-      const res = await privateDB.get<RecomendationsResponse>(
-        '/individuals/recommendations',
-        {
-          params: {lat, log, limit},
-        },
-      );
-      setRecomendations(res.data.payload);
-    } catch (err) {
-      setError('Error fetching recommendations');
-    } finally {
-      setLoading(false);
-    }
+  const fetchRecomendations = useCallback(
+    async (lat: number, log: number, limit: number, page: number) => {
+      if (isFetching) return;
+
+      try {
+        setIsFetching(true);
+        setLoading(true);
+
+        const res = await privateDB.get<RecomendationsResponse>(
+          '/individuals/recommendations',
+          {
+            params: {lat, log, limit, page},
+          },
+        );
+
+        const newRecomendations = res.data.payload;
+
+        if (page === 1) {
+          setRecomendations(newRecomendations);
+        } else {
+          setRecomendations(prev => [...prev, ...newRecomendations]);
+        }
+
+        setCurrentPage(page);
+
+        if (newRecomendations.length < limit) {
+          setHasMorePages(false);
+        }
+      } catch (err) {
+        setError('Error fetching recommendations');
+      } finally {
+        setLoading(false);
+        setIsFetching(false);
+      }
+    },
+    [isFetching],
+  );
+
+  return {
+    recomendations,
+    loading,
+    error,
+    fetchRecomendations,
+    setRecomendations,
+    currentPage,
+    hasMorePages,
+    isFetching,
   };
-
-  return {recomendations, loading, error, fetchRecomendations};
 };
 
 export default useRecomendations;

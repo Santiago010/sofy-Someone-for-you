@@ -1,18 +1,27 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {View, ScrollView, Image, StyleSheet, SafeAreaView} from 'react-native';
 import {Text, TextInput, Button} from 'react-native-paper';
 import {commonStyles} from '../theme/globalTheme';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
 import LogoSofy from '../components/LogoSofy';
+import {AuthContext} from '../context/authContext/authContext';
 
 export const ForgotYourPassword = () => {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const [email, setEmail] = useState('');
+  const {loading, errorMessage, removeError} = useContext(AuthContext);
 
   const handleResetPassword = () => {
     // console.log('Reset password for:', email);
     // Aquí iría la lógica para enviar el email de recuperación
   };
+
+  useEffect(() => {
+    if (errorMessage.length > 0 && isFocused) {
+      showError({screen: 'ForgotYourPassword', errorMessage, removeError});
+    }
+  }, [errorMessage, isFocused]);
 
   return (
     <ScrollView style={commonStyles.container}>
@@ -47,9 +56,13 @@ export const ForgotYourPassword = () => {
           <Button
             mode="contained"
             onPress={handleResetPassword}
-            style={commonStyles.resetButton}
+            style={[
+              commonStyles.saveButton,
+              !loading && commonStyles.saveButtonEnabled,
+            ]}
+            contentStyle={commonStyles.saveButtonContent}
             labelStyle={commonStyles.resetButtonText}
-            disabled={!email.trim()}>
+            disabled={!email.trim() || loading}>
             Send Reset Link
           </Button>
 
@@ -68,12 +81,3 @@ export const ForgotYourPassword = () => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  logo: {
-    width: 120,
-    height: 120,
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-});

@@ -16,8 +16,21 @@ import ButtonGoBack from '../components/ButtonGoBack';
 import {useForm} from '../hooks/useForm';
 import {AuthContext} from '../context/authContext/authContext';
 import {EditDetailsInfoUser} from '../interfaces/interfacesApp';
+import {StackNavigationProp} from '@react-navigation/stack';
 
-export default function EditPhoneNumber({navigation}: any) {
+type RootStackParamList = {
+  // Agrega aquí las rutas que usas en tu stack
+  EditPhoneNumber: undefined;
+  // ...otras rutas si las tienes...
+};
+type EditPhoneNumberScreenNavigationProp =
+  StackNavigationProp<RootStackParamList>;
+
+export default function EditPhoneNumber({
+  navigation,
+}: {
+  navigation: EditPhoneNumberScreenNavigationProp;
+}) {
   const {
     EditDetailsInfo,
     editDetailsSuccess,
@@ -32,7 +45,7 @@ export default function EditPhoneNumber({navigation}: any) {
   useEffect(() => {
     if (detailsUser) {
       if (detailsUser.phone === null) {
-        onChange('a', phoneNumber);
+        onChange('', 'phoneNumber');
       } else {
         onChange(detailsUser.phone, 'phoneNumber');
       }
@@ -119,13 +132,17 @@ export default function EditPhoneNumber({navigation}: any) {
                   onPress={handleSave}
                   disabled={!isValid || loading}
                   style={[
-                    styles.saveButton,
-                    isValid && styles.saveButtonEnabled,
+                    !isValid || loading
+                      ? commonStyles.saveButton
+                      : commonStyles.saveButtonEnabled,
                   ]}
                   contentStyle={styles.saveButtonContent}
                   labelStyle={styles.saveButtonLabel}>
                   {loading ? (
-                    <ActivityIndicator size="large" color={colors.secondary} />
+                    <ActivityIndicator
+                      size="large"
+                      color={colors.textDisabled}
+                    />
                   ) : (
                     'Save'
                   )}

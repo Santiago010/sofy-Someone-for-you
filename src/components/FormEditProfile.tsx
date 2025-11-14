@@ -431,13 +431,14 @@ export default function FormEditProfile({
           onPress={handleSave}
           disabled={!areAllFieldsFilled() || loading}
           style={[
-            commonStyles.saveButton,
-            areAllFieldsFilled() && commonStyles.saveButtonEnabled,
+            areAllFieldsFilled() && loading
+              ? commonStyles.saveButton
+              : commonStyles.saveButtonEnabled,
           ]}
           contentStyle={commonStyles.saveButtonContent}
           labelStyle={commonStyles.saveButtonLabel}>
           {loading ? (
-            <ActivityIndicator size="large" color={colors.secondary} />
+            <ActivityIndicator size="large" color={colors.textDisabled} />
           ) : (
             `Save (${getFilledFieldsCount().filled}/${
               getFilledFieldsCount().total

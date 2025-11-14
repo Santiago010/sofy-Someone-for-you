@@ -1,9 +1,14 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {PanResponder, StyleSheet, View} from 'react-native';
+import {
+  PanResponder,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
-import {data} from '../animations/data/data';
-import {PayloadDetails2} from '../interfaces/interfacesApp';
+import {PayloadRecomendationsResponse} from '../interfaces/interfacesApp';
 import {Text} from 'react-native-paper';
 import CardView from './CardView';
 import {
@@ -13,7 +18,10 @@ import {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
+
 import useRecomendations from '../hooks/useRecomendations';
+import {BarIndicator} from 'react-native-indicators';
+import {useLikeOrDislike} from '../hooks/useLikeOrDislike';
 
 interface Location {
   latitude: number | null;
@@ -21,65 +29,168 @@ interface Location {
 }
 
 interface SwipeCardProps {
+  locationError?: string | null;
+  isLoadingLocation?: boolean;
   location?: Location;
+  retryLocationRequest: () => void;
 }
 
 const {heightWindow, widthWindow} = DeviceDimensions();
 const SWIPE_THRESHOLD = widthWindow * 0.25;
 const SWIPE_OUT_DURATION = 250;
 const REST_DURATION = 300;
-const datami = data;
 
-export default function SwipeCard({location}: SwipeCardProps) {
-  const {fetchRecomendations, recomendations} = useRecomendations();
-  const [data, setData] = useState<PayloadDetails2[]>(datami);
+export default function SwipeCard({
+  location,
+  isLoadingLocation,
+  locationError,
+  retryLocationRequest,
+}: SwipeCardProps) {
+  // --- TODOS LOS HOOKS VAN AQUÍ ---
+  const {
+    recomendations,
+    fetchRecomendations,
+    setRecomendations,
+    error,
+    loading,
+    currentPage,
+    hasMorePages,
+    isFetching,
+  } = useRecomendations();
+  const {like, dislike} = useLikeOrDislike();
+
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const dummyTranslate = useSharedValue(0);
   const nextCardScale = useSharedValue(0.9);
 
+  const [requestedRecs, setRequestedRecs] = useState(false);
+
+  // --- LÓGICA DE EFECTOS ---
+  useEffect(() => {
+    if (
+      location &&
+      location.latitude != null &&
+      location.longitude != null &&
+      !requestedRecs
+    ) {
+      fetchRecomendations(location.latitude, location.longitude, 10, 1);
+      setRequestedRecs(true);
+    }
+  }, [location, requestedRecs, fetchRecomendations]);
+
+  // Efecto para cargar más recomendaciones cuando quedan pocas
+  useEffect(() => {
+    if (
+      recomendations.length === 3 &&
+      hasMorePages &&
+      !isFetching &&
+      location &&
+      location.latitude != null &&
+      location.longitude != null
+    ) {
+      const nextPage = currentPage + 1;
+      fetchRecomendations(location.latitude, location.longitude, 10, nextPage);
+    }
+  }, [
+    recomendations.length,
+    hasMorePages,
+    isFetching,
+    currentPage,
+    location,
+    fetchRecomendations,
+  ]);
+
+  // --- FUNCIONES ---
   const resetPosition = useCallback(() => {
     translateX.value = withTiming(0, {duration: REST_DURATION});
     translateY.value = withTiming(0, {duration: REST_DURATION});
     nextCardScale.value = withTiming(0.9, {duration: REST_DURATION});
   }, [translateX, translateY, nextCardScale]);
 
-  const onSwipeComplete = useCallback(
-    (direccion: 'right' | 'left' | 'up' | 'down') => {
-      const action =
-        direccion === 'right' || direccion === 'up' ? 'LIKED' : 'DISLIKED';
+  // onSwipeComplete ya no usa useCallback, así accede siempre al estado más reciente
+  function onSwipeComplete(direccion: 'right' | 'left' | 'up' | 'down') {
+    const action =
+      direccion === 'right' || direccion === 'up' ? 'LIKED' : 'DISLIKED';
+    console.log(action);
 
-      console.log('action -->', action, data[0]?.name);
-
-      if (data.length > 0) {
-        setData(pre => pre.slice(1));
+    setRecomendations(prev => {
+      if (prev.length > 0) {
+        const currentCardId = prev[0].id;
+        // Llama a like o dislike según la dirección
+        if (direccion === 'right') {
+          like(currentCardId);
+        } else if (direccion === 'left') {
+          dislike(currentCardId);
+        }
+        // Elimina la primera tarjeta
+        const newRecs = prev.slice(1);
+        // Animaciones
         translateX.value = 0;
         translateY.value = 0;
-
         nextCardScale.value = 0.8;
         nextCardScale.value = withDelay(
           100,
           withTiming(0.9, {duration: 400, easing: Easing.exp}),
         );
+        return newRecs;
       } else {
+        // Si no hay tarjetas, resetea la posición
         resetPosition();
+        return prev;
       }
-    },
-    [data, nextCardScale, resetPosition, translateX, translateY],
+    });
+  }
+
+  const renderLocationError = () => (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.background,
+        paddingTop: Platform.OS === 'ios' ? 100 : 20,
+        paddingHorizontal: 20,
+      }}>
+      <Text
+        style={{
+          fontSize: 18,
+          color: colors.text,
+          textAlign: 'center',
+          marginBottom: 20,
+        }}>
+        No location, enable location to see your preferred users
+      </Text>
+      <Text
+        style={{
+          fontSize: 18,
+          color: colors.text,
+          textAlign: 'center',
+          marginBottom: 30,
+        }}>
+        {locationError?.includes('denied')
+          ? 'Enable location permissions in Settings > Sofy > Location'
+          : locationError || 'Unable to get location'}
+      </Text>
+      <TouchableOpacity
+        onPress={retryLocationRequest}
+        style={{
+          backgroundColor: colors.primary,
+          paddingHorizontal: 20,
+          paddingVertical: 10,
+          borderRadius: 8,
+        }}>
+        <Text
+          style={{
+            color: colors.background,
+            fontSize: 16,
+            fontWeight: 'bold',
+          }}>
+          Reintentar
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
-
-  useEffect(() => {
-    if (location?.latitude && location?.longitude) {
-      fetchRecomendations(location.latitude, location.longitude, 20);
-      //   console.log('Ubicación recibida en SwipeCard:', location);
-      // Aquí puedes usar la ubicación para filtrar usuarios cercanos,
-      // hacer llamadas API con parámetros de ubicación, etc.
-    }
-  }, [location]);
-
-  useEffect(() => {
-    console.log('Recomendaciones actualizadas:', recomendations);
-  }, [recomendations]);
 
   const forceSwipe = useCallback(
     (direccion: 'right' | 'left' | 'up' | 'down') => {
@@ -102,7 +213,7 @@ export default function SwipeCard({location}: SwipeCardProps) {
         () => runOnJS(onSwipeComplete)(direccion),
       );
     },
-    [onSwipeComplete, translateX, translateY],
+    [translateX, translateY], // ya no depende de recomendations ni de onSwipeComplete
   );
 
   const handleLike = useCallback(() => forceSwipe('right'), [forceSwipe]);
@@ -147,13 +258,13 @@ export default function SwipeCard({location}: SwipeCardProps) {
     }),
   ).current;
   const renderCard = useCallback(
-    (card: PayloadDetails, index: number) => (
+    (card: PayloadRecomendationsResponse, index: number) => (
       <CardView
         key={card.id}
         card={card}
         index={index}
         panHandlers={index === 0 ? panResponder.panHandlers : {}}
-        totalCards={data.length}
+        totalCards={recomendations.length}
         nextCardScale={index === 1 ? nextCardScale : dummyTranslate}
         translateX={index === 0 ? translateX : dummyTranslate}
         translateY={index === 0 ? translateY : dummyTranslate}
@@ -162,7 +273,7 @@ export default function SwipeCard({location}: SwipeCardProps) {
       />
     ),
     [
-      data.length,
+      recomendations,
       translateX,
       translateY,
       nextCardScale,
@@ -173,21 +284,60 @@ export default function SwipeCard({location}: SwipeCardProps) {
     ],
   );
 
-  return (
-    <View
-      style={{
-        ...commonStyles.container,
-        alignItems: 'center',
-      }}>
-      {data.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No More Cards</Text>
-        </View>
-      ) : (
-        <>{data.map(renderCard).reverse()}</>
-      )}
-    </View>
-  );
+  // --- RENDER ---
+  let content;
+  if (isLoadingLocation) {
+    content = (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.background,
+        }}>
+        <BarIndicator count={4} size={50} color={colors.primary} />
+        <Text style={{color: colors.text, marginBottom: 20, fontSize: 18}}>
+          Loading Location...
+        </Text>
+      </View>
+    );
+  } else if (locationError || !location?.latitude || !location?.longitude) {
+    content = renderLocationError();
+  } else if (loading) {
+    content = (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.background,
+        }}>
+        <BarIndicator count={4} size={50} color={colors.primary} />
+        <Text style={{color: colors.text, marginBottom: 20, fontSize: 18}}>
+          Loading Users ...
+        </Text>
+      </View>
+    );
+  } else {
+    content = (
+      <View
+        style={{
+          ...commonStyles.container,
+          alignItems: 'center',
+        }}>
+        {(recomendations?.length || 0) === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No More Cards</Text>
+          </View>
+        ) : (
+          <>{(recomendations || []).map(renderCard).reverse()}</>
+        )}
+      </View>
+    );
+  }
+
+  // --- SIEMPRE UN SOLO RETURN ---
+  return content;
 }
 
 const styles = StyleSheet.create({

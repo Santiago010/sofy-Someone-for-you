@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {Platform} from 'react-native';
 
-const baseURL =
+export const baseURL =
   Platform.OS === 'android'
     ? 'http://10.0.2.2:3001/api/v1'
     : 'http://127.0.0.1:3001/api/v1';

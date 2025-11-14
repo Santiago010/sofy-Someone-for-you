@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
-import {ModalInfoUser} from '../components/ModalInfoUser';
 import {AuthContext} from '../context/authContext/authContext';
 import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
 
@@ -24,12 +23,7 @@ export const Profile = () => {
   });
 
   const {detailsUser} = useContext(AuthContext);
-  const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-  const toggleModal = () => {
-    setModalVisible(!modalVisible);
-  };
-
   useEffect(() => {
     if (detailsUser !== null) {
       setdataInfouser({
@@ -39,8 +33,6 @@ export const Profile = () => {
         profile: detailsUser.individualFiles[0].file.url,
       });
     }
-
-    console.log('dataInfouser', dataInfouser);
   }, [detailsUser]);
 
   return (
@@ -50,9 +42,7 @@ export const Profile = () => {
           <View style={styles.styleBoxOne}>
             {/* Foto de perfil circular centrada */}
             <View style={styles.profileImageContainer}>
-              <TouchableOpacity
-                style={styles.profileImage}
-                onPress={toggleModal}>
+              <TouchableOpacity style={styles.profileImage}>
                 {dataInfouser.profile.length !== 0 ? (
                   <Image
                     source={{uri: resolveLocalhostUrl(dataInfouser.profile)}}
@@ -145,17 +135,6 @@ export const Profile = () => {
           </View>
         </View>
       </SafeAreaView>
-
-      {detailsUser !== null ? (
-        <ModalInfoUser
-          user={detailsUser}
-          modalVisible={modalVisible}
-          completeInfo={false}
-          toggleModal={toggleModal}
-        />
-      ) : (
-        <></>
-      )}
     </View>
   );
 };

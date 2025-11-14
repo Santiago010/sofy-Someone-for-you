@@ -3,17 +3,17 @@ import React, {FC} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {colors} from '../theme/globalTheme';
 import {Chip} from 'react-native-paper';
-import {PayloadResponseMyLikes} from '../interfaces/interfacesApp';
+import {PayloadWhoLikedMe} from '../interfaces/interfacesApp';
 import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
 interface CardViewWithoutAnimationProps {
-  card: PayloadResponseMyLikes;
+  card: PayloadWhoLikedMe;
   index: number;
   width?: number;
   height?: number;
-  toggleModalWithUser: (user: PayloadResponseMyLikes) => void;
+  toggleModalWithUser: (user: PayloadWhoLikedMe) => void;
 }
 
-export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
+export const CardViewWithoutAnimation2: FC<CardViewWithoutAnimationProps> = ({
   card,
   width = 200,
   height = 400,
@@ -21,6 +21,7 @@ export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
 }) => {
   const dynamicStyles = styles(width, height);
 
+  console.log('CardViewWithoutAnimation2 card:', card);
   return (
     <TouchableOpacity
       style={dynamicStyles.card}
@@ -29,7 +30,7 @@ export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
         <Image
           source={{
             uri: resolveLocalhostUrl(
-              card.toIndividual.individualFiles[0]?.file.url,
+              card.fromIndividual.individualFiles[0]?.file.url,
             ),
           }}
           style={dynamicStyles.image}
@@ -41,10 +42,10 @@ export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
             flexDirection: 'column',
           }}>
           <Text style={dynamicStyles.cardFooterName}>
-            {card.toIndividual.name} {card.toIndividual.lastname}
+            {card.fromIndividual.name} {card.fromIndividual.lastname}
           </Text>
           <Text style={dynamicStyles.cardFooterAge}>
-            {card.toIndividual.age}
+            {card.fromIndividual.age}
           </Text>
         </View>
 
@@ -66,7 +67,7 @@ export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
             </Text>
           </View>
           <View style={dynamicStyles.interestContainer}>
-            {card.toIndividual.categories.map(category => (
+            {card.fromIndividual.categories.map(category => (
               <Chip
                 key={category.id}
                 mode="flat"

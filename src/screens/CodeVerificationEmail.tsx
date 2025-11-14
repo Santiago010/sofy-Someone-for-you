@@ -6,6 +6,7 @@ import {AuthContext} from '../context/authContext/authContext';
 import LogoSofy from '../components/LogoSofy';
 import {useForm} from '../hooks/useForm';
 import {showError} from '../helpers/ShowError';
+import {useIsFocused} from '@react-navigation/native';
 
 export const CodeVerificationEmail = () => {
   const {verificationCode, transactionId, errorMessage, removeError, loading} =
@@ -20,11 +21,13 @@ export const CodeVerificationEmail = () => {
     verificationCode({code: form.code, transactionId: form.transactionIdValue});
   };
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
-    if (errorMessage.length > 0) {
-      showError({screen: 'Code Verification', errorMessage, removeError});
+    if (errorMessage.length > 0 && isFocused) {
+      showError({screen: 'CodeVerificationEmail', errorMessage, removeError});
     }
-  }, [errorMessage]);
+  }, [errorMessage, isFocused]);
 
   return (
     <ScrollView style={commonStyles.container}>
@@ -58,11 +61,15 @@ export const CodeVerificationEmail = () => {
           <Button
             mode="contained"
             onPress={handleCode}
-            style={commonStyles.resetButton}
+            style={[
+              commonStyles.saveButton,
+              !loading && commonStyles.saveButtonEnabled,
+            ]}
+            contentStyle={commonStyles.saveButtonContent}
             labelStyle={commonStyles.resetButtonText}
             disabled={!code.trim() || loading}>
             {loading ? (
-              <ActivityIndicator size="large" color={colors.secondary} />
+              <ActivityIndicator size="large" color={colors.textDisabled} />
             ) : (
               'Check'
             )}
@@ -72,12 +79,3 @@ export const CodeVerificationEmail = () => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  logo: {
-    width: 120,
-    height: 120,
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-});

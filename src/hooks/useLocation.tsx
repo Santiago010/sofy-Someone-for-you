@@ -28,7 +28,6 @@ export const useLocation = (): UseLocationReturn => {
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
   const reverseGeocode = async (latitude: number, longitude: number) => {
-    console.log('Reverse geocoding for:', {latitude, longitude});
     try {
       const response = await axios.get(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,

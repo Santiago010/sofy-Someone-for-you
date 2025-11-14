@@ -7,6 +7,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
 
 import {commonStyles} from '../theme/globalTheme';
 import GridImage from '../components/GridImage';
@@ -32,12 +33,13 @@ export const InfoUser = () => {
     errorMessage,
     loading,
   } = useContext(AuthContext);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    if (errorMessage.length > 0) {
-      showError({screen: 'Edit Profile', errorMessage, removeError});
+    if (errorMessage.length > 0 && isFocused) {
+      showError({screen: 'InfoUser', errorMessage, removeError});
     }
-  }, [errorMessage]);
+  }, [errorMessage, isFocused]);
 
   // Estados para los nuevos campos
   const [formDataNew, setFormDataNew] = useState({
@@ -72,7 +74,7 @@ export const InfoUser = () => {
   // Función para calcular campos llenos usando formDataNew
   const getFilledFieldsCount = () => {
     let count = 0;
-    const totalFields = 10; // Total de campos que necesitamos validar
+    const totalFields = 11; // Total de campos que necesitamos validar
 
     if (formDataNew.firstName && formDataNew.firstName.length >= 3) count++;
     if (formDataNew.lastName && formDataNew.lastName.length >= 3) count++;

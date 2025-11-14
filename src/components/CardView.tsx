@@ -1,5 +1,5 @@
 import React, {FC, memo, useEffect, useState} from 'react';
-import {PayloadDetails} from '../interfaces/interfacesApp';
+import {PayloadRecomendationsResponse} from '../interfaces/interfacesApp';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -20,7 +20,7 @@ const {heightWindow, widthWindow} = DeviceDimensions();
 const ROTATION_RANGE = 15;
 
 interface CardViewProps {
-  card: PayloadDetails;
+  card: PayloadRecomendationsResponse;
   index: number;
   totalCards: any;
   panHandlers: any;
@@ -171,6 +171,7 @@ const CardView: FC<CardViewProps> = ({
             marginBottom: 70,
           }}>
           <TouchableOpacity
+            disabled={!showBtnChangeImagetoLeft}
             style={{opacity: showBtnChangeImagetoLeft ? 1 : 0}}
             onPress={() => changeImageToLeft()}>
             <MaterialDesignIcons
@@ -180,6 +181,7 @@ const CardView: FC<CardViewProps> = ({
             />
           </TouchableOpacity>
           <TouchableOpacity
+            disabled={!showBtnChangeImagetoRight}
             style={{opacity: showBtnChangeImagetoRight ? 1 : 0}}
             onPress={() => changeImageToRight()}>
             <MaterialDesignIcons

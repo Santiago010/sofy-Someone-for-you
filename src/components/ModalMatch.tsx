@@ -14,13 +14,14 @@ import {useCometChat} from '../hooks/useCometChat';
 import {AuthContext} from '../context/authContext/authContext';
 import {useNavigation} from '@react-navigation/native';
 import {colors} from '../theme/globalTheme';
+import {PayloadWhoLikedMe} from '../interfaces/interfacesApp';
 
 const {width: windowWidth, height: windowHeight} = Dimensions.get('window');
 
 interface ModalMatchProps {
   modalVisible: boolean;
   toggleModal: () => void;
-  user: any;
+  user: PayloadWhoLikedMe;
 }
 
 export const ModalMatch: React.FC<ModalMatchProps> = ({
@@ -37,10 +38,10 @@ export const ModalMatch: React.FC<ModalMatchProps> = ({
     if (!message.trim()) return;
 
     setSending(true);
-    const receiverId = user?.id;
+
     const res = await sendMessageToUser(
       `${idUserForChats}`,
-      receiverId,
+      user.fromIndividual.id.toString(),
       message,
     );
     setSending(false);
@@ -59,7 +60,7 @@ export const ModalMatch: React.FC<ModalMatchProps> = ({
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <ImageBackground
-            source={{uri: user?.individualFiles?.[0]?.file?.url}}
+            source={{uri: user?.fromIndividual.individualFiles?.[0]?.file?.url}}
             style={styles.background}
             imageStyle={styles.imageStyle}
             resizeMode="cover"
@@ -80,9 +81,9 @@ export const ModalMatch: React.FC<ModalMatchProps> = ({
                   onPress={handleSend}
                   disabled={sending}>
                   {sending ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color={colors.background} />
                   ) : (
-                    <Text style={styles.buttonText}>SEND</Text>
+                    <Text style={styles.buttonText}>Send</Text>
                   )}
                 </TouchableOpacity>
               </View>

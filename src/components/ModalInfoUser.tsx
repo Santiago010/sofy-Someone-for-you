@@ -13,14 +13,14 @@ import Carousel from 'react-native-reanimated-carousel';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {Button, Chip} from 'react-native-paper';
 import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
-import {PayloadDetails2} from '../interfaces/interfacesApp';
+import {PayloadResponseMyLikes} from '../interfaces/interfacesApp';
 
 interface ModalInfoProps {
   modalVisible: boolean;
   originScreen: 'SeeWhoLikesYou' | 'YouLikedMe';
   toggleModal: () => void;
   completeInfo: boolean;
-  user: PayloadDetails2;
+  user: PayloadResponseMyLikes;
   toggleModalToMatch?: () => void;
 }
 
@@ -50,10 +50,13 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                 onPress={() => toggleModal()}>
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
-              {user.individualFiles && user.individualFiles[0] ? (
+              {user.toIndividual.individualFiles &&
+              user.toIndividual.individualFiles[0] ? (
                 <Image
                   source={{
-                    uri: resolveLocalhostUrl(user.individualFiles[0].file.url),
+                    uri: resolveLocalhostUrl(
+                      user.toIndividual.individualFiles[0].file.url,
+                    ),
                   }}
                   style={styles.modalImage}
                 />
@@ -63,17 +66,18 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                 </View>
               )}
               <Text style={styles.modalTitle}>
-                {user.name} {user.lastname}
+                {user.toIndividual.name} {user.toIndividual.lastname}
               </Text>
-              <Text style={styles.modalAge}>{user.age} years</Text>
+              <Text style={styles.modalAge}>{user.toIndividual.age} years</Text>
               {/* Carrusel Parallax de Imágenes */}
-              {user.individualFiles && user.individualFiles.length > 0 ? (
+              {user.toIndividual.individualFiles &&
+              user.toIndividual.individualFiles.length > 0 ? (
                 <View style={styles.carouselContainer}>
                   <Carousel
                     loop
                     width={Dimensions.get('window').width * 0.7}
                     height={200}
-                    data={user.individualFiles}
+                    data={user.toIndividual.individualFiles}
                     scrollAnimationDuration={1000}
                     mode="parallax"
                     modeConfig={{
@@ -90,7 +94,8 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                         />
                         <View style={styles.imageIndicator}>
                           <Text style={styles.imageIndicatorText}>
-                            {index + 1} / {user.individualFiles.length}
+                            {index + 1} /{' '}
+                            {user.toIndividual.individualFiles.length}
                           </Text>
                         </View>
                       </View>
@@ -105,38 +110,40 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                   </Text>
                 </View>
               )}
-              <Text style={styles.modalBiography}>{user.description}</Text>
-
+              <Text style={styles.modalBiography}>
+                {user.toIndividual.description}
+              </Text>
               {/* Mostrar intereses con Chips */}
-              {user.categories && user.categories.length > 0 && (
-                <View style={styles.interestsContainer}>
-                  <Text style={styles.interestsTitle}>Interest</Text>
-                  <View style={styles.interestsChipsContainer}>
-                    {user.categories.map(category => (
-                      <Chip
-                        key={category.id}
-                        style={styles.interestChip}
-                        textStyle={styles.interestChipText}
-                        mode="outlined">
-                        {category.name}
-                      </Chip>
-                    ))}
+              {user.toIndividual.categories &&
+                user.toIndividual.categories.length > 0 && (
+                  <View style={styles.interestsContainer}>
+                    <Text style={styles.interestsTitle}>Interest</Text>
+                    <View style={styles.interestsChipsContainer}>
+                      {user.toIndividual.categories.map(category => (
+                        <Chip
+                          key={category.id}
+                          style={styles.interestChip}
+                          textStyle={styles.interestChipText}
+                          mode="outlined">
+                          {category.name}
+                        </Chip>
+                      ))}
+                    </View>
+                    {originScreen === 'SeeWhoLikesYou' && (
+                      <Button
+                        mode="contained"
+                        onPress={() => {
+                          if (toggleModalToMatch) {
+                            toggleModalToMatch();
+                          }
+                        }}
+                        style={{...commonStyles.buttonAction, marginTop: 20}}
+                        labelStyle={commonStyles.loginButtonText}>
+                        Return Like
+                      </Button>
+                    )}
                   </View>
-                  {originScreen === 'SeeWhoLikesYou' && (
-                    <Button
-                      mode="contained"
-                      onPress={() => {
-                        if (toggleModalToMatch) {
-                          toggleModalToMatch();
-                        }
-                      }}
-                      style={{...commonStyles.buttonAction, marginTop: 20}}
-                      labelStyle={commonStyles.loginButtonText}>
-                      Return Like
-                    </Button>
-                  )}
-                </View>
-              )}
+                )}
             </ScrollView>
           </View>
         </View>
@@ -154,10 +161,13 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
             <TouchableOpacity style={styles.closeButton} onPress={toggleModal}>
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
-            {user.individualFiles && user.individualFiles[0] ? (
+            {user.toIndividual.individualFiles &&
+            user.toIndividual.individualFiles[0] ? (
               <Image
                 source={{
-                  uri: resolveLocalhostUrl(user.individualFiles[0].file.url),
+                  uri: resolveLocalhostUrl(
+                    user.toIndividual.individualFiles[0].file.url,
+                  ),
                 }}
                 style={styles.modalImage}
               />
@@ -167,9 +177,9 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
               </View>
             )}
             <Text style={styles.modalTitle}>
-              {user.name} {user.lastname}
+              {user.toIndividual.name} {user.toIndividual.lastname}
             </Text>
-            <Text style={styles.modalAge}>{user.age} years</Text>
+            <Text style={styles.modalAge}>{user.toIndividual.age} years</Text>
           </View>
         </View>
       </Modal>
