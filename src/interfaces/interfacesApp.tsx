@@ -218,6 +218,10 @@ export interface EditDetailsInfoUser {
   //   TODO:PONER descripcion
 }
 
+export interface ChangePasspord {
+  newPassword: string;
+}
+
 export interface CompleteInfoUserResponse {
   id: number;
   name: string;

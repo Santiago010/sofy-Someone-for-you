@@ -11,7 +11,7 @@ import {ForgotYourPassword} from '../screens/ForgotYourPassword';
 import {InfoUser} from '../screens/InfoUser';
 import {RootStackParamList} from './types';
 import {colors} from '../theme/globalTheme';
-import {View} from 'react-native';
+import SetANewPassword from '../screens/SetANewPassword';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -37,7 +37,7 @@ export const MyStack = () => {
               name="CodeVerificationEmail"
               component={CodeVerificationEmail}
             />
-            <Stack.Screen name="InfoUser" component={InfoUser} />
+            <Stack.Screen name="SetANewPassword" component={SetANewPassword} />
           </>
         ) : (
           <>
@@ -50,15 +50,4 @@ export const MyStack = () => {
       </Stack.Navigator>
     </NavigationContainer>
   );
-
-  //   return (
-  //     <NavigationContainer>
-  //       <Stack.Navigator screenOptions={{headerShown: false}}>
-  //         <Stack.Screen
-  //           name="BottonTabNavigator"
-  //           component={BottonTabNavigator}
-  //         />
-  //       </Stack.Navigator>
-  //     </NavigationContainer>
-  //   );
 };

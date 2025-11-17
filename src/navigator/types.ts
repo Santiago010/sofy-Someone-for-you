@@ -12,4 +12,5 @@ export type RootStackParamList = {
   EditPhotos: undefined;
   EditProfile: undefined;
   Setting: undefined;
+  SetANewPassword: undefined;
 };

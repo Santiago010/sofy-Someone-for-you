@@ -1,5 +1,12 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {View, ScrollView, Image, StyleSheet, SafeAreaView} from 'react-native';
+import {
+  View,
+  ScrollView,
+  Image,
+  StyleSheet,
+  SafeAreaView,
+  Keyboard,
+} from 'react-native';
 import {Text, TextInput, Button} from 'react-native-paper';
 import {commonStyles} from '../theme/globalTheme';
 import {useNavigation, useIsFocused} from '@react-navigation/native';
@@ -10,18 +17,19 @@ export const ForgotYourPassword = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [email, setEmail] = useState('');
-  const {loading, errorMessage, removeError} = useContext(AuthContext);
+  const {forgotYourPassword, loading} = useContext(AuthContext);
 
   const handleResetPassword = () => {
-    // console.log('Reset password for:', email);
-    // Aquí iría la lógica para enviar el email de recuperación
-  };
+    Keyboard.dismiss();
 
-  useEffect(() => {
-    if (errorMessage.length > 0 && isFocused) {
-      showError({screen: 'ForgotYourPassword', errorMessage, removeError});
-    }
-  }, [errorMessage, isFocused]);
+    forgotYourPassword(email)
+      .then(res => {
+        navigation.navigate('SetANewPassword');
+      })
+      .catch(error => {
+        console.log('Error:', error);
+      });
+  };
 
   return (
     <ScrollView style={commonStyles.container}>

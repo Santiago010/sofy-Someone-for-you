@@ -22,6 +22,7 @@ import {
 import useRecomendations from '../hooks/useRecomendations';
 import {BarIndicator} from 'react-native-indicators';
 import {useLikeOrDislike} from '../hooks/useLikeOrDislike';
+import {useIsFocused} from '@react-navigation/native';
 
 interface Location {
   latitude: number | null;
@@ -58,6 +59,7 @@ export default function SwipeCard({
     isFetching,
   } = useRecomendations();
   const {like, dislike} = useLikeOrDislike();
+  const isFocused = useIsFocused();
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -74,6 +76,7 @@ export default function SwipeCard({
       location.longitude != null &&
       !requestedRecs
     ) {
+      console.log('sss');
       fetchRecomendations(location.latitude, location.longitude, 10, 1);
       setRequestedRecs(true);
     }
@@ -82,8 +85,9 @@ export default function SwipeCard({
   // Efecto para cargar más recomendaciones cuando quedan pocas
   useEffect(() => {
     if (
-      recomendations.length === 3 &&
+      recomendations &&
       hasMorePages &&
+      recomendations.length &&
       !isFetching &&
       location &&
       location.latitude != null &&
@@ -91,9 +95,12 @@ export default function SwipeCard({
     ) {
       const nextPage = currentPage + 1;
       fetchRecomendations(location.latitude, location.longitude, 10, nextPage);
+      console.log(
+        'entra al if de use Effect donde esta en fetchRecomendations',
+      );
     }
   }, [
-    recomendations.length,
+    recomendations,
     hasMorePages,
     isFetching,
     currentPage,
@@ -327,7 +334,7 @@ export default function SwipeCard({
         }}>
         {(recomendations?.length || 0) === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No More Cards</Text>
+            <Text style={styles.emptyText}>Ups No more User for you</Text>
           </View>
         ) : (
           <>{(recomendations || []).map(renderCard).reverse()}</>

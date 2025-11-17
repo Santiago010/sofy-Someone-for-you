@@ -71,6 +71,28 @@ export default function Settings({
                 </View>
                 <MaterialDesignIcons name="chevron-right" size={24} />
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('EditPassword')}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingVertical: 10,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.backgroundSecondary,
+                }}>
+                <MaterialDesignIcons
+                  name="onepassword"
+                  size={24}
+                  style={{marginRight: 10}}
+                />
+                <View style={{flex: 1}}>
+                  <Text>Edit Passwod</Text>
+                  <Text style={{color: colors.textSecondary}}>
+                    {'Edit Password'}
+                  </Text>
+                </View>
+                <MaterialDesignIcons name="chevron-right" size={24} />
+              </TouchableOpacity>
               <View
                 onPress={() => {}}
                 style={{

@@ -6,6 +6,7 @@ import ContactUs from '../screens/ContactUs';
 import Privacy from '../screens/Privacy';
 import TermsAndServices from '../screens/TermsAndServices';
 import Settings from '../screens/Setting';
+import EditPassword from '../screens/EditPassword';
 
 export type RootStackParamsStackSetttings = {
   Settings: undefined;
@@ -29,6 +30,7 @@ export const StackSettingsApps = () => {
       <Stack.Screen name="ContactUs" component={ContactUs} />
       <Stack.Screen name="Privacy" component={Privacy} />
       <Stack.Screen name="TermsAndServices" component={TermsAndServices} />
+      <Stack.Screen name="EditPassword" component={EditPassword} />
     </Stack.Navigator>
   );
 };

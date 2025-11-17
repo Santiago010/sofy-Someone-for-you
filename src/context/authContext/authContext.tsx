@@ -19,12 +19,14 @@ import {
   CompleteInfoUser2,
   PayloadDetails2,
   IDResponse,
+  ChangePasspord,
 } from '../../interfaces/interfacesApp';
 import {AuthState, authReducer} from './authReducer';
 import {db, privateDB, publicDBForCompleteUser} from '../../db/db';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {decodeJWT} from '../../helpers/DecodeJWT';
 import {AxiosError} from 'axios';
+import {err} from 'react-native-svg/lib/typescript/xml';
 
 interface AuthContextProps {
   signUpResponseWithInfoUser: SignUpResponse | null;
@@ -44,6 +46,9 @@ interface AuthContextProps {
   completeInfoUser: (completeInfoUser: CompleteInfoUser2) => void;
   GetDetailsUser: () => void;
   EditDetailsInfo: (data: EditDetailsInfoUser2) => void;
+  changePassword: (data: ChangePasspord) => Promise<void>;
+  setANewPassword: (token: string, newPassword: string) => Promise<void>;
+  forgotYourPassword: (email: string) => Promise<void>;
   setEditDetailsSuccessFun: (stateEdit: boolean) => void;
   addImage: (photo: UploadFile) => Promise<void>;
   removeImage: (id: string) => Promise<void>;
@@ -70,6 +75,89 @@ export const AuthProvider = ({
   children: JSX.Element | JSX.Element[];
 }) => {
   const [state, dispatch] = useReducer(authReducer, authInicialState);
+
+  const setANewPassword = async (
+    token: string,
+    newPassword: string,
+  ): Promise<void> => {
+    try {
+      const {data} = await privateDB.post('/auth/password-reset/confirm', {
+        token,
+        newPassword,
+      });
+      console.log(data);
+      return Promise.resolve();
+    } catch (error) {
+      let errorGlobal: string;
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          // TODO:cambiar ese any por la respuesta de error del endpoint de forgot
+          const errorData = error.response.data as any;
+          errorGlobal = errorData.message;
+        } else if (error.request) {
+          errorGlobal = 'Error in the Request';
+        } else {
+          errorGlobal = error.message;
+        }
+      } else {
+        errorGlobal = 'Unexpected error in the server';
+      }
+      return Promise.reject(errorGlobal);
+    }
+  };
+
+  const forgotYourPassword = async (email: string): Promise<void> => {
+    try {
+      const {data} = await privateDB.post('/auth/password-reset/request', {
+        email,
+      });
+      console.log(data);
+      return Promise.resolve();
+    } catch (error) {
+      let errorGlobal: string;
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          // TODO:cambiar ese any por la respuesta de error del endpoint de forgot
+          const errorData = error.response.data as any;
+          errorGlobal = errorData.message;
+        } else if (error.request) {
+          errorGlobal = 'Error in the Request';
+        } else {
+          errorGlobal = error.message;
+        }
+      } else {
+        errorGlobal = 'Unexpected error in the server';
+      }
+      return Promise.reject(errorGlobal);
+    }
+  };
+
+  const changePassword = async ({
+    newPassword,
+  }: ChangePasspord): Promise<void> => {
+    try {
+      await privateDB.post('/auth/password/update', {
+        newPassword,
+      });
+      return Promise.resolve();
+    } catch (error) {
+      let errorGlobal: string;
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          // TODO:cambiar ese any por la respuesta de error del endpoint de changePAssword
+          const errorData = error.response.data as any;
+          errorGlobal = errorData.message;
+        } else if (error.request) {
+          errorGlobal = 'Error in the Request';
+        } else {
+          errorGlobal = error.message;
+        }
+      } else {
+        errorGlobal = 'Unexpected error in the server';
+      }
+      return Promise.reject(errorGlobal);
+    }
+  };
 
   const login = async ({email, password}: loginData) => {
     dispatch({type: 'setLoading', payload: true});
@@ -507,10 +595,13 @@ export const AuthProvider = ({
   return (
     <AuthContext.Provider
       value={{
+        forgotYourPassword,
+        setANewPassword,
         getIDUserForChats,
         GetDetailsUser,
         ...state,
         verificationCode,
+        changePassword,
         login,
         signUp,
         logout,
