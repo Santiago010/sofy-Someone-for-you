@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {Text} from 'react-native-paper';
 import {CardViewWithoutAnimation} from '../components/CardViewWithoutAnimation';
@@ -8,6 +8,7 @@ import {PayloadResponseMyLikes} from '../interfaces/interfacesApp';
 import {colors} from '../theme/globalTheme';
 import {ModalInfoUser} from '../components/ModalInfoUser';
 import {useMyLikes} from '../hooks/useMyLikes';
+import {useFocusEffect} from '@react-navigation/native';
 
 export default function YouLikedMe() {
   const {widthWindow} = DeviceDimensions();
@@ -15,7 +16,28 @@ export default function YouLikedMe() {
   const [userToSee, setuserToSee] = useState<PayloadResponseMyLikes>(
     {} as PayloadResponseMyLikes,
   );
-  const {myUsersLikes, loading, error} = useMyLikes();
+  const {myUsersLikes, loading, error, fetchLikes} = useMyLikes();
+  const [focusedFetched, setFocusedFetched] = useState(false);
+
+  const [isFocused, setIsFocused] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setIsFocused(true);
+      return () => setIsFocused(false);
+    }, []),
+  );
+
+  useEffect(() => {
+    if (isFocused && !focusedFetched) {
+      // Llama a la primera página, ajusta si necesitas otro valor
+      fetchLikes();
+      setFocusedFetched(true);
+    }
+    if (!isFocused) {
+      setFocusedFetched(false);
+    }
+  }, [isFocused, fetchLikes, focusedFetched]);
 
   // Calcular dimensiones para el grid
   const numColumns = 2;

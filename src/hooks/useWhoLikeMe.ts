@@ -10,23 +10,20 @@ export function useWhoLikesMe() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchLikes = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const {data} = await privateDB.get<ResponseWhoLikedMe>(
-          '/individuals/who-liked-me',
-        );
-        setWhoLikesMe(data.payload);
-      } catch (err) {
-        setError('Error get my users likes');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLikes();
-  }, []);
+  const fetchWhoLikedMe = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const {data} = await privateDB.get<ResponseWhoLikedMe>(
+        '/individuals/who-liked-me',
+      );
+      setWhoLikesMe(data.payload);
+    } catch (err) {
+      setError('Error get my users likes');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  return {whoLikesMe, loading, error};
+  return {whoLikesMe, loading, error, fetchWhoLikedMe};
 }

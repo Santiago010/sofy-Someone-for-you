@@ -21,7 +21,7 @@ import {
 import {colors} from '../theme/globalTheme';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {UploadFile, IndividualFile} from '../interfaces/interfacesApp';
-import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
+import {showError} from '../helpers/ShowError';
 
 interface GridImageProps {
   images: string[];
@@ -86,8 +86,16 @@ export default function GridImage({
     setSelectedSlotIndex(null);
   };
 
-  // Eliminar imagen del backend
+  //   Eliminar imagen del backend
   const removeImageFromBackend = async (index: number) => {
+    if (individualFiles.length === 1) {
+      showError({
+        screen: 'EditPhotos',
+        errorMessage: 'At least one photo is required.',
+        removeError: () => {},
+      });
+      return;
+    }
     const fileId = backendFileIds[index];
 
     if (!fileId || !onRemoveImage) {
@@ -293,10 +301,7 @@ export default function GridImage({
           </View>
         ) : hasBackendImage ? (
           <View style={styles.imageContainer}>
-            <Image
-              source={{uri: resolveLocalhostUrl(backendImages[index])}}
-              style={styles.image}
-            />
+            <Image source={{uri: backendImages[index]}} style={styles.image} />
             <FAB
               icon="close"
               style={styles.removeFab}

@@ -8,10 +8,11 @@ import {Login} from '../screens/Login';
 import {CodeVerificationEmail} from '../screens/CodeVerificationEmail';
 import {BottonTabNavigator} from './BottonTabNavigator';
 import {ForgotYourPassword} from '../screens/ForgotYourPassword';
-import {InfoUser} from '../screens/InfoUser';
+
 import {RootStackParamList} from './types';
 import {colors} from '../theme/globalTheme';
 import SetANewPassword from '../screens/SetANewPassword';
+import {InfoUser} from '../screens/InfoUser';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -24,11 +25,15 @@ export const MyStack = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}>
         {status !== 'authenticated' ? (
           <>
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Register" component={Register} />
+            <Stack.Screen name="InfoUser" component={InfoUser} />
             <Stack.Screen
               name="ForgotYourPassword"
               component={ForgotYourPassword}
@@ -44,6 +49,9 @@ export const MyStack = () => {
             <Stack.Screen
               name="BottonTabNavigator"
               component={BottonTabNavigator}
+              options={{
+                headerShown: false, // <-- Mostrar el header cuando está autenticado
+              }}
             />
           </>
         )}

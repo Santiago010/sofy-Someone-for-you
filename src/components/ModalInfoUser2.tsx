@@ -51,9 +51,7 @@ export const ModalInfoUser2: FC<ModalInfoProps> = ({
             user.fromIndividual.individualFiles[0] ? (
               <Image
                 source={{
-                  uri: resolveLocalhostUrl(
-                    user.fromIndividual.individualFiles[0].file.url,
-                  ),
+                  uri: user.fromIndividual.individualFiles[0].file.url,
                 }}
                 style={styles.modalImage}
               />
@@ -85,7 +83,7 @@ export const ModalInfoUser2: FC<ModalInfoProps> = ({
                   renderItem={({item, index}) => (
                     <View style={styles.carouselItem}>
                       <Image
-                        source={{uri: resolveLocalhostUrl(item.file.url)}}
+                        source={{uri: item.file.url}}
                         style={styles.carouselImage}
                         resizeMode="cover"
                       />

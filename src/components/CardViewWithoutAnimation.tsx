@@ -4,7 +4,6 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {colors} from '../theme/globalTheme';
 import {Chip} from 'react-native-paper';
 import {PayloadResponseMyLikes} from '../interfaces/interfacesApp';
-import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
 interface CardViewWithoutAnimationProps {
   card: PayloadResponseMyLikes;
   index: number;
@@ -28,9 +27,7 @@ export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
       <View style={dynamicStyles.cardImage}>
         <Image
           source={{
-            uri: resolveLocalhostUrl(
-              card.toIndividual.individualFiles[0]?.file.url,
-            ),
+            uri: card.toIndividual.individualFiles[0]?.file.url,
           }}
           style={dynamicStyles.image}
         />

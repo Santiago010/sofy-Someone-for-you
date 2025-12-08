@@ -507,3 +507,31 @@ export interface ToIndividual {
   individualFiles: IndividualFile[];
   categories: Category[];
 }
+
+export interface MatchResponse {
+  matchedWith: IndividualMatched;
+  message: string;
+  timestamp: string; // ISO 8601
+}
+
+export interface IndividualMatched {
+  id: number;
+  name: string;
+  lastname: string;
+  address: string | null;
+  age: number;
+  categories: Category[];
+  created_at: string; // ISO 8601
+  description: string;
+  email: string;
+  gender: GenderResponse;
+  identification_number: string | null;
+  individualFiles: IndividualFile[];
+  is_active: boolean;
+  max_age: number;
+  max_distance_km: number;
+  min_age: number;
+  phone: string;
+  profile_image: string | null;
+  updated_at: string; // ISO 8601
+}

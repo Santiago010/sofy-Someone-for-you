@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   Modal,
   View,
@@ -32,8 +32,9 @@ export const ModalMatch: React.FC<ModalMatchProps> = ({
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const {sendMessageToUser} = useCometChat();
-  const {idUserForChats} = useContext(AuthContext);
+  const {idUserForChats, removeUserFromWhoLikedMe} = useContext(AuthContext);
   const navigation = useNavigation();
+
   const handleSend = async () => {
     if (!message.trim()) return;
 
@@ -45,8 +46,11 @@ export const ModalMatch: React.FC<ModalMatchProps> = ({
       message,
     );
     setSending(false);
+
     if (res?.success) {
+      removeUserFromWhoLikedMe(user.fromIndividual.id);
       toggleModal();
+
       navigation.navigate('Chats');
     }
   };

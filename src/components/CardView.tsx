@@ -10,11 +10,18 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {colors} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import {Chip} from 'react-native-paper';
-import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
 
 const {heightWindow, widthWindow} = DeviceDimensions();
 const ROTATION_RANGE = 15;
@@ -156,9 +163,7 @@ const CardView: FC<CardViewProps> = ({
       <Animated.View style={[styles.cardImage, backgroundStyle]}>
         <Image
           source={{
-            uri: resolveLocalhostUrl(
-              card.individualFiles[positionContainerImage]?.file.url,
-            ),
+            uri: card.individualFiles[positionContainerImage]?.file.url,
           }}
           style={styles.image}
         />
@@ -170,26 +175,53 @@ const CardView: FC<CardViewProps> = ({
             justifyContent: 'space-between',
             marginBottom: 70,
           }}>
-          <TouchableOpacity
-            disabled={!showBtnChangeImagetoLeft}
-            style={{opacity: showBtnChangeImagetoLeft ? 1 : 0}}
-            onPress={() => changeImageToLeft()}>
-            <MaterialDesignIcons
-              name="arrow-left-circle-outline"
-              size={43}
-              color={colors.backgroundSecondary}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            disabled={!showBtnChangeImagetoRight}
-            style={{opacity: showBtnChangeImagetoRight ? 1 : 0}}
-            onPress={() => changeImageToRight()}>
-            <MaterialDesignIcons
-              name="arrow-right-circle-outline"
-              size={43}
-              color={colors.backgroundSecondary}
-            />
-          </TouchableOpacity>
+          {Platform.OS === 'ios' ? (
+            <TouchableOpacity
+              disabled={!showBtnChangeImagetoLeft}
+              style={{opacity: showBtnChangeImagetoLeft ? 1 : 0}}
+              onPress={() => changeImageToLeft()}>
+              <MaterialDesignIcons
+                name="arrow-left-circle-outline"
+                size={43}
+                color={colors.backgroundSecondary}
+              />
+            </TouchableOpacity>
+          ) : (
+            <Pressable
+              disabled={!showBtnChangeImagetoLeft}
+              style={{opacity: showBtnChangeImagetoLeft ? 1 : 0}}
+              onPress={() => changeImageToLeft()}>
+              <MaterialDesignIcons
+                name="arrow-left-circle-outline"
+                size={43}
+                color={colors.backgroundSecondary}
+              />
+            </Pressable>
+          )}
+
+          {Platform.OS === 'ios' ? (
+            <TouchableOpacity
+              disabled={!showBtnChangeImagetoRight}
+              style={{opacity: showBtnChangeImagetoRight ? 1 : 0}}
+              onPress={() => changeImageToRight()}>
+              <MaterialDesignIcons
+                name="arrow-right-circle-outline"
+                size={43}
+                color={colors.backgroundSecondary}
+              />
+            </TouchableOpacity>
+          ) : (
+            <Pressable
+              disabled={!showBtnChangeImagetoRight}
+              style={{opacity: showBtnChangeImagetoRight ? 1 : 0}}
+              onPress={() => changeImageToRight()}>
+              <MaterialDesignIcons
+                name="arrow-right-circle-outline"
+                size={43}
+                color={colors.backgroundSecondary}
+              />
+            </Pressable>
+          )}
         </View>
         <View
           style={{
@@ -262,20 +294,41 @@ const CardView: FC<CardViewProps> = ({
 
         {isTopCard && onLike && onDislike && (
           <View style={styles.actionButtonContainer}>
-            <TouchableOpacity onPress={onDislike} style={styles.actionBtn}>
-              <MaterialDesignIcons
-                name="close"
-                size={30}
-                color={colors.error}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onLike} style={styles.actionBtn}>
-              <MaterialDesignIcons
-                name="cards-heart"
-                size={30}
-                color={colors.success}
-              />
-            </TouchableOpacity>
+            {Platform.OS === 'ios' ? (
+              <TouchableOpacity onPress={onDislike} style={styles.actionBtn}>
+                <MaterialDesignIcons
+                  name="close"
+                  size={30}
+                  color={colors.error}
+                />
+              </TouchableOpacity>
+            ) : (
+              <Pressable onPress={onDislike} style={styles.actionBtn}>
+                <MaterialDesignIcons
+                  name="close"
+                  size={30}
+                  color={colors.error}
+                />
+              </Pressable>
+            )}
+
+            {Platform.OS === 'ios' ? (
+              <TouchableOpacity onPress={onLike} style={styles.actionBtn}>
+                <MaterialDesignIcons
+                  name="cards-heart"
+                  size={30}
+                  color={colors.success}
+                />
+              </TouchableOpacity>
+            ) : (
+              <Pressable onPress={onLike} style={styles.actionBtn}>
+                <MaterialDesignIcons
+                  name="cards-heart"
+                  size={30}
+                  color={colors.success}
+                />
+              </Pressable>
+            )}
           </View>
         )}
       </View>

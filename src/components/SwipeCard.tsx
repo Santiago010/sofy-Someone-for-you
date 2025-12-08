@@ -22,7 +22,6 @@ import {
 import useRecomendations from '../hooks/useRecomendations';
 import {BarIndicator} from 'react-native-indicators';
 import {useLikeOrDislike} from '../hooks/useLikeOrDislike';
-import {useIsFocused} from '@react-navigation/native';
 
 interface Location {
   latitude: number | null;
@@ -34,6 +33,7 @@ interface SwipeCardProps {
   isLoadingLocation?: boolean;
   location?: Location;
   retryLocationRequest: () => void;
+  isFocused: boolean;
 }
 
 const {heightWindow, widthWindow} = DeviceDimensions();
@@ -46,6 +46,7 @@ export default function SwipeCard({
   isLoadingLocation,
   locationError,
   retryLocationRequest,
+  isFocused,
 }: SwipeCardProps) {
   // --- TODOS LOS HOOKS VAN AQUÍ ---
   const {
@@ -59,7 +60,6 @@ export default function SwipeCard({
     isFetching,
   } = useRecomendations();
   const {like, dislike} = useLikeOrDislike();
-  const isFocused = useIsFocused();
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -67,6 +67,10 @@ export default function SwipeCard({
   const nextCardScale = useSharedValue(0.9);
 
   const [requestedRecs, setRequestedRecs] = useState(false);
+  const [focusedFetched, setFocusedFetched] = useState(false);
+
+  // Ref para manejar el nextPage
+  const nextPageRef = useRef(1);
 
   // --- LÓGICA DE EFECTOS ---
   useEffect(() => {
@@ -76,8 +80,12 @@ export default function SwipeCard({
       location.longitude != null &&
       !requestedRecs
     ) {
-      console.log('sss');
-      fetchRecomendations(location.latitude, location.longitude, 10, 1);
+      fetchRecomendations(
+        location.latitude,
+        location.longitude,
+        10,
+        nextPageRef.current,
+      );
       setRequestedRecs(true);
     }
   }, [location, requestedRecs, fetchRecomendations]);
@@ -93,8 +101,13 @@ export default function SwipeCard({
       location.latitude != null &&
       location.longitude != null
     ) {
-      const nextPage = currentPage + 1;
-      fetchRecomendations(location.latitude, location.longitude, 10, nextPage);
+      nextPageRef.current = nextPageRef.current + 1;
+      fetchRecomendations(
+        location.latitude,
+        location.longitude,
+        10,
+        nextPageRef.current,
+      );
       console.log(
         'entra al if de use Effect donde esta en fetchRecomendations',
       );
@@ -107,6 +120,29 @@ export default function SwipeCard({
     location,
     fetchRecomendations,
   ]);
+
+  // --- NUEVO EFECTO PARA isFocused ---
+  useEffect(() => {
+    if (
+      isFocused &&
+      !focusedFetched &&
+      location &&
+      location.latitude != null &&
+      location.longitude != null
+    ) {
+      nextPageRef.current = 1; // Reinicia el contador cuando se hace focus
+      fetchRecomendations(
+        location.latitude,
+        location.longitude,
+        10,
+        nextPageRef.current,
+      );
+      setFocusedFetched(true);
+    }
+    if (!isFocused) {
+      setFocusedFetched(false);
+    }
+  }, [isFocused, location, fetchRecomendations, focusedFetched]);
 
   // --- FUNCIONES ---
   const resetPosition = useCallback(() => {
@@ -228,12 +264,14 @@ export default function SwipeCard({
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
+      // Antes: siempre true -> bloqueaba los TouchableOpacity
+      onStartShouldSetPanResponder: () => false,
+      // Solo activar el gesto si se supera un pequeño umbral de movimiento
+      onMoveShouldSetPanResponder: (e, gesture) =>
+        Math.abs(gesture.dx) > 4 || Math.abs(gesture.dy) > 4,
       onPanResponderMove: (e, gesture) => {
         translateX.value = gesture.dx;
         translateY.value = gesture.dy;
-
         const dragDistance = Math.sqrt(gesture.dx ** 2 + gesture.dy ** 2);
         const progress = Math.min(dragDistance / SWIPE_THRESHOLD, 1);
         nextCardScale.value = 0.9 + 0.1 * progress;

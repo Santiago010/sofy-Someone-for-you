@@ -12,9 +12,18 @@ import {
 import {colors, commonStyles} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import {AuthContext} from '../context/authContext/authContext';
-import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
+import {
+  type Subscription,
+  endConnection,
+  getSubscriptions,
+  initConnection,
+} from 'react-native-iap';
 
 export const Profile = () => {
+  const ANDROID_SUBSCRIPTION_SKUS = ['sofy_connect_895_1m'];
+  const [products, setProducts] = useState<Subscription[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [dataInfouser, setdataInfouser] = useState({
     name: '',
     lastName: '',
@@ -24,6 +33,55 @@ export const Profile = () => {
 
   const {detailsUser} = useContext(AuthContext);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchSubscriptionDetails = async () => {
+      // Solo intentamos la conexión si estamos en Android, ya que el SKU es de Play Console
+      if (Platform.OS !== 'android') {
+        console.error(
+          'Esta prueba solo es válida para Android con el SKU proporcionado.',
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // 1. Inicializar la conexión con el servicio de facturación
+        await initConnection();
+
+        console.log('✅ Conexión IAP inicializada correctamente.');
+
+        // 2. Obtener la lista de suscripciones (usando tu SKU)
+        const subscriptions = await getSubscriptions({
+          skus: ANDROID_SUBSCRIPTION_SKUS,
+        });
+
+        if (subscriptions.length > 0) {
+          console.warn(
+            `Producto encontrado con titulo : ${subscriptions[0].title} descripción: ${subscriptions[0].description} y id: ${subscriptions[0].productId}`,
+          );
+          setProducts(subscriptions);
+        } else {
+          console.error(
+            '⚠️ Producto no encontrado. Revisa el SKU o el estado de la app en Play Console.',
+          );
+        }
+      } catch (err) {
+        console.error('❌ Error al obtener la suscripción:', err);
+        console.error(`Fallo de conexión o producto: ${err.message}`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSubscriptionDetails();
+
+    // Limpieza: Cerramos la conexión cuando el componente se desmonta
+    return () => {
+      endConnection();
+      console.log('🔌 Conexión IAP finalizada.');
+    };
+  }, []); // El array vacío asegura que se ejecuta solo al montar
   useEffect(() => {
     if (detailsUser !== null) {
       setdataInfouser({
@@ -45,7 +103,7 @@ export const Profile = () => {
               <TouchableOpacity style={styles.profileImage}>
                 {dataInfouser.profile.length !== 0 ? (
                   <Image
-                    source={{uri: resolveLocalhostUrl(dataInfouser.profile)}}
+                    source={{uri: dataInfouser.profile}}
                     style={styles.image}
                     resizeMode="cover"
                   />
@@ -128,7 +186,7 @@ export const Profile = () => {
               Level up every action you take on Sofy
             </Text>
 
-            {/* Botón principal */}
+            {/* TODO:Botón principal */}
             <TouchableOpacity style={styles.platinumButton}>
               <Text style={styles.platinumButtonText}>GET Sofy PLATINUM™</Text>
             </TouchableOpacity>

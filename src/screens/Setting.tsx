@@ -44,7 +44,11 @@ export default function Settings({
             <View style={{marginTop: 20}}>
               <Text
                 variant="titleMedium"
-                style={{fontWeight: 'bold', marginBottom: 10}}>
+                style={{
+                  fontWeight: 'bold',
+                  marginBottom: 10,
+                  color: colors.text,
+                }}>
                 Account Setting
               </Text>
               <TouchableOpacity
@@ -62,7 +66,7 @@ export default function Settings({
                   style={{marginRight: 10}}
                 />
                 <View style={{flex: 1}}>
-                  <Text>Phone Number</Text>
+                  <Text style={{color: colors.text}}>Phone Number</Text>
                   <Text style={{color: colors.textSecondary}}>
                     {detailsUser !== null
                       ? detailsUser.phone
@@ -86,7 +90,7 @@ export default function Settings({
                   style={{marginRight: 10}}
                 />
                 <View style={{flex: 1}}>
-                  <Text>Edit Passwod</Text>
+                  <Text style={{color: colors.text}}>Edit Passwod</Text>
                   <Text style={{color: colors.textSecondary}}>
                     {'Edit Password'}
                   </Text>
@@ -108,7 +112,7 @@ export default function Settings({
                   style={{marginRight: 10}}
                 />
                 <View style={{flex: 1}}>
-                  <Text>Email</Text>
+                  <Text style={{color: colors.text}}>Email</Text>
                   <Text style={{color: colors.textSecondary}}>
                     {detailsUser !== null ? detailsUser.email : 'loading email'}
                   </Text>
@@ -138,7 +142,7 @@ export default function Settings({
                   style={{marginRight: 10}}
                 />
                 <View style={{flex: 1}}>
-                  <Text>
+                  <Text style={{color: colors.text}}>
                     {isLoadingLocation
                       ? 'Loading location...'
                       : address || 'location not available'}
@@ -172,7 +176,7 @@ export default function Settings({
                   size={24}
                   style={{marginRight: 10}}
                 />
-                <Text>Help & Support</Text>
+                <Text style={{color: colors.text}}>Help & Support</Text>
                 <MaterialDesignIcons
                   name="chevron-right"
                   size={24}
@@ -202,7 +206,7 @@ export default function Settings({
                   size={24}
                   style={{marginRight: 10}}
                 />
-                <Text>Privacy Policy</Text>
+                <Text style={{color: colors.text}}>Privacy Policy</Text>
                 <MaterialDesignIcons
                   name="chevron-right"
                   size={24}
@@ -232,7 +236,7 @@ export default function Settings({
                   size={24}
                   style={{marginRight: 10}}
                 />
-                <Text>Terms of Service</Text>
+                <Text style={{color: colors.text}}>Terms of Service</Text>
                 <MaterialDesignIcons
                   name="chevron-right"
                   size={24}
@@ -255,7 +259,7 @@ export default function Settings({
                 size={24}
                 style={{marginRight: 10}}
               />
-              <Text>Logout</Text>
+              <Text style={{color: colors.text}}>Logout</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>

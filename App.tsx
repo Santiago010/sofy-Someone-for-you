@@ -8,7 +8,7 @@
 import React from 'react';
 import 'react-native-gesture-handler';
 import 'react-native-reanimated';
-import {LogBox, Platform} from 'react-native';
+import {LogBox, Platform, SafeAreaView} from 'react-native';
 
 import {PaperProvider} from 'react-native-paper';
 import {AuthProvider} from './src/context/authContext/authContext';

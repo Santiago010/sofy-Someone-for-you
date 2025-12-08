@@ -490,6 +490,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: colors.background,
+    color: colors.text,
   },
   inputOutline: {
     borderRadius: 8,

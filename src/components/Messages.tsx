@@ -46,6 +46,8 @@ const Messages = ({
       <CometChatMessageComposer
         hideVideoAttachmentOption={true}
         hideFileAttachmentOption={true}
+        hideAudioAttachmentOption={true}
+        hideVoiceRecordingButton={true}
         user={user}
         group={group}
       />

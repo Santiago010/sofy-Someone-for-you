@@ -35,9 +35,10 @@ export default function Chats() {
 
   return (
     <SafeAreaView style={styles.fullScreen}>
-      <CometChatI18nProvider>
+      <CometChatI18nProvider autoDetectLanguage={false}>
         <CometChatThemeProvider
           theme={{
+            mode: 'light',
             light: {
               color: {
                 primary: colors.primary,

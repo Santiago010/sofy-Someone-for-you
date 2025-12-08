@@ -14,7 +14,7 @@ export const colors = {
 
   // Colores de texto
   text: '#333', // Texto principal
-  textSecondary: '#666', // Texto secundario
+  textSecondary: '#2d2929ff', // Texto secundario
   textDisabled: '#999', // Texto deshabilitado
 
   // Colores de estado

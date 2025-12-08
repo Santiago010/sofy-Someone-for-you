@@ -41,6 +41,7 @@ interface AuthContextProps {
   signUp: (data: SignUpData) => void;
   login: (data: loginData) => void;
   logout: () => void;
+  removeUserFromWhoLikedMe: (id: number) => void;
   removeError: () => void;
   verificationCode: (data: verificationCodeData) => void;
   completeInfoUser: (completeInfoUser: CompleteInfoUser2) => void;
@@ -448,16 +449,18 @@ export const AuthProvider = ({
         } as any);
       });
 
-      await publicDBForCompleteUser.patch<CompleteInfoUserResponse>(
-        '/individuals/complete-profile',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
+      const {data} =
+        await publicDBForCompleteUser.patch<CompleteInfoUserResponse>(
+          '/individuals/complete-profile',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
           },
-        },
-      );
+        );
 
+      console.log(data);
       const access_token_only_complete_user = await AsyncStorage.getItem(
         'access_token_only_complete_user',
       );
@@ -476,9 +479,37 @@ export const AuthProvider = ({
       }
       dispatch({type: 'setLoading', payload: false});
     } catch (error) {
+      console.log(error);
       if (error instanceof AxiosError) {
         if (error.response) {
           const errorData = error.response.data as CompleteInfoUserError;
+          dispatch({type: 'addError', payload: errorData.message});
+        } else if (error.request) {
+          dispatch({type: 'addError', payload: 'Error in the Request'});
+        } else {
+          dispatch({type: 'addError', payload: error.message});
+        }
+      } else {
+        dispatch({
+          type: 'addError',
+          payload: 'Unexpected error in the server',
+        });
+      }
+    }
+  };
+
+  const removeUserFromWhoLikedMe = async (id: number) => {
+    try {
+      const {data} = await privateDB.post(`/individuals/who-liked-me/remove`, {
+        targetIndividualId: id,
+      });
+
+      console.warn(data);
+    } catch (error) {
+      console.log(error);
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          const errorData = error.response.data;
           dispatch({type: 'addError', payload: errorData.message});
         } else if (error.request) {
           dispatch({type: 'addError', payload: 'Error in the Request'});
@@ -507,6 +538,9 @@ export const AuthProvider = ({
   async function logout() {
     try {
       await AsyncStorage.setItem('access_token', '');
+      await AsyncStorage.setItem('access_token_only_complete_user', '');
+      await AsyncStorage.setItem('firstname', '');
+      await AsyncStorage.setItem('lastname', '');
       dispatch({type: 'logout'});
     } catch (error) {}
   }
@@ -596,6 +630,7 @@ export const AuthProvider = ({
     <AuthContext.Provider
       value={{
         forgotYourPassword,
+        removeUserFromWhoLikedMe,
         setANewPassword,
         getIDUserForChats,
         GetDetailsUser,

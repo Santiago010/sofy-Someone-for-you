@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
 import {colors} from '../theme/globalTheme';
 import {CardViewWithoutAnimation2} from '../components/CardViewWithoutAnimation2';
@@ -7,9 +7,10 @@ import {ModalMatch} from '../components/ModalMatch';
 import {useWhoLikesMe} from '../hooks/useWhoLikeMe';
 import {PayloadWhoLikedMe} from '../interfaces/interfacesApp';
 import {ModalInfoUser2} from '../components/ModalInfoUser2';
+import {useFocusEffect} from '@react-navigation/native';
 
 export default function SeeWhoLikesYou() {
-  const {whoLikesMe, loading, error} = useWhoLikesMe();
+  const {whoLikesMe, loading, error, fetchWhoLikedMe} = useWhoLikesMe();
   const {widthWindow} = DeviceDimensions();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [modalVisible, setModalVisible] = useState(false);
@@ -18,6 +19,27 @@ export default function SeeWhoLikesYou() {
   const [userToSee, setuserToSee] = useState<PayloadWhoLikedMe>(
     {} as PayloadWhoLikedMe,
   );
+
+  const [isFocused, setIsFocused] = useState(false);
+  const [focusedFetched, setFocusedFetched] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setIsFocused(true);
+      return () => setIsFocused(false);
+    }, []),
+  );
+
+  useEffect(() => {
+    if (isFocused && !focusedFetched) {
+      // Llama a la primera página, ajusta si necesitas otro valor
+      fetchWhoLikedMe();
+      setFocusedFetched(true);
+    }
+    if (!isFocused) {
+      setFocusedFetched(false);
+    }
+  }, [isFocused, fetchWhoLikedMe, focusedFetched]);
 
   // Calcular dimensiones para el grid
   const numColumns = 2;

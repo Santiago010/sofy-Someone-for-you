@@ -65,6 +65,7 @@ export default function EditPassword({
       changePassword(changePasswordval)
         .then(res => {
           console.log('change password full');
+          navigation.goBack();
         })
         .catch(error => {
           console.log('Error:', error);

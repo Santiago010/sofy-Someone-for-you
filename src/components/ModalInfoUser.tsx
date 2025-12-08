@@ -12,7 +12,6 @@ import {
 import Carousel from 'react-native-reanimated-carousel';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {Button, Chip} from 'react-native-paper';
-import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
 import {PayloadResponseMyLikes} from '../interfaces/interfacesApp';
 
 interface ModalInfoProps {
@@ -54,9 +53,7 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
               user.toIndividual.individualFiles[0] ? (
                 <Image
                   source={{
-                    uri: resolveLocalhostUrl(
-                      user.toIndividual.individualFiles[0].file.url,
-                    ),
+                    uri: user.toIndividual.individualFiles[0].file.url,
                   }}
                   style={styles.modalImage}
                 />
@@ -88,7 +85,7 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
                     renderItem={({item, index}) => (
                       <View style={styles.carouselItem}>
                         <Image
-                          source={{uri: resolveLocalhostUrl(item.file.url)}}
+                          source={{uri: item.file.url}}
                           style={styles.carouselImage}
                           resizeMode="cover"
                         />
@@ -165,9 +162,7 @@ export const ModalInfoUser: FC<ModalInfoProps> = ({
             user.toIndividual.individualFiles[0] ? (
               <Image
                 source={{
-                  uri: resolveLocalhostUrl(
-                    user.toIndividual.individualFiles[0].file.url,
-                  ),
+                  uri: user.toIndividual.individualFiles[0].file.url,
                 }}
                 style={styles.modalImage}
               />
