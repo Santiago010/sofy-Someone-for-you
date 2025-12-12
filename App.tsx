@@ -8,12 +8,13 @@
 import React from 'react';
 import 'react-native-gesture-handler';
 import 'react-native-reanimated';
-import {LogBox, Platform, SafeAreaView} from 'react-native';
+import {LogBox, Platform} from 'react-native';
 
 import {PaperProvider} from 'react-native-paper';
 import {AuthProvider} from './src/context/authContext/authContext';
 import {MyStack} from './src/navigator/MyStack';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {PurchasesProvider} from './src/context/PurchasesContext/purchasesContext';
 
 function AppState({
   children,
@@ -23,7 +24,9 @@ function AppState({
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <PaperProvider>{children}</PaperProvider>
+        <PurchasesProvider>
+          <PaperProvider>{children}</PaperProvider>
+        </PurchasesProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

@@ -535,3 +535,10 @@ export interface IndividualMatched {
   profile_image: string | null;
   updated_at: string; // ISO 8601
 }
+
+export interface dataForVerifySubscription {
+  productId?: string;
+  token?: string;
+  platform: 'ios' | 'android';
+  userId?: number;
+}

@@ -1,0 +1,25 @@
+export interface PurchasesState {
+  isConnect: boolean;
+  expires: string;
+}
+
+type PurchasesAction = {
+  type: 'setStateSuscription';
+  payload: any;
+};
+
+export const purchasesReducer = (
+  state: PurchasesState,
+  action: PurchasesAction,
+): PurchasesState => {
+  switch (action.type) {
+    case 'setStateSuscription':
+      return {
+        ...state,
+        isConnect: action.payload.isConnect,
+        expires: action.payload.expires,
+      };
+    default:
+      return state;
+  }
+};

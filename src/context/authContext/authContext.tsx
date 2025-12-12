@@ -26,7 +26,6 @@ import {db, privateDB, publicDBForCompleteUser} from '../../db/db';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {decodeJWT} from '../../helpers/DecodeJWT';
 import {AxiosError} from 'axios';
-import {err} from 'react-native-svg/lib/typescript/xml';
 
 interface AuthContextProps {
   signUpResponseWithInfoUser: SignUpResponse | null;
