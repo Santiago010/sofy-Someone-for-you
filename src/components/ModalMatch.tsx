@@ -100,7 +100,7 @@ export const ModalMatch: React.FC<ModalMatchProps> = ({
 };
 
 const MODAL_WIDTH = windowWidth * 0.92;
-const MODAL_HEIGHT = MODAL_WIDTH * 1.15;
+const MODAL_HEIGHT = MODAL_WIDTH * 1.3;
 
 const styles = StyleSheet.create({
   overlay: {

@@ -1,14 +1,20 @@
 import {createContext, useReducer} from 'react';
 import {purchasesReducer} from './purchasesReducer';
-import {dataForVerifySubscription} from '../../interfaces/interfacesApp';
+import {
+  dataForVerifySubscription,
+  VerifySubscriptionResponse,
+  statusSuscriptionResponse,
+} from '../../interfaces/interfacesApp';
 import {privateDBForIAP} from '../../db/db';
-import {err} from 'react-native-svg/lib/typescript/xml';
-import {Axios, AxiosError} from 'axios';
+import {AxiosError} from 'axios';
 
 interface PurchasesContextProps {
+  isConnect: boolean;
+  expires: string;
   verifySubscription: (
     data: dataForVerifySubscription,
   ) => Promise<{message: string; res: any}>;
+  getStateSuscription: (userId: number) => Promise<{message: string; res: any}>;
 }
 export const PurchasesContext = createContext<PurchasesContextProps>(
   {} as PurchasesContextProps,
@@ -17,6 +23,7 @@ export const PurchasesContext = createContext<PurchasesContextProps>(
 const purchasesInitialState = {
   isConnect: false,
   expires: '',
+  error: null,
 };
 
 export const PurchasesProvider = ({
@@ -26,19 +33,76 @@ export const PurchasesProvider = ({
 }) => {
   const [state, dispatch] = useReducer(purchasesReducer, purchasesInitialState);
 
-  const verifySubscription = async (data: dataForVerifySubscription) => {
+  const getStateSuscription = async (userId: number) => {
     try {
-      console.info('Verifying subscription with data:', data);
-      const res = await privateDBForIAP.post('/verify-subscription', {
-        productId: data.productId,
-        token: data.token,
-        platform: data.platform,
-        userId: data.userId,
+      console.info('Getting subscription status for user:', userId);
+      const {data} = await privateDBForIAP.get<statusSuscriptionResponse>(
+        `/status?userId=${userId}`,
+      );
+
+      dispatch({
+        type: 'setStateSuscription',
+        payload: {
+          isConnect: data.isConnect,
+          expires: data.expires,
+        },
       });
-      console.info('Subscription verification response:', res.data);
+
+      return Promise.resolve({
+        message: 'Subscription status retrieved successfully',
+        res: data,
+      });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          const errorData = error.response.data;
+          return Promise.reject({
+            message: 'Error getting subscription status RESPONSE',
+            error: errorData,
+          });
+        } else if (error.request) {
+          return Promise.reject({
+            message: 'Error getting subscription status REQUEST',
+            error: error.request,
+          });
+        } else {
+          return Promise.reject({
+            message: 'Error getting subscription status IN AXIOSERROR UNKNOWN',
+            error: error.message,
+          });
+        }
+      } else {
+        return Promise.reject({
+          message: 'Error getting subscription status',
+          error: 'Unexpected error in the server',
+        });
+      }
+    }
+  };
+
+  const verifySubscription = async (dataBody: dataForVerifySubscription) => {
+    try {
+      console.info('Verifying subscription with data:', dataBody);
+      const {data} = await privateDBForIAP.post<VerifySubscriptionResponse>(
+        '/verify-subscription',
+        {
+          productId: dataBody.productId,
+          token: dataBody.token,
+          platform: dataBody.platform,
+          userId: dataBody.userId,
+        },
+      );
+      console.info('Subscription verification response:', data);
+      dispatch({
+        type: 'setStateSuscription',
+        payload: {
+          isConnect: data.isConnect,
+          expires: data.expires,
+        },
+      });
       return Promise.resolve({
         message: 'Subscription verification response',
-        res: res.data,
+        res: data,
       });
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -68,7 +132,8 @@ export const PurchasesProvider = ({
     }
   };
   return (
-    <PurchasesContext.Provider value={{verifySubscription}}>
+    <PurchasesContext.Provider
+      value={{verifySubscription, getStateSuscription, ...state}}>
       {children}
     </PurchasesContext.Provider>
   );

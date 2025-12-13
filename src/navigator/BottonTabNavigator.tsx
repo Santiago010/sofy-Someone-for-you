@@ -14,10 +14,13 @@ import {useMatchSocket} from '../hooks/useMatchSocket';
 import {MatchResponse} from '../interfaces/interfacesApp';
 import {ModalMatchFromSocket} from '../components/ModalMatchFromSocket';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import Communities from '../screens/communities';
+import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 
 export type RootBottonTabNavigator = {
   Home: undefined;
   Likes: undefined;
+  Communities: undefined;
   Chats: undefined;
   StackProfile: undefined;
 };
@@ -28,6 +31,7 @@ const Tab = createBottomTabNavigator<RootBottonTabNavigator>();
 
 export const BottonTabNavigator = () => {
   const {getIDUserForChats, idUserForChats} = useContext(AuthContext);
+  const {getStateSuscription} = useContext(PurchasesContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [matchData, setMatchData] = useState<MatchResponse | null>(null);
 
@@ -45,6 +49,12 @@ export const BottonTabNavigator = () => {
       setModalVisible(true);
     }
   }, [matchData]);
+
+  useEffect(() => {
+    if (idUserForChats) {
+      getStateSuscription(idUserForChats);
+    }
+  }, [idUserForChats]);
 
   const toggleModal = useCallback(() => {
     setModalVisible(prev => !prev);
@@ -67,6 +77,8 @@ export const BottonTabNavigator = () => {
               iconName = focused ? 'heart' : 'heart-outline';
             } else if (route.name === 'Chats') {
               iconName = focused ? 'chat' : 'chat-outline';
+            } else if (route.name === 'Communities') {
+              iconName = focused ? 'comment-flash' : 'comment-flash-outline';
             } else if (route.name === 'StackProfile') {
               iconName = focused ? 'account' : 'account-outline';
             } else {
@@ -97,6 +109,7 @@ export const BottonTabNavigator = () => {
         })}>
         <Tab.Screen name="Home" component={CardsUsers} />
         <Tab.Screen name="Likes" component={TopTapNavigatorLikes} />
+        <Tab.Screen name="Communities" component={Communities} />
         <Tab.Screen name="Chats" component={Chats} />
         <Tab.Screen name="StackProfile" component={StackProfile} />
       </Tab.Navigator>

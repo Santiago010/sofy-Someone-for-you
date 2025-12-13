@@ -542,3 +542,15 @@ export interface dataForVerifySubscription {
   platform: 'ios' | 'android';
   userId?: number;
 }
+
+export interface VerifySubscriptionResponse {
+  expires: string;
+  isConnect: boolean;
+  message: string;
+  success: boolean;
+}
+
+export interface statusSuscriptionResponse {
+  expires: string;
+  isConnect: boolean;
+}

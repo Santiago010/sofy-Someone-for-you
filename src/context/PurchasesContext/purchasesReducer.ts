@@ -1,11 +1,15 @@
 export interface PurchasesState {
   isConnect: boolean;
   expires: string;
+  error: string | null;
 }
 
 type PurchasesAction = {
   type: 'setStateSuscription';
-  payload: any;
+  payload: {
+    isConnect: boolean;
+    expires: string;
+  };
 };
 
 export const purchasesReducer = (

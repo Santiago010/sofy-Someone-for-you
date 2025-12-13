@@ -28,14 +28,12 @@ import {
   finishTransaction,
 } from 'react-native-iap';
 import Carousel from 'react-native-reanimated-carousel';
-import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 import ModalInfoPlanConnect from '../components/ModalInfoPlanConnect';
 
 export const Profile = () => {
   const ANDROID_SUBSCRIPTION_SKUS = ['sofy_connect_895_1m'];
   const [products, setProducts] = useState<Subscription[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPurchasing, setIsPurchasing] = useState(false); //TODO:estado para desactivar el boton mientras se procesa la compra
 
   const [dataInfouser, setdataInfouser] = useState({
     name: '',
@@ -47,7 +45,6 @@ export const Profile = () => {
   const userIdRef = useRef(0); // Nuevo ref para almacenar el userId actual
 
   const {detailsUser} = useContext(AuthContext);
-  const {verifySubscription} = useContext(PurchasesContext);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
 
@@ -89,6 +86,7 @@ export const Profile = () => {
             `Producto encontrado con titulo : ${subscriptions[0].title} descripción: ${subscriptions[0].description} y precio: ${formattedPrice}`,
           );
           setProducts(subscriptions);
+          setIsLoading(false);
         } else {
           console.error(
             '⚠️ Producto no encontrado. Revisa el SKU o el estado de la app en Play Console.',
@@ -110,106 +108,6 @@ export const Profile = () => {
       console.log('🔌 Conexión IAP finalizada.');
     };
   }, []); //TODO: El array vacío asegura que se ejecuta solo al montar
-
-  //TODO: 💰 Lógica de Compra y Listeners (NUEVO useEffect)
-  // ----------------------------------------------------------------------
-  useEffect(() => {
-    let purchaseUpdateSubscription;
-    let purchaseErrorSubscription;
-
-    // Se recomienda inicializar aquí también si no lo haces en el primer useEffect
-    // En este caso, ya lo hiciste en el primero, así que solo añadimos listeners.
-
-    purchaseUpdateSubscription = purchaseUpdatedListener(
-      async (purchase: Purchase) => {
-        setIsPurchasing(false);
-        console.log('✅ Compra Exitosa recibida:', purchase);
-
-        // --- PUNTO CRÍTICO: CAPTURA Y LOG DEL TOKEN PARA BACKEND ---
-        if (purchase.transactionReceipt) {
-          const purchaseToken =
-            Platform.OS === 'android'
-              ? purchase.purchaseToken // Token que usaremos en NestJS
-              : purchase.transactionReceipt; // Recibo para iOS/Apple
-
-          verifySubscription({
-            productId: purchase.productId,
-            token: purchaseToken,
-            platform: Platform.OS === 'android' ? 'android' : 'ios',
-            userId: userIdRef.current, // Usa el ref en lugar de dataInfouser.userId
-          })
-            .then(response => {
-              console.log(response.message, response.res);
-              finishTransaction({purchase, isConsumable: false}).then(() => {
-                console.log(
-                  '✅ Transacción finalizada correctamente con finishTransaction.',
-                );
-              });
-            })
-            .catch(error => {
-              console.error(error.message, error.error);
-            });
-        }
-      },
-    );
-
-    purchaseErrorSubscription = purchaseErrorListener(error => {
-      setIsPurchasing(false);
-      console.warn('❌ Error en la compra:', error);
-      // Solo mostramos error si no fue una cancelación del usuario
-      if (error.code !== 'E_USER_CANCELLED') {
-        Alert.alert(`Error de Pago: ${error.message}`);
-      }
-    });
-
-    // Limpieza
-    return () => {
-      if (purchaseUpdateSubscription) {
-        purchaseUpdateSubscription.remove();
-      }
-      if (purchaseErrorSubscription) {
-        purchaseErrorSubscription.remove();
-      }
-      // No cerramos la conexión aquí ya que el otro useEffect ya lo hace.
-    };
-  }, []); // Mantén el array vacío, ya que el ref asegura el valor actual
-
-  useEffect(() => {
-    console.log('Productos actualizados:', products);
-  }, [products]);
-
-  //   TODO:show modal del plan Sofy Connect
-  //   const handlePurchase = async (product: Subscription) => {
-  //     if (isPurchasing) return;
-  //     setIsPurchasing(true);
-
-  //     // Necesitamos el Offer Token para la compra de suscripciones en Android
-  //     const offer = (product as SubscriptionAndroid)
-  //       .subscriptionOfferDetails?.[0];
-
-  //     const offerToken = offer?.offerToken;
-
-  //     if (!offerToken) {
-  //       console.error(
-  //         'Offer Token no encontrado. Asegúrate de que el plan base está configurado correctamente.',
-  //       );
-  //       setIsPurchasing(false);
-  //       return;
-  //     }
-
-  //     try {
-  //       console.log('Iniciando compra para:', product.productId);
-
-  //       await requestSubscription({
-  //         sku: product.productId,
-  //         subscriptionOffers: [{sku: product.productId, offerToken: offerToken}],
-  //       });
-  //       // Nota: Si esto tiene éxito, el control pasa al purchaseUpdatedListener.
-  //     } catch (error) {
-  //       console.error('Error al solicitar suscripción:', error);
-  //       setIsPurchasing(false); // Si hay un error aquí, liberamos el botón
-  //     }
-  //   };
 
   useEffect(() => {
     if (detailsUser !== null) {
@@ -347,6 +245,13 @@ export const Profile = () => {
                           GET {` ${item.title}`}
                         </Text>
                       </TouchableOpacity>
+                      {/* <TouchableOpacity
+                        onPress={() => handlePurchase(item)}
+                        style={styles.platinumButton}>
+                        <Text style={styles.platinumButtonText}>
+                          GET {` ${item.title}`}
+                        </Text>
+                      </TouchableOpacity> */}
                     </View>
                   );
                 }}
@@ -356,10 +261,14 @@ export const Profile = () => {
         </ScrollView>
       </SafeAreaView>
 
-      <ModalInfoPlanConnect
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-      />
+      {products.length > 0 && userIdRef.current !== 0 && (
+        <ModalInfoPlanConnect
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          productFromProfile={products[0]}
+          userIdRef={userIdRef.current}
+        />
+      )}
     </View>
   );
 };
