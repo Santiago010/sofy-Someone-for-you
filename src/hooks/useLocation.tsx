@@ -139,7 +139,7 @@ export const useLocation = (): UseLocationReturn => {
   }, [requestLocationPermission]);
 
   useEffect(() => {
-    requestLocationPermission();
+    // requestLocationPermission();
   }, [requestLocationPermission]);
 
   return {

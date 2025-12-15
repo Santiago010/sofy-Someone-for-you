@@ -1,15 +1,19 @@
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import React, {FC} from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Image, StyleSheet, Text, Pressable, View} from 'react-native';
 import {colors} from '../theme/globalTheme';
 import {Chip} from 'react-native-paper';
 import {PayloadWhoLikedMe} from '../interfaces/interfacesApp';
+import {BlurView} from '@react-native-community/blur';
+
 interface CardViewWithoutAnimationProps {
   card: PayloadWhoLikedMe;
   index: number;
   width?: number;
   height?: number;
   toggleModalWithUser: (user: PayloadWhoLikedMe) => void;
+  isConnect: boolean;
+  setModalVisibleSofyConnect: () => void;
 }
 
 export const CardViewWithoutAnimation2: FC<CardViewWithoutAnimationProps> = ({
@@ -17,14 +21,23 @@ export const CardViewWithoutAnimation2: FC<CardViewWithoutAnimationProps> = ({
   width = 200,
   height = 400,
   toggleModalWithUser,
+  isConnect,
+  setModalVisibleSofyConnect,
 }) => {
   const dynamicStyles = styles(width, height);
 
   console.log('CardViewWithoutAnimation2 card:', card);
   return (
-    <TouchableOpacity
+    <Pressable
       style={dynamicStyles.card}
-      onPress={() => toggleModalWithUser(card)}>
+      onPress={() => {
+        if (isConnect) {
+          toggleModalWithUser(card);
+        } else {
+          console.log('Not connected - showing Sofy Connect modal');
+          setModalVisibleSofyConnect();
+        }
+      }}>
       <View style={dynamicStyles.cardImage}>
         <Image
           source={{
@@ -32,6 +45,14 @@ export const CardViewWithoutAnimation2: FC<CardViewWithoutAnimationProps> = ({
           }}
           style={dynamicStyles.image}
         />
+        {!isConnect && (
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="light"
+            blurAmount={15}
+            reducedTransparencyFallbackColor="white"
+          />
+        )}
       </View>
       <View style={dynamicStyles.cardFooter}>
         <View
@@ -84,7 +105,7 @@ export const CardViewWithoutAnimation2: FC<CardViewWithoutAnimationProps> = ({
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 

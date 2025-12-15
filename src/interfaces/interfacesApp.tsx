@@ -240,6 +240,7 @@ export interface CompleteInfoUserResponse {
   max_distance_km: number;
   min_age: number;
   max_age: number;
+  individualFiles: IndividualFile[];
 }
 
 export interface CompleteInfoUserError {

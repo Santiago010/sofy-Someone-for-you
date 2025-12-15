@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import MaterialDesignIcons from '@react-native-vector-icons/material-design-icon
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 import LogoSofy from '../components/LogoSofy';
 import {useNavigation} from '@react-navigation/native';
+import ContentInfoPlanConnect from '../components/ContentInfoPlanConnect';
+import {AuthContext} from '../context/authContext/authContext';
 
 interface Community {
   id: string;
@@ -24,27 +26,15 @@ interface Community {
 const Communities = () => {
   const [activeTab, setActiveTab] = useState<'feed' | 'communities'>('feed');
   const [postText, setPostText] = useState('');
-  const {isConnect} = useContext(PurchasesContext);
-  const navigation = useNavigation();
+  const {isConnect, suscriptions} = useContext(PurchasesContext);
+  const {detailsUser} = useContext(AuthContext);
+  const userIdRef = useRef(0);
 
-  const benefits = [
-    {
-      icon: 'eye-outline',
-      title: 'See Who Likes You',
-    },
-    {
-      icon: 'eye-check',
-      title: 'See Who Super Likes You',
-    },
-    {
-      icon: 'message-badge',
-      title: 'Unlimited Compliments & Super Likes',
-    },
-    {
-      icon: 'comment-flash',
-      title: 'Community Access & Admin Rights',
-    },
-  ];
+  useEffect(() => {
+    if (detailsUser && detailsUser.id) {
+      userIdRef.current = detailsUser.id;
+    }
+  }, [detailsUser]);
 
   const communities: Community[] = [
     {
@@ -70,16 +60,11 @@ const Communities = () => {
     },
   ];
 
-  const handleGetConnect = () => {
-    navigation.navigate('StackProfile' as never);
-  };
-
   // Si no tiene Connect, mostrar pantalla de upgrade
   if (!isConnect) {
     return (
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
+      <View style={styles.constainerSofyConnect}>
+        <View style={styles.headerContainerSofyConnect}>
           <MaterialDesignIcons
             name="comment-flash"
             size={30}
@@ -87,39 +72,12 @@ const Communities = () => {
           />
           <Text style={styles.headerTitle}>Communities</Text>
         </View>
-
-        <ScrollView
-          contentContainerStyle={styles.upgradeScrollContent}
-          showsVerticalScrollIndicator={false}>
-          <LogoSofy withMarginBotton={false} />
-
-          <Text style={styles.upgradeTitle}>
-            Connect with the most{'\n'}like-minded people without limits.
-          </Text>
-
-          <Text style={styles.upgradeSubtitle}>What you get with Connect:</Text>
-
-          <View style={styles.benefitsContainer}>
-            {benefits.map((benefit, index) => (
-              <View key={index} style={styles.benefitItem}>
-                <View style={styles.iconContainer}>
-                  <MaterialDesignIcons
-                    name={benefit.icon}
-                    size={28}
-                    color={colors.background}
-                  />
-                </View>
-                <Text style={styles.benefitText}>{benefit.title}</Text>
-              </View>
-            ))}
-          </View>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={handleGetConnect}>
-            <Text style={styles.actionButtonText}>Get Sofy Connect™</Text>
-          </TouchableOpacity>
-        </ScrollView>
+        <ContentInfoPlanConnect
+          origin="screen"
+          setModalVisible={() => {}}
+          productFromProfile={suscriptions[0]}
+          userIdRef={userIdRef.current}
+        />
       </View>
     );
   }
@@ -270,8 +228,22 @@ const Communities = () => {
 };
 
 const styles = StyleSheet.create({
+  constainerSofyConnect: {
+    flex: 1,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
+    backgroundColor: colors.background,
+  },
+  headerContainerSofyConnect: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
     backgroundColor: colors.background,
   },
   header: {

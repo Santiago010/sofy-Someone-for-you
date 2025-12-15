@@ -945,6 +945,10 @@ PODS:
   - React-Mapbuffer (0.73.9):
     - glog
     - React-debug
+  - react-native-blur (4.4.1):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
   - react-native-cometchat-ui-kit (5.2.1):
     - React-Core
     - react-native-cometchat-ui-kit/Video (= 5.2.1)
@@ -1229,6 +1233,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector-modern`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - "react-native-cometchat-ui-kit (from `../node_modules/@cometchat/chat-uikit-react-native`)"
   - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
@@ -1343,6 +1348,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-blur:
+    :path: "../node_modules/@react-native-community/blur"
   react-native-cometchat-ui-kit:
     :path: "../node_modules/@cometchat/chat-uikit-react-native"
   react-native-geolocation:
@@ -1463,6 +1470,7 @@ SPEC CHECKSUMS:
   React-jsinspector: aee04d04ef553d5e30e52a4de2af958cb060069f
   React-logger: ef76a6d8e04672f19be9b3a49f6ecc4c7141399b
   React-Mapbuffer: 3dd48fdc197c566c90774761e4799e86b1937572
+  react-native-blur: 9a53b0cc99ebd9d2dcd48f30cb61d0e32392a17d
   react-native-cometchat-ui-kit: 4867d91a174da9bd7f7c5cb91c0f7e02d52c36d2
   react-native-geolocation: 49ea939d13f095705a71891555cc76215e63ec6a
   react-native-image-picker: bb3a66064010886b9472200945841e2cf79e1b52

@@ -10,31 +10,16 @@ import {
   SafeAreaView,
   Dimensions,
   ScrollView,
-  Alert,
 } from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import {AuthContext} from '../context/authContext/authContext';
-import {
-  type Subscription,
-  type SubscriptionAndroid,
-  type Purchase,
-  initConnection,
-  endConnection,
-  getSubscriptions,
-  requestSubscription,
-  purchaseUpdatedListener,
-  purchaseErrorListener,
-  finishTransaction,
-} from 'react-native-iap';
+import {type SubscriptionAndroid} from 'react-native-iap';
 import Carousel from 'react-native-reanimated-carousel';
 import ModalInfoPlanConnect from '../components/ModalInfoPlanConnect';
+import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 
 export const Profile = () => {
-  const ANDROID_SUBSCRIPTION_SKUS = ['sofy_connect_895_1m'];
-  const [products, setProducts] = useState<Subscription[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const [dataInfouser, setdataInfouser] = useState({
     name: '',
     lastName: '',
@@ -45,69 +30,9 @@ export const Profile = () => {
   const userIdRef = useRef(0); // Nuevo ref para almacenar el userId actual
 
   const {detailsUser} = useContext(AuthContext);
+  const {suscriptions, isConnect} = useContext(PurchasesContext);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-
-  useEffect(() => {
-    const fetchSubscriptionDetails = async () => {
-      //TODO: Solo intentamos la conexión si estamos en Android, ya que el SKU es de Play Console
-      if (Platform.OS !== 'android') {
-        console.error(
-          'Esta prueba solo es válida para Android con el SKU proporcionado.',
-        );
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        // 1. Inicializar la conexión con el servicio de facturación
-        await initConnection();
-
-        console.log('✅ Conexión IAP inicializada correctamente.');
-
-        // 2. Obtener la lista de suscripciones (usando tu SKU)
-        const subscriptions = await getSubscriptions({
-          skus: ANDROID_SUBSCRIPTION_SKUS,
-        });
-
-        if (subscriptions.length > 0) {
-          const subscriptionProduct = subscriptions[0] as SubscriptionAndroid;
-
-          const offerDetails =
-            subscriptionProduct.subscriptionOfferDetails?.[0];
-
-          // 2. Acceder a la lista de fases de precios y obtener la fase principal (índice 0)
-          //    Esta fase contiene el precio real (formattedPrice).
-          const pricePhase = offerDetails?.pricingPhases.pricingPhaseList?.[0];
-
-          const formattedPrice =
-            pricePhase?.formattedPrice || 'Precio no encontrado';
-          console.warn(
-            `Producto encontrado con titulo : ${subscriptions[0].title} descripción: ${subscriptions[0].description} y precio: ${formattedPrice}`,
-          );
-          setProducts(subscriptions);
-          setIsLoading(false);
-        } else {
-          console.error(
-            '⚠️ Producto no encontrado. Revisa el SKU o el estado de la app en Play Console.',
-          );
-        }
-      } catch (err) {
-        console.error('❌ Error al obtener la suscripción:', err);
-        console.error(`Fallo de conexión o producto: ${err.message}`);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSubscriptionDetails();
-
-    // Limpieza: Cerramos la conexión cuando el componente se desmonta
-    return () => {
-      endConnection();
-      console.log('🔌 Conexión IAP finalizada.');
-    };
-  }, []); //TODO: El array vacío asegura que se ejecuta solo al montar
 
   useEffect(() => {
     if (detailsUser !== null) {
@@ -122,7 +47,8 @@ export const Profile = () => {
   }, [detailsUser]);
 
   // Evitar que el Carousel repita productos si solo hay uno
-  const carouselData = products.length > 1 ? products : products.slice(0, 1);
+  const carouselData =
+    suscriptions.length > 1 ? suscriptions : suscriptions.slice(0, 1);
 
   return (
     <View style={styles.container}>
@@ -216,56 +142,59 @@ export const Profile = () => {
                 </TouchableOpacity>
               </View>
             </View>
-            <View style={styles.carouselContainer}>
-              <Carousel
-                loop={carouselData.length > 1}
-                width={Math.min(Dimensions.get('window').width * 0.85, 350)}
-                height={280}
-                data={carouselData}
-                scrollAnimationDuration={1000}
-                renderItem={({item, index}) => {
-                  const subscriptionProduct = item as SubscriptionAndroid;
+            {!isConnect && (
+              <View style={styles.carouselContainer}>
+                <Carousel
+                  loop={carouselData.length > 1}
+                  width={Math.min(Dimensions.get('window').width * 0.85, 350)}
+                  height={280}
+                  data={carouselData}
+                  scrollAnimationDuration={1000}
+                  renderItem={({item, index}) => {
+                    const subscriptionProduct = item as SubscriptionAndroid;
 
-                  // Extracción del precio para la UI
-                  const offer =
-                    subscriptionProduct.subscriptionOfferDetails?.[0];
-                  const pricePhase = offer?.pricingPhases.pricingPhaseList?.[0];
-                  const formattedPrice = pricePhase?.formattedPrice || 'N/A';
-                  return (
-                    <View style={styles.styleBoxTwo}>
-                      <Text style={styles.platinumTitle}>{item.title}</Text>
-                      <Text style={styles.platinumSubtitle}>
-                        {item.description}
-                      </Text>
-                      <Text style={styles.priceText}>{formattedPrice}</Text>
-                      <TouchableOpacity
-                        onPress={() => setModalVisible(true)}
-                        style={styles.platinumButton}>
-                        <Text style={styles.platinumButtonText}>
-                          GET {` ${item.title}`}
+                    // Extracción del precio para la UI
+                    const offer =
+                      subscriptionProduct.subscriptionOfferDetails?.[0];
+                    const pricePhase =
+                      offer?.pricingPhases.pricingPhaseList?.[0];
+                    const formattedPrice = pricePhase?.formattedPrice || 'N/A';
+                    return (
+                      <View style={styles.styleBoxTwo}>
+                        <Text style={styles.platinumTitle}>{item.title}</Text>
+                        <Text style={styles.platinumSubtitle}>
+                          {item.description}
                         </Text>
-                      </TouchableOpacity>
-                      {/* <TouchableOpacity
+                        <Text style={styles.priceText}>{formattedPrice}</Text>
+                        <TouchableOpacity
+                          onPress={() => setModalVisible(true)}
+                          style={styles.platinumButton}>
+                          <Text style={styles.platinumButtonText}>
+                            GET {` ${item.title}`}
+                          </Text>
+                        </TouchableOpacity>
+                        {/* <TouchableOpacity
                         onPress={() => handlePurchase(item)}
                         style={styles.platinumButton}>
                         <Text style={styles.platinumButtonText}>
                           GET {` ${item.title}`}
                         </Text>
                       </TouchableOpacity> */}
-                    </View>
-                  );
-                }}
-              />
-            </View>
+                      </View>
+                    );
+                  }}
+                />
+              </View>
+            )}
           </View>
         </ScrollView>
       </SafeAreaView>
 
-      {products.length > 0 && userIdRef.current !== 0 && (
+      {suscriptions.length > 0 && userIdRef.current !== 0 && (
         <ModalInfoPlanConnect
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
-          productFromProfile={products[0]}
+          productFromProfile={suscriptions[0]}
           userIdRef={userIdRef.current}
         />
       )}

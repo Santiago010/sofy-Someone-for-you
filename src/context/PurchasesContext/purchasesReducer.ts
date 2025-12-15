@@ -1,16 +1,33 @@
+import {Subscription} from 'react-native-iap';
+
 export interface PurchasesState {
   isConnect: boolean;
   expires: string;
   error: string | null;
+  suscriptions: Subscription[];
+  isLoadingSuscritions: boolean;
 }
 
-type PurchasesAction = {
-  type: 'setStateSuscription';
-  payload: {
-    isConnect: boolean;
-    expires: string;
-  };
-};
+type PurchasesAction =
+  | {
+      type: 'setStateSuscription';
+      payload: {
+        isConnect: boolean;
+        expires: string;
+      };
+    }
+  | {
+      type: 'setSuscriptions';
+      payload: {
+        suscriptions: Subscription[];
+      };
+    }
+  | {
+      type: 'setLoadingSuscriptions';
+      payload: {
+        isLoadingSuscritions: boolean;
+      };
+    };
 
 export const purchasesReducer = (
   state: PurchasesState,
@@ -22,6 +39,17 @@ export const purchasesReducer = (
         ...state,
         isConnect: action.payload.isConnect,
         expires: action.payload.expires,
+      };
+    case 'setLoadingSuscriptions':
+      return {
+        ...state,
+        isLoadingSuscritions: action.payload.isLoadingSuscritions,
+      };
+    case 'setSuscriptions':
+      return {
+        ...state,
+        isLoadingSuscritions: false,
+        suscriptions: action.payload.suscriptions,
       };
     default:
       return state;

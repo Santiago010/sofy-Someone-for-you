@@ -72,23 +72,31 @@ export default function SwipeCard({
   // Ref para manejar el nextPage
   const nextPageRef = useRef(1);
 
+  //   TODO:PARTE DE LOCATION
   // --- LÓGICA DE EFECTOS ---
+  //   useEffect(() => {
+  //     if (
+  //       location &&
+  //       location.latitude != null &&
+  //       location.longitude != null &&
+  //       !requestedRecs
+  //     ) {
+  //       fetchRecomendations(
+  //         location.latitude,
+  //         location.longitude,
+  //         10,
+  //         nextPageRef.current,
+  //       );
+  //       setRequestedRecs(true);
+  //     }
+  //   }, [location, requestedRecs, fetchRecomendations]);
+
   useEffect(() => {
-    if (
-      location &&
-      location.latitude != null &&
-      location.longitude != null &&
-      !requestedRecs
-    ) {
-      fetchRecomendations(
-        location.latitude,
-        location.longitude,
-        10,
-        nextPageRef.current,
-      );
+    if (!requestedRecs) {
+      fetchRecomendations(0, 0, 10, nextPageRef.current);
       setRequestedRecs(true);
     }
-  }, [location, requestedRecs, fetchRecomendations]);
+  }, [requestedRecs, fetchRecomendations]);
 
   // Efecto para cargar más recomendaciones cuando quedan pocas
   useEffect(() => {
@@ -229,7 +237,7 @@ export default function SwipeCard({
             fontSize: 16,
             fontWeight: 'bold',
           }}>
-          Reintentar
+          Retry
         </Text>
       </TouchableOpacity>
     </View>
@@ -329,26 +337,60 @@ export default function SwipeCard({
     ],
   );
 
-  // --- RENDER ---
+  // --- RENDER ---TODO: PARTE DE LOCATION
+  //   let content;
+  //   if (isLoadingLocation) {
+  //     content = (
+  //       <View
+  //         style={{
+  //           flex: 1,
+  //           justifyContent: 'center',
+  //           alignItems: 'center',
+  //           backgroundColor: colors.background,
+  //         }}>
+  //         <BarIndicator count={4} size={50} color={colors.primary} />
+  //         <Text style={{color: colors.text, marginBottom: 20, fontSize: 18}}>
+  //           Loading Location...
+  //         </Text>
+  //       </View>
+  //     );
+  //   } else if (locationError || !location?.latitude || !location?.longitude) {
+  //     content = renderLocationError();
+  //   } else if (loading) {
+  //     content = (
+  //       <View
+  //         style={{
+  //           flex: 1,
+  //           justifyContent: 'center',
+  //           alignItems: 'center',
+  //           backgroundColor: colors.background,
+  //         }}>
+  //         <BarIndicator count={4} size={50} color={colors.primary} />
+  //         <Text style={{color: colors.text, marginBottom: 20, fontSize: 18}}>
+  //           Loading Users ...
+  //         </Text>
+  //       </View>
+  //     );
+  //   } else {
+  //     content = (
+  //       <View
+  //         style={{
+  //           ...commonStyles.container,
+  //           alignItems: 'center',
+  //         }}>
+  //         {(recomendations?.length || 0) === 0 ? (
+  //           <View style={styles.emptyContainer}>
+  //             <Text style={styles.emptyText}>Ups No more User for you</Text>
+  //           </View>
+  //         ) : (
+  //           <>{(recomendations || []).map(renderCard).reverse()}</>
+  //         )}
+  //       </View>
+  //     );
+  //   }
+
   let content;
-  if (isLoadingLocation) {
-    content = (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: colors.background,
-        }}>
-        <BarIndicator count={4} size={50} color={colors.primary} />
-        <Text style={{color: colors.text, marginBottom: 20, fontSize: 18}}>
-          Loading Location...
-        </Text>
-      </View>
-    );
-  } else if (locationError || !location?.latitude || !location?.longitude) {
-    content = renderLocationError();
-  } else if (loading) {
+  if (loading) {
     content = (
       <View
         style={{

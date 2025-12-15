@@ -1,4 +1,4 @@
-import {useState, useCallback} from 'react';
+import {useState, useCallback, useEffect} from 'react';
 import {privateDB} from '../db/db';
 import {
   PayloadRecomendationsResponse,
@@ -52,6 +52,10 @@ const useRecomendations = () => {
     },
     [isFetching],
   );
+
+  useEffect(() => {
+    console.log('Updated recommendations:', recomendations);
+  }, [recomendations]);
 
   return {
     recomendations,

@@ -22,9 +22,11 @@ import {
 } from '../interfaces/interfacesApp';
 import {showError} from '../helpers/ShowError';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useCometChat} from '../hooks/useCometChat';
 
 export const InfoUser = () => {
   const [images, setImages] = useState<string[]>([]);
+  const {createCometChatUser} = useCometChat();
   const [photoFiles, setPhotoFiles] = useState<UploadFile[]>([]);
   const {
     signUpResponseWithInfoUser,
@@ -126,7 +128,19 @@ export const InfoUser = () => {
         description: formDataNew.aboutYou,
       };
 
-      completeInfoUser(completeInfoData);
+      completeInfoUser(completeInfoData).then(response => {
+        createCometChatUser(
+          `${response.res.id}`,
+          response.res.name,
+          response.res.individualFiles[0].file.url,
+        )
+          .then(res => {
+            console.log('CometChat user created successfully', res.success);
+          })
+          .catch(err => {
+            console.error('Error creating CometChat user', err);
+          });
+      });
     }
   };
 

@@ -75,13 +75,13 @@ export const useCometChat = () => {
   const createCometChatUser = async (
     uid: string,
     name: string,
-    avatar?: string,
+    avatar: string,
   ) => {
     try {
       const body = {
         uid,
         name,
-        ...(avatar && {avatar}),
+        avatar,
       };
 
       const response = await axios.post(urlApiUsers, body, {

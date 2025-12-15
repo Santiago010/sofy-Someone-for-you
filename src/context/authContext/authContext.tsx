@@ -43,7 +43,9 @@ interface AuthContextProps {
   removeUserFromWhoLikedMe: (id: number) => void;
   removeError: () => void;
   verificationCode: (data: verificationCodeData) => void;
-  completeInfoUser: (completeInfoUser: CompleteInfoUser2) => void;
+  completeInfoUser: (
+    completeInfoUser: CompleteInfoUser2,
+  ) => Promise<{message: string; res: CompleteInfoUserResponse}>;
   GetDetailsUser: () => void;
   EditDetailsInfo: (data: EditDetailsInfoUser2) => void;
   changePassword: (data: ChangePasspord) => Promise<void>;
@@ -459,7 +461,6 @@ export const AuthProvider = ({
           },
         );
 
-      console.log(data);
       const access_token_only_complete_user = await AsyncStorage.getItem(
         'access_token_only_complete_user',
       );
@@ -477,6 +478,10 @@ export const AuthProvider = ({
         await AsyncStorage.setItem('access_token_only_complete_user', '');
       }
       dispatch({type: 'setLoading', payload: false});
+      return Promise.resolve({
+        message: 'User profile completed successfully',
+        res: data,
+      });
     } catch (error) {
       console.log(error);
       if (error instanceof AxiosError) {
@@ -495,6 +500,7 @@ export const AuthProvider = ({
         });
       }
     }
+    return Promise.reject();
   };
 
   const removeUserFromWhoLikedMe = async (id: number) => {

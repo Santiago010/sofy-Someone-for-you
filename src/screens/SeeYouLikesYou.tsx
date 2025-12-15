@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
 import {colors} from '../theme/globalTheme';
 import {CardViewWithoutAnimation2} from '../components/CardViewWithoutAnimation2';
@@ -8,9 +8,14 @@ import {useWhoLikesMe} from '../hooks/useWhoLikeMe';
 import {PayloadWhoLikedMe} from '../interfaces/interfacesApp';
 import {ModalInfoUser2} from '../components/ModalInfoUser2';
 import {useFocusEffect} from '@react-navigation/native';
+import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
+import ModalInfoPlanConnect from '../components/ModalInfoPlanConnect';
+import {AuthContext} from '../context/authContext/authContext';
 
 export default function SeeWhoLikesYou() {
   const {whoLikesMe, loading, error, fetchWhoLikedMe} = useWhoLikesMe();
+  const {isConnect, suscriptions} = useContext(PurchasesContext);
+  const {detailsUser} = useContext(AuthContext);
   const {widthWindow} = DeviceDimensions();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [modalVisible, setModalVisible] = useState(false);
@@ -22,6 +27,8 @@ export default function SeeWhoLikesYou() {
 
   const [isFocused, setIsFocused] = useState(false);
   const [focusedFetched, setFocusedFetched] = useState(false);
+  const [modalVisibleSofyConnect, setModalVisibleSofyConnect] = useState(false);
+  const userIdRef = useRef(0);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -29,6 +36,13 @@ export default function SeeWhoLikesYou() {
       return () => setIsFocused(false);
     }, []),
   );
+
+  useEffect(() => {
+    if (detailsUser && detailsUser.id) {
+      userIdRef.current = detailsUser.id;
+      console.log('User ID set:', userIdRef.current);
+    }
+  }, [detailsUser]);
 
   useEffect(() => {
     if (isFocused && !focusedFetched) {
@@ -83,6 +97,8 @@ export default function SeeWhoLikesYou() {
         width={cardWidth}
         height={cardHeight}
         toggleModalWithUser={toggleModalWithUser}
+        isConnect={isConnect}
+        setModalVisibleSofyConnect={() => setModalVisibleSofyConnect(true)}
       />
     </View>
   );
@@ -124,6 +140,13 @@ export default function SeeWhoLikesYou() {
           toggleModalToMatch={toggleModalToMatch}
         />
       )}
+      {/* Renderizar el modal siempre, no condicionalmente */}
+      <ModalInfoPlanConnect
+        modalVisible={modalVisibleSofyConnect}
+        setModalVisible={setModalVisibleSofyConnect}
+        productFromProfile={suscriptions[0]}
+        userIdRef={userIdRef.current || detailsUser?.id || 0}
+      />
 
       {modalVisibleMatch && userToSee.fromIndividual !== null && (
         <ModalMatch
