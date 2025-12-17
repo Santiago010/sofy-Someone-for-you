@@ -27,6 +27,9 @@ type PurchasesAction =
       payload: {
         isLoadingSuscritions: boolean;
       };
+    }
+  | {
+      type: 'resetPurchaseState';
     };
 
 export const purchasesReducer = (
@@ -51,6 +54,14 @@ export const purchasesReducer = (
         isLoadingSuscritions: false,
         suscriptions: action.payload.suscriptions,
       };
+    case 'resetPurchaseState':
+      return {
+        ...state,
+        isConnect: false,
+        expires: '',
+        suscriptions: [],
+      };
+
     default:
       return state;
   }

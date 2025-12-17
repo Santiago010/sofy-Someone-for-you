@@ -307,30 +307,6 @@ export interface File {
   url: string;
 }
 
-export interface IndividualFile {
-  id: number;
-  file: File;
-  sort_order: number;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface File {
-  id: number;
-  versionId: string;
-  type: null;
-  size: number;
-  bucketName: string;
-  etag: null;
-  uploadedBy: null;
-  fileName: string;
-  mimeType: string;
-  isNotificated: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  url: string;
-}
-
 export interface ResponseEditDetailsUser {
   error: boolean;
   statusCode: number;
@@ -536,6 +512,8 @@ export interface IndividualMatched {
   profile_image: string | null;
   updated_at: string; // ISO 8601
 }
+
+// TODO: INTEFACES IAP
 
 export interface dataForVerifySubscription {
   productId?: string;

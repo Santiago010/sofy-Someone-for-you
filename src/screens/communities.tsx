@@ -15,74 +15,87 @@ import LogoSofy from '../components/LogoSofy';
 import {useNavigation} from '@react-navigation/native';
 import ContentInfoPlanConnect from '../components/ContentInfoPlanConnect';
 import {AuthContext} from '../context/authContext/authContext';
-
-interface Community {
-  id: string;
-  name: string;
-  image: any;
-  isComingSoon?: boolean;
-}
+import {useCometChatGroups} from '../hooks/useCometChatGroups';
+import {Data} from '../interfaces/interfacesIAP';
 
 const Communities = () => {
+  const [whatTypeListCommunity, setWhatTypeCommunity] = useState('all');
   const [activeTab, setActiveTab] = useState<'feed' | 'communities'>('feed');
   const [postText, setPostText] = useState('');
   const {isConnect, suscriptions} = useContext(PurchasesContext);
-  const {detailsUser} = useContext(AuthContext);
+  const {detailsUser, GetDetailsUser} = useContext(AuthContext);
+  const {fetchAllGroups, fetGroupWithInterest} = useCometChatGroups();
+  const [listCommunities, setListCommunities] = useState<Data[]>([]);
   const userIdRef = useRef(0);
 
+  const addCommunityItem = {
+    guid: 'add-community-btn-001',
+    name: 'Add',
+    tags: [],
+    icon: '',
+    description: '',
+    owner: '',
+    type: '',
+    membersCount: 0,
+    hasJoined: true,
+    createdAt: 0,
+    updatedAt: 0,
+    joinedAt: 0,
+    scope: '',
+  } as unknown as Data;
+
   useEffect(() => {
-    if (detailsUser && detailsUser.id) {
-      userIdRef.current = detailsUser.id;
+    GetDetailsUser();
+  }, []);
+
+  useEffect(() => {
+    if (whatTypeListCommunity === 'all') {
+      fetchAllGroups()
+        .then(res => {
+          setListCommunities([addCommunityItem, ...res.communities]);
+        })
+        .catch(err => {
+          setListCommunities([addCommunityItem]);
+          console.error('Error fetching all communities:', err);
+        });
+    } else {
+      if (detailsUser && detailsUser.id) {
+        userIdRef.current = detailsUser.id;
+        fetGroupWithInterest(detailsUser.categories)
+          .then(res => {
+            setListCommunities([addCommunityItem, ...res.communities]);
+          })
+          .catch(err => {
+            setListCommunities([addCommunityItem]);
+            console.error('Error fetching communities by interest:', err);
+          });
+      }
     }
-  }, [detailsUser]);
+  }, [detailsUser, whatTypeListCommunity]);
 
-  const communities: Community[] = [
-    {
-      id: '1',
-      name: 'Spirituality',
-      image: '',
-    },
-    {
-      id: '2',
-      name: 'Art & Craft',
-      image: '',
-    },
-    {
-      id: '3',
-      name: 'Spirituality',
-      image: '',
-    },
-    {
-      id: '4',
-      name: 'Coming soon',
-      image: '',
-      isComingSoon: true,
-    },
-  ];
+  //   // Si no tiene Connect, mostrar pantalla de upgrade
+  //   if (!isConnect) {
+  //     return (
+  //       <View style={styles.constainerSofyConnect}>
+  //         <View style={styles.headerContainerSofyConnect}>
+  //           <MaterialDesignIcons
+  //             name="comment-flash"
+  //             size={30}
+  //             color={colors.primary}
+  //           />
+  //           <Text style={styles.headerTitle}>Communities</Text>
+  //         </View>
+  //         <ContentInfoPlanConnect
+  //           origin="screen"
+  //           setModalVisible={() => {}}
+  //           productFromProfile={suscriptions[0]}
+  //           userIdRef={userIdRef.current}
+  //         />
+  //       </View>
+  //     );
+  //   }
 
-  // Si no tiene Connect, mostrar pantalla de upgrade
-  if (!isConnect) {
-    return (
-      <View style={styles.constainerSofyConnect}>
-        <View style={styles.headerContainerSofyConnect}>
-          <MaterialDesignIcons
-            name="comment-flash"
-            size={30}
-            color={colors.primary}
-          />
-          <Text style={styles.headerTitle}>Communities</Text>
-        </View>
-        <ContentInfoPlanConnect
-          origin="screen"
-          setModalVisible={() => {}}
-          productFromProfile={suscriptions[0]}
-          userIdRef={userIdRef.current}
-        />
-      </View>
-    );
-  }
-
-  // Si tiene Connect, mostrar comunidades
+  //   Si tiene Connect, mostrar comunidades
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -100,8 +113,15 @@ const Communities = () => {
         <View style={styles.communitiesSection}>
           <View style={styles.communitiesHeader}>
             <Text style={styles.sectionTitle}>All communities</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAllText}>View all</Text>
+            <TouchableOpacity
+              onPress={() => {
+                setWhatTypeCommunity(prev =>
+                  prev === 'all' ? 'interest' : 'all',
+                );
+              }}>
+              <Text style={styles.viewAllText}>
+                View {whatTypeListCommunity === 'all' ? 'by interest' : 'all'}
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -109,33 +129,53 @@ const Communities = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.communitiesScroll}>
-            {communities.map((community, index) => (
+            {listCommunities.map((community, index) => (
               <TouchableOpacity
-                key={community.id}
+                key={community.guid}
+                onPress={() => {
+                  if (community.name === 'Add') {
+                    console.log('Add');
+                  }
+                }}
                 style={[
                   styles.communityItem,
                   index === 0 && styles.communityItemFirst,
                 ]}>
                 <View style={styles.communityImageContainer}>
-                  <Image
-                    source={community.image}
-                    style={styles.communityImage}
-                  />
+                  {community.name === 'Add' ? (
+                    <View
+                      style={[
+                        styles.communityImage,
+                        {
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          backgroundColor: colors.backgroundSecondary,
+                          borderWidth: 1,
+                          borderColor: colors.border,
+                        },
+                      ]}>
+                      <MaterialDesignIcons
+                        name="plus"
+                        size={24}
+                        style={{marginRight: 10}}
+                        color={colors.text}
+                      />
+                    </View>
+                  ) : (
+                    <Image
+                      source={{uri: community.icon}}
+                      style={styles.communityImage}
+                    />
+                  )}
                 </View>
-                <Text
-                  style={[
-                    styles.communityName,
-                    community.isComingSoon && styles.communityNameDisabled,
-                  ]}>
-                  {community.name}
-                </Text>
+                <Text style={[styles.communityName]}>{community.name}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
 
         {/* Tabs */}
-        <View style={styles.tabsContainer}>
+        {/* <View style={styles.tabsContainer}>
           <TouchableOpacity
             style={styles.tabButton}
             onPress={() => setActiveTab('feed')}>
@@ -163,10 +203,10 @@ const Communities = () => {
               <View style={styles.tabIndicator} />
             )}
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         {/* Create Post */}
-        <View style={styles.createPostContainer}>
+        {/* <View style={styles.createPostContainer}>
           <View style={styles.createPostInput}>
             <Image source={{uri: ''}} style={styles.userAvatar} />
             <TextInput
@@ -188,10 +228,10 @@ const Communities = () => {
               <Text style={styles.publishButtonText}>Publish Post</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </View> */}
 
         {/* Feed Post */}
-        <View style={styles.feedPost}>
+        {/* <View style={styles.feedPost}>
           <View style={styles.postHeader}>
             <Text style={styles.postedIn}>
               Posted in <Text style={styles.communityLink}>Reiki Healing</Text>
@@ -221,7 +261,7 @@ const Communities = () => {
             self-discovery, compassion for others, and embracing the
             ever-unfolding mysteries
           </Text>
-        </View>
+        </View> */}
       </ScrollView>
     </View>
   );

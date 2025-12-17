@@ -1,4 +1,4 @@
-import {createContext, useEffect, useReducer} from 'react';
+import {createContext, useContext, useEffect, useReducer} from 'react';
 import {purchasesReducer} from './purchasesReducer';
 import {
   dataForVerifySubscription,
@@ -14,6 +14,7 @@ import {
   type Subscription,
 } from 'react-native-iap';
 import {Platform} from 'react-native';
+import {AuthContext} from '../authContext/authContext';
 
 interface PurchasesContextProps {
   isConnect: boolean;
@@ -44,6 +45,8 @@ export const PurchasesProvider = ({
 }) => {
   const [state, dispatch] = useReducer(purchasesReducer, purchasesInitialState);
   const ANDROID_SUBSCRIPTION_SKUS = ['sofy_connect_895_1m'];
+
+  const {status, access_token, transactionId} = useContext(AuthContext);
 
   const getStateSuscription = async (userId: number) => {
     try {
@@ -210,20 +213,33 @@ export const PurchasesProvider = ({
     }
   };
 
-  useEffect(() => {
-    console.log(state.isConnect);
-  }, [state.isConnect]);
+  //   TODO:useEffects de prueba
+  //   useEffect(() => {
+  //     console.log('isConnect:', state.isConnect);
+  //   }, [state.isConnect]);
+
+  //   useEffect(() => {
+  //     console.log('List suscriptions:', state.suscriptions);
+  //   }, [state.suscriptions]);
 
   useEffect(() => {
-    console.log(state.suscriptions);
-  }, [state.suscriptions]);
+    if (status === 'not-authenticated' && !access_token && !transactionId) {
+      // Si el usuario no está autenticado, desconectamos la compra
+      if (state.isConnect) {
+        dispatch({type: 'resetPurchaseState'});
+      }
+    }
+  }, [status, access_token, transactionId, state.isConnect]);
 
   useEffect(() => {
-    fetchSubscriptionDetails();
+    if (!state.isConnect) {
+      fetchSubscriptionDetails();
+    }
+
     return () => {
       endConnection();
     };
-  }, []);
+  }, [state.isConnect]);
   return (
     <PurchasesContext.Provider
       value={{verifySubscription, getStateSuscription, ...state}}>

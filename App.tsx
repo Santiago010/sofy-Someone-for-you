@@ -41,7 +41,7 @@ function App(): React.JSX.Element {
   LogBox.ignoreLogs([
     'Attempted to register RCTBridgeModule class RCTVideoManager',
   ]);
-
+  LogBox.ignoreLogs(['source.uri should not be an empty string']);
   if (Platform.OS === 'ios') {
     LogBox.ignoreLogs([
       'PermissionsAndroid module works only for Android platform.',
