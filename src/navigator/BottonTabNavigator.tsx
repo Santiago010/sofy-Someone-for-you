@@ -18,16 +18,15 @@ import Communities from '../screens/communities';
 import {BarIndicator} from 'react-native-indicators';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 import {View} from 'react-native';
+import {StackCommunities} from './StackCommunities';
 
 export type RootBottonTabNavigator = {
   Home: undefined;
   Likes: undefined;
-  Communities: undefined;
+  StackCommunities: undefined;
   Chats: undefined;
   StackProfile: undefined;
 };
-
-interface Props extends BottomTabScreenProps<RootBottonTabNavigator, 'Home'> {}
 
 const Tab = createBottomTabNavigator<RootBottonTabNavigator>();
 
@@ -65,7 +64,7 @@ export const BottonTabNavigator = () => {
     setModalVisible(prev => !prev);
   }, []);
 
-  const matchSocket = useMatchSocket(onMatchReceived, idUserForChats);
+  const {socket} = useMatchSocket(onMatchReceived, idUserForChats);
 
   if (isLoadingSuscritions) {
     return (
@@ -95,7 +94,7 @@ export const BottonTabNavigator = () => {
                 iconName = focused ? 'heart' : 'heart-outline';
               } else if (route.name === 'Chats') {
                 iconName = focused ? 'chat' : 'chat-outline';
-              } else if (route.name === 'Communities') {
+              } else if (route.name === 'StackCommunities') {
                 iconName = focused ? 'comment-flash' : 'comment-flash-outline';
               } else if (route.name === 'StackProfile') {
                 iconName = focused ? 'account' : 'account-outline';
@@ -131,7 +130,7 @@ export const BottonTabNavigator = () => {
           })}>
           <Tab.Screen name="Home" component={CardsUsers} />
           <Tab.Screen name="Likes" component={TopTapNavigatorLikes} />
-          <Tab.Screen name="Communities" component={Communities} />
+          <Tab.Screen name="StackCommunities" component={StackCommunities} />
           <Tab.Screen name="Chats" component={Chats} />
           <Tab.Screen name="StackProfile" component={StackProfile} />
         </Tab.Navigator>

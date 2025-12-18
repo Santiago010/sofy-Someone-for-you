@@ -68,7 +68,7 @@ export default function EditPassword({
           navigation.goBack();
         })
         .catch(error => {
-          console.log('Error:', error);
+          console.error('Error:', error);
         });
     }
   };

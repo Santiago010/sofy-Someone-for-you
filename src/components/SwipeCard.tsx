@@ -116,9 +116,6 @@ export default function SwipeCard({
         10,
         nextPageRef.current,
       );
-      console.log(
-        'entra al if de use Effect donde esta en fetchRecomendations',
-      );
     }
   }, [
     recomendations,
@@ -163,7 +160,6 @@ export default function SwipeCard({
   function onSwipeComplete(direccion: 'right' | 'left' | 'up' | 'down') {
     const action =
       direccion === 'right' || direccion === 'up' ? 'LIKED' : 'DISLIKED';
-    console.log(action);
 
     setRecomendations(prev => {
       if (prev.length > 0) {

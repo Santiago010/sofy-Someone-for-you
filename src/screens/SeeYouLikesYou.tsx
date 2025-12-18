@@ -15,7 +15,7 @@ import {AuthContext} from '../context/authContext/authContext';
 export default function SeeWhoLikesYou() {
   const {whoLikesMe, loading, error, fetchWhoLikedMe} = useWhoLikesMe();
   const {isConnect, suscriptions} = useContext(PurchasesContext);
-  const {detailsUser} = useContext(AuthContext);
+  const {detailsUser, GetDetailsUser} = useContext(AuthContext);
   const {widthWindow} = DeviceDimensions();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,9 +38,12 @@ export default function SeeWhoLikesYou() {
   );
 
   useEffect(() => {
+    GetDetailsUser();
+  }, []);
+
+  useEffect(() => {
     if (detailsUser && detailsUser.id) {
       userIdRef.current = detailsUser.id;
-      console.log('User ID set:', userIdRef.current);
     }
   }, [detailsUser]);
 

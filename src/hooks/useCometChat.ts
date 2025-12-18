@@ -10,7 +10,7 @@ import axios, {AxiosError} from 'axios';
 export const useCometChat = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState<CometChat.User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,12 +47,31 @@ export const useCometChat = () => {
       setLoading(true);
       setError(null);
 
+      // Verificar si ya hay un usuario logueado para evitar llamadas duplicadas
+      const loggedInUser = await CometChat.getLoggedinUser();
+      if (loggedInUser) {
+        if (loggedInUser.getUid() === uid) {
+          setCurrentUser(loggedInUser);
+          setIsLoggedIn(true);
+          return {success: true, user: loggedInUser};
+        } else {
+          // Si hay un usuario diferente logueado, hacemos logout primero
+          await CometChatUIKit.logout();
+        }
+      }
+
       const user = await CometChatUIKit.login({uid});
       setCurrentUser(user);
       setIsLoggedIn(true);
       //   console.log(`Usuario logeado: ${user.getName()}`);
       return {success: true, user};
-    } catch (err) {
+    } catch (err: any) {
+      // Ignorar error si ya hay un login en progreso
+      if (err?.code === -1 && err?.name === 'LOGIN_IN_PROGRESS') {
+        console.warn('Login en progreso: Se ignoró una solicitud duplicada.');
+        return {success: false, error: err};
+      }
+
       console.error('Error en login:', err);
       setError('Error al iniciar sesión en el chat');
       return {success: false, error: err};

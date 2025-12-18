@@ -87,7 +87,6 @@ export const AuthProvider = ({
         token,
         newPassword,
       });
-      console.log(data);
       return Promise.resolve();
     } catch (error) {
       let errorGlobal: string;
@@ -113,7 +112,6 @@ export const AuthProvider = ({
       const {data} = await privateDB.post('/auth/password-reset/request', {
         email,
       });
-      console.log(data);
       return Promise.resolve();
     } catch (error) {
       let errorGlobal: string;
@@ -290,7 +288,6 @@ export const AuthProvider = ({
           phone: editDetailsInfoUser.phone,
         },
       );
-      console.log('EditDetailsInfo Response:', data);
       setEditDetailsSuccessFun(true);
       dispatch({type: 'setLoading', payload: false});
       GetDetailsUser();
@@ -356,7 +353,6 @@ export const AuthProvider = ({
         email,
         password,
       });
-      console.log('SignUp Response:', data);
       await AsyncStorage.setItem(
         'access_token_only_complete_user',
         data.payload.access_token,
@@ -483,7 +479,6 @@ export const AuthProvider = ({
         res: data,
       });
     } catch (error) {
-      console.log(error);
       if (error instanceof AxiosError) {
         if (error.response) {
           const errorData = error.response.data as CompleteInfoUserError;
@@ -511,7 +506,6 @@ export const AuthProvider = ({
 
       console.warn(data);
     } catch (error) {
-      console.log(error);
       if (error instanceof AxiosError) {
         if (error.response) {
           const errorData = error.response.data;

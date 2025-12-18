@@ -28,8 +28,6 @@ export const Login = () => {
     password: 'p7EhCx33jwkQ*',
   });
 
-  console.log(loading);
-
   const sendData = () => {
     Keyboard.dismiss();
     login(form);

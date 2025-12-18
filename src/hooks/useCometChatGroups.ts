@@ -47,7 +47,7 @@ export const useCometChatGroups = () => {
       if (error instanceof axios.AxiosError) {
         if (error.response) {
           console.error(
-            'Error uploading image for group:',
+            'Error uploading image for group from hook:',
             error.response.data,
           );
         }
@@ -62,13 +62,11 @@ export const useCometChatGroups = () => {
     type: string,
     tags: string[],
     admin: string,
-    icon: UploadFile,
+    icon: string,
     description: string,
     owner: string,
-  ) => {
+  ): Promise<{nameGroup: string; message: string}> => {
     try {
-      const {url: urlIconUploaded} = await uploadImageToGroup(icon);
-
       const {data} = await axios.post<ResCreateGroup>(
         urlsApiGroups.listGroups,
         {
@@ -82,7 +80,7 @@ export const useCometChatGroups = () => {
             usersToBan: [],
             participants: [],
           },
-          urlIconUploaded,
+          icon,
           description,
           owner,
         },
@@ -94,16 +92,18 @@ export const useCometChatGroups = () => {
         },
       );
       console.log('Group created:', data);
-      return data;
+      return Promise.resolve({
+        nameGroup: data.data.name,
+        message: 'Group created successfully',
+      });
     } catch (error) {
-      console.error('Error creating group:', error);
       if (error instanceof axios.AxiosError) {
         console.error(
           'Error creating group from cometChat:',
           error.response?.data,
         );
       }
-      throw error;
+      return Promise.reject({nameGroup: '', message: 'Error creating group'});
     }
   };
   const fetchAllGroups = async (): Promise<{
@@ -140,7 +140,7 @@ export const useCometChatGroups = () => {
     communities: Data[];
     message: string;
   }> => {
-    console.log('Fetching groups with interest:', interest);
+    // console.log('Fetching groups with interest:', interest);
     try {
       let tagsQuery = '';
       interest.forEach(item => {
@@ -175,5 +175,10 @@ export const useCometChatGroups = () => {
     }
   };
 
-  return {fetchAllGroups, fetGroupWithInterest, createGroup};
+  return {
+    fetchAllGroups,
+    fetGroupWithInterest,
+    createGroup,
+    uploadImageToGroup,
+  };
 };

@@ -26,7 +26,6 @@ export const CardViewWithoutAnimation2: FC<CardViewWithoutAnimationProps> = ({
 }) => {
   const dynamicStyles = styles(width, height);
 
-  console.log('CardViewWithoutAnimation2 card:', card);
   return (
     <Pressable
       style={dynamicStyles.card}
@@ -34,7 +33,6 @@ export const CardViewWithoutAnimation2: FC<CardViewWithoutAnimationProps> = ({
         if (isConnect) {
           toggleModalWithUser(card);
         } else {
-          console.log('Not connected - showing Sofy Connect modal');
           setModalVisibleSofyConnect();
         }
       }}>

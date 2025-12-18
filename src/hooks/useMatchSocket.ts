@@ -54,7 +54,7 @@ export const useMatchSocket = (
       console.log(
         `❌ Desconectado del WebSocket de matches (ID: ${idUserForMatch})`,
       );
-      console.log(`📋 Razón: ${reason}`);
+      console.log(`📋 disconnect Socket reason: ${reason}`);
     });
 
     socket.on('reconnect_attempt', attemptNumber => {

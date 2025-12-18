@@ -13,12 +13,17 @@ import MaterialDesignIcons from '@react-native-vector-icons/material-design-icon
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 import LogoSofy from '../components/LogoSofy';
 import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackCommunitiesParamList} from '../navigator/StackCommunities';
 import ContentInfoPlanConnect from '../components/ContentInfoPlanConnect';
 import {AuthContext} from '../context/authContext/authContext';
 import {useCometChatGroups} from '../hooks/useCometChatGroups';
 import {Data} from '../interfaces/interfacesIAP';
 
-const Communities = () => {
+type Props = {
+  navigation: StackNavigationProp<RootStackCommunitiesParamList, 'Communities'>;
+};
+const Communities = ({navigation}: Props) => {
   const [whatTypeListCommunity, setWhatTypeCommunity] = useState('all');
   const [activeTab, setActiveTab] = useState<'feed' | 'communities'>('feed');
   const [postText, setPostText] = useState('');
@@ -134,7 +139,11 @@ const Communities = () => {
                 key={community.guid}
                 onPress={() => {
                   if (community.name === 'Add') {
-                    console.log('Add');
+                    if (detailsUser?.id) {
+                      navigation.navigate('CommunitiesAdd', {
+                        userId: userIdRef.current,
+                      });
+                    }
                   }
                 }}
                 style={[
@@ -156,8 +165,7 @@ const Communities = () => {
                       ]}>
                       <MaterialDesignIcons
                         name="plus"
-                        size={24}
-                        style={{marginRight: 10}}
+                        size={50}
                         color={colors.text}
                       />
                     </View>

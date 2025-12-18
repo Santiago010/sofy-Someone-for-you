@@ -54,7 +54,7 @@ const useRecomendations = () => {
   );
 
   useEffect(() => {
-    console.log('Updated recommendations:', recomendations);
+    // console.log('Updated recommendations:', recomendations);
   }, [recomendations]);
 
   return {

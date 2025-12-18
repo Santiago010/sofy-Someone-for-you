@@ -31,7 +31,6 @@ export const StackProfile = () => {
 
   const handleProfileVisible = useCallback(() => {
     GetDetailsUser();
-    console.log('Profile screen is now visible, user details refreshed.');
   }, [GetDetailsUser]);
 
   useProfileVisible(handleProfileVisible);
