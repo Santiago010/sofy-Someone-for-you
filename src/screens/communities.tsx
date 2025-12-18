@@ -144,6 +144,10 @@ const Communities = ({navigation}: Props) => {
                         userId: userIdRef.current,
                       });
                     }
+                  } else {
+                    navigation.navigate('CommunitiesDetails', {
+                      communityId: community.guid,
+                    });
                   }
                 }}
                 style={[

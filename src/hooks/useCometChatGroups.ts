@@ -8,6 +8,7 @@ import {
   Data,
   ListGroup,
   ResCreateGroup,
+  ResDetailsGroup,
   ResUploadFileGroup,
 } from '../interfaces/interfacesIAP';
 import {privateDB} from '../db/db';
@@ -65,7 +66,7 @@ export const useCometChatGroups = () => {
     icon: string,
     description: string,
     owner: string,
-  ): Promise<{nameGroup: string; message: string}> => {
+  ): Promise<{guidGroup: string; message: string}> => {
     try {
       const {data} = await axios.post<ResCreateGroup>(
         urlsApiGroups.listGroups,
@@ -93,7 +94,7 @@ export const useCometChatGroups = () => {
       );
       console.log('Group created:', data);
       return Promise.resolve({
-        nameGroup: data.data.name,
+        guidGroup: data.data.guid,
         message: 'Group created successfully',
       });
     } catch (error) {
@@ -103,7 +104,7 @@ export const useCometChatGroups = () => {
           error.response?.data,
         );
       }
-      return Promise.reject({nameGroup: '', message: 'Error creating group'});
+      return Promise.reject({guidGroup: '', message: 'Error creating group'});
     }
   };
   const fetchAllGroups = async (): Promise<{
@@ -130,6 +131,39 @@ export const useCometChatGroups = () => {
       return Promise.reject({
         communities: [],
         message: 'Error fetching communities',
+      });
+    }
+  };
+
+  const getDetailsGroup = async (
+    guid: string,
+  ): Promise<{details: ResDetailsGroup | {}; message: string}> => {
+    try {
+      const {data} = await axios.get<ResDetailsGroup>(
+        `${urlsApiGroups.listGroups}/${guid}`,
+        {
+          headers: {
+            apikey: restKey,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      return Promise.resolve({
+        details: data,
+        message: 'Group details fetched successfully',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        if (error.response) {
+          console.error(
+            'Error response fetching group details:',
+            error.response.data,
+          );
+        }
+      }
+      return Promise.reject({
+        details: {},
+        message: 'Error fetching group details',
       });
     }
   };
@@ -180,5 +214,6 @@ export const useCometChatGroups = () => {
     fetGroupWithInterest,
     createGroup,
     uploadImageToGroup,
+    getDetailsGroup,
   };
 };

@@ -194,8 +194,8 @@ const CommunitiesAdd = ({navigation, route}: Props) => {
           description,
           `${userId}`,
         )
-          .then(({nameGroup, message}) => {
-            navigation.goBack();
+          .then(({guidGroup, message}) => {
+            navigation.navigate('CommunitiesDetails', {communityId: guidGroup});
           })
           .catch(({message}) => {
             console.error('Error creating group from screen:', message);

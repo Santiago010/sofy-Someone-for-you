@@ -105,3 +105,21 @@ export interface Error {
 }
 
 export interface Moderators {}
+
+export interface ResDetailsGroup {
+  data: DataGroup;
+}
+
+export interface DataGroup {
+  guid: string;
+  name: string;
+  description: string;
+  icon: string;
+  type: string;
+  membersCount: number;
+  conversationId: string;
+  createdAt: number;
+  owner: string;
+  onlineMembersCount: number;
+  tags: string[];
+}
