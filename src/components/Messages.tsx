@@ -44,7 +44,7 @@ const Messages = ({
 
       {/* Input field + action buttons (emoji, attach, send, etc.) */}
       <CometChatMessageComposer
-        hideVideoAttachmentOption={true}
+        hideVideoAttachmentOption={false}
         hideFileAttachmentOption={true}
         hideAudioAttachmentOption={true}
         hideVoiceRecordingButton={true}

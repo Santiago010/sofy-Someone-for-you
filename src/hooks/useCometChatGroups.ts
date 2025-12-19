@@ -6,9 +6,13 @@ import {
 } from '../interfaces/interfacesApp';
 import {
   Data,
+  DataMembersCommunity,
+  DataMessageOfCommunity,
   ListGroup,
   ResCreateGroup,
   ResDetailsGroup,
+  ResMembersCommunity,
+  ResMessageOfCommunity,
   ResUploadFileGroup,
 } from '../interfaces/interfacesIAP';
 import {privateDB} from '../db/db';
@@ -168,6 +172,74 @@ export const useCometChatGroups = () => {
     }
   };
 
+  const getMembersGroup = async (
+    guid: string,
+  ): Promise<{members: DataMembersCommunity[]; message: string}> => {
+    try {
+      const {data} = await axios.get<ResMembersCommunity>(
+        `${urlsApiGroups.listGroups}/${guid}/members?perPage=100&page=1`,
+        {
+          headers: {
+            apikey: restKey,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      return Promise.resolve({
+        members: data.data,
+        message: 'Group members fetched successfully',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        if (error.response) {
+          console.error(
+            'Error response fetching group members:',
+            error.response.data,
+          );
+        }
+      }
+      return Promise.reject({
+        members: [],
+        message: 'Error fetching group members',
+      });
+    }
+  };
+
+  const getMessagesGroup = async (
+    guid: string,
+  ): Promise<{messages: DataMessageOfCommunity[]; message: string}> => {
+    // Placeholder for future implementation
+
+    try {
+      const {data} = await axios.get<ResMessageOfCommunity>(
+        `${urlsApiGroups.listGroups}/${guid}/messages?myMentionsOnly=false&hasReactions=false&mentionsWithBlockedInfo=false&mentionswithTagInfo=false&limit=1000`,
+        {
+          headers: {
+            apikey: restKey,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      return Promise.resolve({
+        messages: data.data,
+        message: 'Group messages fetched successfully',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        if (error.response) {
+          console.error(
+            'Error response fetching group messages:',
+            error.response.data,
+          );
+        }
+      }
+      return Promise.reject({
+        messages: [],
+        message: 'Error fetching group messages',
+      });
+    }
+  };
+
   const fetGroupWithInterest = async (
     interest: InterestAndSubInterestResponse[],
   ): Promise<{
@@ -215,5 +287,7 @@ export const useCometChatGroups = () => {
     createGroup,
     uploadImageToGroup,
     getDetailsGroup,
+    getMembersGroup,
+    getMessagesGroup,
   };
 };

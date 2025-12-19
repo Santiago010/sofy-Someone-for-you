@@ -25,12 +25,6 @@ export default function EditPhotos({
   const {detailsUser, removeImage, addImage, GetDetailsUser} =
     useContext(AuthContext);
 
-  // Cargar detalles del usuario al montar el componente
-  useEffect(() => {
-    GetDetailsUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // Función para manejar cambios en los archivos de fotos (modo local)
   const handleImageFilesChange = (_files: UploadFile[]) => {
     // No se usa en modo backend, pero se mantiene para compatibilidad

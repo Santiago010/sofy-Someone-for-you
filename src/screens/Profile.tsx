@@ -1,5 +1,11 @@
-import React, {useContext, useEffect, useState, useRef} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from 'react';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {
   View,
   StyleSheet,
@@ -29,10 +35,17 @@ export const Profile = () => {
 
   const userIdRef = useRef(0); // Nuevo ref para almacenar el userId actual
 
-  const {detailsUser} = useContext(AuthContext);
+  const {detailsUser, GetDetailsUser} = useContext(AuthContext);
   const {suscriptions, isConnect} = useContext(PurchasesContext);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
+
+  // Llamar a GetDetailsUser cada vez que la pantalla obtiene el foco
+  useFocusEffect(
+    useCallback(() => {
+      GetDetailsUser();
+    }, [GetDetailsUser]),
+  );
 
   useEffect(() => {
     if (detailsUser !== null) {

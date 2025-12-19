@@ -1,4 +1,4 @@
-import React, {createContext, useEffect, useReducer} from 'react';
+import React, {createContext, useEffect, useReducer, useCallback} from 'react';
 import {
   SignUpData,
   loginData,
@@ -312,7 +312,9 @@ export const AuthProvider = ({
     }
   };
 
-  const GetDetailsUser = async () => {
+  // Usamos useCallback para evitar que la función se recree en cada render
+  const GetDetailsUser = useCallback(async () => {
+    console.log('GetDetailsUser called');
     try {
       const {data} = await privateDB.get<GetDetailsResponse>(
         '/individuals/me/details',
@@ -342,7 +344,7 @@ export const AuthProvider = ({
         });
       }
     }
-  };
+  }, []);
 
   const signUp = async ({firstName, lastName, email, password}: SignUpData) => {
     dispatch({type: 'setLoading', payload: true});

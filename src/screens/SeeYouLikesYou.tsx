@@ -15,7 +15,7 @@ import {AuthContext} from '../context/authContext/authContext';
 export default function SeeWhoLikesYou() {
   const {whoLikesMe, loading, error, fetchWhoLikedMe} = useWhoLikesMe();
   const {isConnect, suscriptions} = useContext(PurchasesContext);
-  const {detailsUser, GetDetailsUser} = useContext(AuthContext);
+  const {idUserForChats} = useContext(AuthContext);
   const {widthWindow} = DeviceDimensions();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [modalVisible, setModalVisible] = useState(false);
@@ -25,10 +25,13 @@ export default function SeeWhoLikesYou() {
     {} as PayloadWhoLikedMe,
   );
 
+  useEffect(() => {
+    console.log('ID User for Chats:', idUserForChats);
+  }, []);
+
   const [isFocused, setIsFocused] = useState(false);
   const [focusedFetched, setFocusedFetched] = useState(false);
   const [modalVisibleSofyConnect, setModalVisibleSofyConnect] = useState(false);
-  const userIdRef = useRef(0);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -36,16 +39,6 @@ export default function SeeWhoLikesYou() {
       return () => setIsFocused(false);
     }, []),
   );
-
-  useEffect(() => {
-    GetDetailsUser();
-  }, []);
-
-  useEffect(() => {
-    if (detailsUser && detailsUser.id) {
-      userIdRef.current = detailsUser.id;
-    }
-  }, [detailsUser]);
 
   useEffect(() => {
     if (isFocused && !focusedFetched) {
@@ -148,7 +141,7 @@ export default function SeeWhoLikesYou() {
         modalVisible={modalVisibleSofyConnect}
         setModalVisible={setModalVisibleSofyConnect}
         productFromProfile={suscriptions[0]}
-        userIdRef={userIdRef.current || detailsUser?.id || 0}
+        userIdRef={idUserForChats}
       />
 
       {modalVisibleMatch && userToSee.fromIndividual !== null && (

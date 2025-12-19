@@ -17,21 +17,17 @@ export default function Chats() {
   const [messageGroup, setMessageGroup] = useState<CometChat.Group>();
 
   const {loginUser, isLoggedIn, isInitialized} = useCometChat();
-  const {GetDetailsUser, detailsUser} = useContext(AuthContext);
+  const {idUserForChats} = useContext(AuthContext);
 
   useEffect(() => {
     const autoLogin = async () => {
-      if (isInitialized && !isLoggedIn && detailsUser !== null) {
-        const userUID = `${detailsUser.id}`;
+      if (isInitialized && !isLoggedIn && idUserForChats !== null) {
+        const userUID = `${idUserForChats}`;
         await loginUser(userUID);
       }
     };
     autoLogin();
-  }, [isInitialized, isLoggedIn, detailsUser]);
-
-  useEffect(() => {
-    GetDetailsUser();
-  }, []);
+  }, [isInitialized, isLoggedIn, idUserForChats]);
 
   return (
     <SafeAreaView style={styles.fullScreen}>

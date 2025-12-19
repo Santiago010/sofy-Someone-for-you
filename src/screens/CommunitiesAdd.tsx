@@ -71,10 +71,6 @@ const CommunitiesAdd = ({navigation, route}: Props) => {
 
   // --- Lógica de Imagen (Similar a GridImage) ---
 
-  useEffect(() => {
-    console.log('dataImage changed:', dataImage);
-  }, [dataImage]);
-
   const requestCameraPermission = async () => {
     if (Platform.OS === 'android') {
       try {

@@ -26,12 +26,9 @@ export default function Settings({
 }: {
   navigation: SettingsScreenNavigationProp;
 }) {
-  const {logout, detailsUser, GetDetailsUser} = useContext(AuthContext);
+  const {logout, detailsUser} = useContext(AuthContext);
   const {address, isLoadingLocation} = useLocation();
 
-  useEffect(() => {
-    GetDetailsUser();
-  }, []);
   return (
     <ScrollView style={commonStyles.container}>
       <SafeAreaView>
