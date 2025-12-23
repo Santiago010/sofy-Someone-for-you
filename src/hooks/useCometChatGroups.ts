@@ -19,9 +19,64 @@ import {privateDB} from '../db/db';
 
 const urlsApiGroups = {
   listGroups: `https://${appId}.api-${region}.cometchat.io/v3/groups`,
+  messageGroup: `https://${appId}.api-${region}.cometchat.io/v3/messages`,
 };
 
 export const useCometChatGroups = () => {
+  const addMessage = async (
+    groupGuid: string,
+    onBehalfOf: string,
+    text: string,
+    attachments: {
+      url: string;
+      name: string;
+      mimeType: string;
+    }[] = [],
+  ): Promise<{message: string}> => {
+    try {
+      // Base payload
+      const payload: any = {
+        receiver: groupGuid,
+        receiverType: 'group',
+        category: 'message',
+        type: 'text',
+        data: {
+          text,
+        },
+      };
+
+      // Solo agrega attachments si viene contenido
+      if (attachments && attachments.length > 0) {
+        payload.data.attachments = attachments;
+      }
+
+      const {data} = await axios.post(urlsApiGroups.messageGroup, payload, {
+        headers: {
+          apikey: restKey,
+          onBehalfOf,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Message sent:', data);
+
+      return Promise.resolve({
+        message: 'Message sent successfully',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        console.error(
+          'Error sending message:',
+          error.response?.data || error.message,
+        );
+      }
+
+      return Promise.reject({
+        message: 'Error sending message',
+      });
+    }
+  };
+
   const uploadImageToGroup = async (
     photo: UploadFile,
   ): Promise<{url: string; message: string}> => {
@@ -111,6 +166,128 @@ export const useCometChatGroups = () => {
       return Promise.reject({guidGroup: '', message: 'Error creating group'});
     }
   };
+
+  const fetchJoinedGroups = async (
+    userUid: string,
+  ): Promise<{communities: Data[]; message: string}> => {
+    try {
+      const {data} = await axios.get<ListGroup>(urlsApiGroups.listGroups, {
+        headers: {
+          apikey: restKey,
+          'Content-Type': 'application/json',
+          onBehalfOf: userUid, // usuario por el cual se filtra
+        },
+        params: {
+          hasJoined: true, // solo devuelve grupos que ya ha unido
+        },
+      });
+
+      return Promise.resolve({
+        communities: data.data,
+        message: 'found ' + data.data.length + ' joined communities',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        if (error.response) {
+          console.error(
+            'Error response fetching joined groups:',
+            error.response.data,
+          );
+        }
+      }
+      return Promise.reject({
+        communities: [],
+        message: 'Error fetching joined communities',
+      });
+    }
+  };
+
+  const fetchNotJoinedGroups = async (
+    userUid: string,
+  ): Promise<{communities: Data[]; message: string}> => {
+    try {
+      const {data} = await axios.get<ListGroup>(urlsApiGroups.listGroups, {
+        headers: {
+          apikey: restKey,
+          'Content-Type': 'application/json',
+          onBehalfOf: userUid, // usuario para que el response marque hasJoined
+        },
+        params: {
+          // no necesitas hasJoined para traer todos
+        },
+      });
+
+      // Filtrar los grupos donde el usuario NO ha unido
+      const notJoined = data.data.filter(group => !group.hasJoined);
+
+      return Promise.resolve({
+        communities: notJoined,
+        message: 'found ' + notJoined.length + ' not joined communities',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        if (error.response) {
+          console.error(
+            'Error response fetching not joined groups:',
+            error.response.data,
+          );
+        }
+      }
+      return Promise.reject({
+        communities: [],
+        message: 'Error fetching not joined communities',
+      });
+    }
+  };
+
+  const fetchGroupsWithInterestNotJoined = async (
+    userUid: string,
+    interest: InterestAndSubInterestResponse[],
+  ): Promise<{
+    communities: Data[];
+    message: string;
+  }> => {
+    try {
+      let tagsQuery = '';
+      interest.forEach(item => {
+        tagsQuery += `&tags=${encodeURIComponent(item.name)}`;
+      });
+
+      // Armamos la URL con filtros por tags y tamaño de página
+      const url = `${urlsApiGroups.listGroups}?perPage=100${tagsQuery}`;
+
+      const {data} = await axios.get<ListGroup>(url, {
+        headers: {
+          apikey: restKey,
+          'Content-Type': 'application/json',
+          onBehalfOf: userUid, // Necesario para que venga hasJoined correctamente
+        },
+      });
+
+      // Filtrar grupos donde el usuario NO ha joined (hasJoined === false)
+      const notJoined = data.data.filter(group => !group.hasJoined);
+
+      return Promise.resolve({
+        communities: notJoined,
+        message:
+          'found ' + notJoined.length + ' communities not joined with interest',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        if (error.response) {
+          console.error(
+            'Error response fetching groups with interest not joined:',
+            error.response.data,
+          );
+        }
+      }
+      return Promise.reject({
+        communities: [],
+        message: 'Error fetching communities not joined',
+      });
+    }
+  };
+
   const fetchAllGroups = async (): Promise<{
     communities: Data[];
     message: string;
@@ -240,6 +417,48 @@ export const useCometChatGroups = () => {
     }
   };
 
+  const addReactionToMessage = async (
+    messageId: string,
+    reaction: string,
+    uidSender: string,
+  ): Promise<{message: string}> => {
+    try {
+      // CometChat requiere el emoji URL encoded
+      const encodedReaction = encodeURIComponent(reaction);
+
+      const url = `https://${appId}.api-${region}.cometchat.io/v3/messages/${messageId}/reactions/${encodedReaction}`;
+
+      const {data} = await axios.post(
+        url,
+        {},
+        {
+          headers: {
+            apikey: restKey,
+            onBehalfOf: uidSender,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      console.log('Reaction added:', data);
+
+      return Promise.resolve({
+        message: 'Reaction added successfully',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        console.error(
+          'Error adding reaction:',
+          error.response?.data || error.message,
+        );
+      }
+
+      return Promise.reject({
+        message: 'Error adding reaction',
+      });
+    }
+  };
+
   const fetGroupWithInterest = async (
     interest: InterestAndSubInterestResponse[],
   ): Promise<{
@@ -281,6 +500,45 @@ export const useCometChatGroups = () => {
     }
   };
 
+  const addMembersToGroup = async (
+    guid: string,
+    participants: string[],
+  ): Promise<{message: string}> => {
+    try {
+      const url = `${urlsApiGroups.listGroups}/${guid}/members`;
+
+      const {data} = await axios.post(
+        url,
+        {
+          participants,
+        },
+        {
+          headers: {
+            apikey: restKey,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      console.log('Members added to group:', data);
+
+      return Promise.resolve({
+        message: 'Members added successfully',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        console.error(
+          'Error adding members to group:',
+          error.response?.data || error.message,
+        );
+      }
+
+      return Promise.reject({
+        message: 'Error adding members to group',
+      });
+    }
+  };
+
   return {
     fetchAllGroups,
     fetGroupWithInterest,
@@ -289,5 +547,11 @@ export const useCometChatGroups = () => {
     getDetailsGroup,
     getMembersGroup,
     getMessagesGroup,
+    addReactionToMessage,
+    addMembersToGroup,
+    addMessage,
+    fetchJoinedGroups,
+    fetchNotJoinedGroups,
+    fetchGroupsWithInterestNotJoined,
   };
 };

@@ -49,6 +49,7 @@ export const Profile = () => {
 
   useEffect(() => {
     if (detailsUser !== null) {
+      console.log(detailsUser.individualFiles[0].file.url);
       setdataInfouser({
         name: detailsUser.name,
         lastName: detailsUser.lastname,

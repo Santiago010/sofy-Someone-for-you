@@ -53,8 +53,8 @@ export const BottonTabNavigator = () => {
   }, [matchData]);
 
   useEffect(() => {
-    console.log('Verificando suscripción para el usuario:', idUserForChats);
     if (idUserForChats) {
+      console.log('Verificando suscripción para el usuario:', idUserForChats);
       getStateSuscription(idUserForChats).then(res => {
         console.log(res.res);
       });

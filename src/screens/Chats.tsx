@@ -20,6 +20,10 @@ export default function Chats() {
   const {idUserForChats} = useContext(AuthContext);
 
   useEffect(() => {
+    console.log('messageuser:', messageUser);
+  }, [messageUser, messageGroup]);
+
+  useEffect(() => {
     const autoLogin = async () => {
       if (isInitialized && !isLoggedIn && idUserForChats !== null) {
         const userUID = `${idUserForChats}`;

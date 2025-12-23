@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  ImageBackground, // Agregado
 } from 'react-native';
 import {colors} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
@@ -19,6 +20,7 @@ import ContentInfoPlanConnect from '../components/ContentInfoPlanConnect';
 import {AuthContext} from '../context/authContext/authContext';
 import {useCometChatGroups} from '../hooks/useCometChatGroups';
 import {Data} from '../interfaces/interfacesIAP';
+import {Button} from 'react-native-paper'; // Agregado para el botón de la tarjeta
 
 type Props = {
   navigation: StackNavigationProp<RootStackCommunitiesParamList, 'Communities'>;
@@ -28,9 +30,18 @@ const Communities = ({navigation}: Props) => {
   const [activeTab, setActiveTab] = useState<'feed' | 'communities'>('feed');
   const [postText, setPostText] = useState('');
   const {isConnect, suscriptions} = useContext(PurchasesContext);
-  const {detailsUser, GetDetailsUser} = useContext(AuthContext);
-  const {fetchAllGroups, fetGroupWithInterest} = useCometChatGroups();
+  const {idUserForChats, GetDetailsUser, detailsUser} = useContext(AuthContext);
+  const {
+    fetchAllGroups,
+    fetGroupWithInterest,
+    fetchNotJoinedGroups,
+    fetchJoinedGroups,
+    fetchGroupsWithInterestNotJoined,
+  } = useCometChatGroups();
   const [listCommunities, setListCommunities] = useState<Data[]>([]);
+  const [listCommunitiesJoined, setListCommunitiesJoined] = useState<Data[]>(
+    [],
+  ); // Nuevo estado
   const userIdRef = useRef(0);
 
   const addCommunityItem = {
@@ -51,11 +62,25 @@ const Communities = ({navigation}: Props) => {
 
   useEffect(() => {
     GetDetailsUser();
+    console.log('idUserForChats:', idUserForChats);
   }, []);
+
+  // Nuevo useEffect para cargar comunidades unidas
+  useEffect(() => {
+    if (idUserForChats) {
+      fetchJoinedGroups(`${idUserForChats}`)
+        .then(res => {
+          setListCommunitiesJoined(res.communities);
+        })
+        .catch(err => {
+          console.error('Error fetching joined communities:', err);
+        });
+    }
+  }, [idUserForChats]);
 
   useEffect(() => {
     if (whatTypeListCommunity === 'all') {
-      fetchAllGroups()
+      fetchNotJoinedGroups(`${idUserForChats}`)
         .then(res => {
           setListCommunities([addCommunityItem, ...res.communities]);
         })
@@ -66,8 +91,13 @@ const Communities = ({navigation}: Props) => {
     } else {
       if (detailsUser && detailsUser.id) {
         userIdRef.current = detailsUser.id;
-        fetGroupWithInterest(detailsUser.categories)
+        fetchGroupsWithInterestNotJoined(
+          `${idUserForChats}`,
+          detailsUser.categories,
+        )
           .then(res => {
+            console.log(detailsUser.categories);
+            console.log(res.communities);
             setListCommunities([addCommunityItem, ...res.communities]);
           })
           .catch(err => {
@@ -78,29 +108,28 @@ const Communities = ({navigation}: Props) => {
     }
   }, [detailsUser, whatTypeListCommunity]);
 
-  //   // Si no tiene Connect, mostrar pantalla de upgrade
-  //   if (!isConnect) {
-  //     return (
-  //       <View style={styles.constainerSofyConnect}>
-  //         <View style={styles.headerContainerSofyConnect}>
-  //           <MaterialDesignIcons
-  //             name="comment-flash"
-  //             size={30}
-  //             color={colors.primary}
-  //           />
-  //           <Text style={styles.headerTitle}>Communities</Text>
-  //         </View>
-  //         <ContentInfoPlanConnect
-  //           origin="screen"
-  //           setModalVisible={() => {}}
-  //           productFromProfile={suscriptions[0]}
-  //           userIdRef={userIdRef.current}
-  //         />
-  //       </View>
-  //     );
-  //   }
+  // Si no tiene Connect, mostrar pantalla de upgrade
+  if (!isConnect) {
+    return (
+      <View style={styles.constainerSofyConnect}>
+        <View style={styles.headerContainerSofyConnect}>
+          <MaterialDesignIcons
+            name="comment-flash"
+            size={30}
+            color={colors.primary}
+          />
+          <Text style={styles.headerTitle}>Communities</Text>
+        </View>
+        <ContentInfoPlanConnect
+          origin="screen"
+          setModalVisible={() => {}}
+          productFromProfile={suscriptions[0]}
+          userIdRef={idUserForChats}
+        />
+      </View>
+    );
+  }
 
-  //   Si tiene Connect, mostrar comunidades
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -114,7 +143,7 @@ const Communities = ({navigation}: Props) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Communities Section */}
+        {/* Communities Section (Moved outside of tabs) */}
         <View style={styles.communitiesSection}>
           <View style={styles.communitiesHeader}>
             <Text style={styles.sectionTitle}>All communities</Text>
@@ -139,9 +168,9 @@ const Communities = ({navigation}: Props) => {
                 key={community.guid}
                 onPress={() => {
                   if (community.name === 'Add') {
-                    if (detailsUser?.id) {
+                    if (idUserForChats) {
                       navigation.navigate('CommunitiesAdd', {
-                        userId: userIdRef.current,
+                        userId: idUserForChats,
                       });
                     }
                   } else {
@@ -186,8 +215,8 @@ const Communities = ({navigation}: Props) => {
           </ScrollView>
         </View>
 
-        {/* Tabs */}
-        {/* <View style={styles.tabsContainer}>
+        {/* Tabs (Moved inside ScrollView) */}
+        <View style={styles.tabsContainer}>
           <TouchableOpacity
             style={styles.tabButton}
             onPress={() => setActiveTab('feed')}>
@@ -215,65 +244,63 @@ const Communities = ({navigation}: Props) => {
               <View style={styles.tabIndicator} />
             )}
           </TouchableOpacity>
-        </View> */}
+        </View>
 
-        {/* Create Post */}
-        {/* <View style={styles.createPostContainer}>
-          <View style={styles.createPostInput}>
-            <Image source={{uri: ''}} style={styles.userAvatar} />
-            <TextInput
-              style={styles.postInput}
-              placeholder="write your post here"
-              placeholderTextColor="#999"
-              value={postText}
-              onChangeText={setPostText}
-              multiline
-            />
-          </View>
-
-          <View style={styles.postActions}>
-            <View style={styles.addPostIn}>
-              <Text style={styles.addPostInText}>Add your post in</Text>
-            </View>
-
-            <TouchableOpacity style={styles.publishButton}>
-              <Text style={styles.publishButtonText}>Publish Post</Text>
-            </TouchableOpacity>
-          </View>
-        </View> */}
-
-        {/* Feed Post */}
-        {/* <View style={styles.feedPost}>
-          <View style={styles.postHeader}>
-            <Text style={styles.postedIn}>
-              Posted in <Text style={styles.communityLink}>Reiki Healing</Text>
+        {/* Contenido Tab: My Feed */}
+        {activeTab === 'feed' && (
+          <View style={{padding: 20, alignItems: 'center'}}>
+            <Text style={{color: colors.textSecondary}}>
+              No posts in your feed yet.
             </Text>
-            <TouchableOpacity>
-              <Text style={styles.viewCommunity}>view community</Text>
-            </TouchableOpacity>
           </View>
+        )}
 
-          <View style={styles.postUser}>
-            <Image source={{uri: ''}} style={styles.postUserAvatar} />
-            <View>
-              <Text style={styles.postUserName}>Aarav Sharma</Text>
-              <Text style={styles.postUserLocation}>Banglore, India</Text>
-            </View>
+        {/* Contenido Tab: My Communities */}
+        {activeTab === 'communities' && (
+          <View style={styles.myCommunitiesContainer}>
+            {listCommunitiesJoined.length === 0 ? (
+              <Text style={styles.noCommunitiesText}>
+                You haven't joined any communities yet.
+              </Text>
+            ) : (
+              listCommunitiesJoined.map(community => (
+                <View key={community.guid} style={styles.cardContainer}>
+                  <ImageBackground
+                    source={{uri: community.icon}}
+                    style={styles.cardImageBackground}
+                    imageStyle={{borderRadius: 16}}>
+                    <View style={styles.cardOverlay}>
+                      <View style={styles.cardContent}>
+                        <Text style={styles.cardTitle}>{community.name}</Text>
+                        <View style={styles.cardRatingContainer}>
+                          <MaterialDesignIcons
+                            name="star"
+                            size={16}
+                            color="#FFD700"
+                          />
+                          <Text style={styles.cardMembersText}>
+                            4.3 ({community.membersCount} members)
+                          </Text>
+                        </View>
+                        <Button
+                          mode="contained"
+                          style={styles.viewCommunityButton}
+                          labelStyle={styles.viewCommunityButtonLabel}
+                          onPress={() =>
+                            navigation.navigate('CommunitiesDetails', {
+                              communityId: community.guid,
+                            })
+                          }>
+                          View Community
+                        </Button>
+                      </View>
+                    </View>
+                  </ImageBackground>
+                </View>
+              ))
+            )}
           </View>
-
-          <Text style={styles.postTitle}>
-            This is what i learned in my recent course
-          </Text>
-
-          <Text style={styles.postQuote}>"The whole secret of existence"</Text>
-
-          <Text style={styles.postContent}>
-            "The whole secret of existence lies in the pursuit of meaning,
-            purpose, and connection. It is a delicate dance between
-            self-discovery, compassion for others, and embracing the
-            ever-unfolding mysteries
-          </Text>
-        </View> */}
+        )}
       </ScrollView>
     </View>
   );
@@ -427,6 +454,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    marginBottom: 10, // Espacio después de las tabs
   },
   tabButton: {
     marginRight: 40,
@@ -570,6 +598,71 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.text,
     lineHeight: 22,
+  },
+  // Estilos para My Communities Cards
+  myCommunitiesContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  noCommunitiesText: {
+    textAlign: 'center',
+    color: colors.textSecondary,
+    marginTop: 20,
+    fontSize: 16,
+  },
+  cardContainer: {
+    height: 200,
+    marginBottom: 20,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: colors.backgroundSecondary,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  cardImageBackground: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'flex-end',
+  },
+  cardOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)', // Oscurecer fondo
+    justifyContent: 'flex-end',
+    padding: 16,
+    borderRadius: 16,
+  },
+  cardContent: {
+    alignItems: 'flex-start',
+  },
+  cardTitle: {
+    color: 'white',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  cardRatingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  cardMembersText: {
+    color: 'white',
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  viewCommunityButton: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+  },
+  viewCommunityButtonLabel: {
+    color: colors.primary, // Color del texto del botón
+    fontWeight: 'bold',
+    fontSize: 12,
   },
 });
 

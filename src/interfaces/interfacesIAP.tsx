@@ -132,6 +132,7 @@ export interface ResMembersCommunity {
 export interface DataMembersCommunity {
   uid: string;
   name: string;
+  avatar: string;
   status: string;
   role: string;
   lastActiveAt: number;
@@ -156,6 +157,80 @@ export interface Pagination {
   per_page: number;
   current_page: number;
   total_pages: number;
+}
+
+export interface ResFeedOfCommunity {
+  data: DatResFeedCommunity[];
+  meta: Meta;
+}
+
+export interface DatResFeedCommunity {
+  id: string;
+  muid: string;
+  conversationId: string;
+  sender: string;
+  receiverType: string;
+  receiver: string;
+  category: string;
+  type: string;
+  data: SubDataRedFeedCommunity;
+  sentAt: number;
+  deliveredAt?: number;
+  updatedAt: number;
+  readAt?: number;
+}
+
+export interface SubDataRedFeedCommunity {
+  attachments?: Attachment[];
+  entities: Entities;
+  text: string;
+}
+
+export interface Attachment {
+  mimeType: string;
+  name: string;
+  url: string;
+}
+
+export interface Entities {
+  receiver: Receiver;
+  sender: Sender;
+}
+
+export interface Receiver {
+  entity: ReceiverEntity;
+  entityType: string;
+}
+
+export interface Sender {
+  entity: SenderEntity;
+  entityType: string;
+}
+
+export interface SenderEntity {
+  name: string;
+  role: string;
+  status: string;
+  uid: string;
+  createdAt?: number;
+  lastActiveAt?: number;
+  avatar?: string;
+}
+
+export interface Meta {
+  current: Current;
+  next: Next;
+}
+
+export interface Current {
+  limit: number;
+  count: number;
+}
+
+export interface Next {
+  affix: string;
+  sentAt: number;
+  id: string;
 }
 
 export interface ResMessageOfCommunity {
@@ -186,7 +261,7 @@ export interface DataMessageOfCommunityData {
   category?: string;
   file?: File;
   name?: string;
-  sender?: DataSender;
+  sender?: EntitiesSender;
   type?: string;
   url?: string;
 }
@@ -236,14 +311,6 @@ export interface EntitiesSender {
   entityType: string;
 }
 
-export interface SenderEntity {
-  lastActiveAt: number;
-  name: string;
-  role: string;
-  status: string;
-  uid: string;
-}
-
 export interface File {
   name: string;
   type: string;
@@ -256,6 +323,7 @@ export interface DataSender {
   deactivatedAt: number;
   hasBlockedMe: boolean;
   lastActiveAt: number;
+  avatar?: string;
   name: string;
   role: string;
   status: string;
@@ -412,7 +480,7 @@ export interface ResSendMessageGroupData {
   updatedAt: number;
 }
 
-export interface DataSendMessgeGroup {
+export interface DataSendMessageGroup {
   attachments: Attachment[];
   text: string;
   entities: Entities;
@@ -451,11 +519,4 @@ export interface ReceiverEntity {
 export interface Sender {
   entity: SenderEntity;
   entityType: string;
-}
-
-export interface SenderEntity {
-  uid: string;
-  name: string;
-  status: string;
-  role: string;
 }
