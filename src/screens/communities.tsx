@@ -6,42 +6,49 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  TextInput,
-  ImageBackground, // Agregado
+  ImageBackground,
 } from 'react-native';
 import {colors} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
-import LogoSofy from '../components/LogoSofy';
-import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackCommunitiesParamList} from '../navigator/StackCommunities';
 import ContentInfoPlanConnect from '../components/ContentInfoPlanConnect';
 import {AuthContext} from '../context/authContext/authContext';
 import {useCometChatGroups} from '../hooks/useCometChatGroups';
-import {Data} from '../interfaces/interfacesIAP';
-import {Button} from 'react-native-paper'; // Agregado para el botón de la tarjeta
+import {
+  Data,
+  DataMessageOfCommunity,
+  ResDetailsGroup,
+} from '../interfaces/interfacesIAP';
+import {Button} from 'react-native-paper';
+import FlatListFeed from '../components/FlatListFeed'; // Importado
+import {Tabs} from 'react-native-collapsible-tab-view'; // Agregado
 
 type Props = {
   navigation: StackNavigationProp<RootStackCommunitiesParamList, 'Communities'>;
 };
 const Communities = ({navigation}: Props) => {
   const [whatTypeListCommunity, setWhatTypeCommunity] = useState('all');
-  const [activeTab, setActiveTab] = useState<'feed' | 'communities'>('feed');
-  const [postText, setPostText] = useState('');
   const {isConnect, suscriptions} = useContext(PurchasesContext);
   const {idUserForChats, GetDetailsUser, detailsUser} = useContext(AuthContext);
   const {
-    fetchAllGroups,
-    fetGroupWithInterest,
     fetchNotJoinedGroups,
     fetchJoinedGroups,
     fetchGroupsWithInterestNotJoined,
+    getMessagesGroup,
+    addReactionToMessage,
+    uploadImageToGroup,
+    addMessage,
   } = useCometChatGroups();
   const [listCommunities, setListCommunities] = useState<Data[]>([]);
   const [listCommunitiesJoined, setListCommunitiesJoined] = useState<Data[]>(
     [],
-  ); // Nuevo estado
+  );
+  // Nuevos estados para el Feed Agregado
+  const [allFeeds, setAllFeeds] = useState<DataMessageOfCommunity[]>([]);
+  const [loadingAllFeeds, setLoadingAllFeeds] = useState(false);
+
   const userIdRef = useRef(0);
 
   const addCommunityItem = {
@@ -78,6 +85,66 @@ const Communities = ({navigation}: Props) => {
     }
   }, [idUserForChats]);
 
+  // Lógica para obtener y agregar feeds de todas las comunidades unidas
+  const fetchAllFeeds = async () => {
+    // Si no hay comunidades unidas, limpiamos el feed
+    if (listCommunitiesJoined.length === 0) {
+      setAllFeeds([]);
+      return;
+    }
+
+    setLoadingAllFeeds(true);
+
+    try {
+      // Creamos un array de promesas para obtener mensajes de cada grupo
+      const promises = listCommunitiesJoined.map(async community => {
+        try {
+          const res = await getMessagesGroup(community.guid);
+          return res.messages;
+        } catch (error) {
+          // Si falla uno, lo logueamos pero retornamos array vacío para no romper Promise.all
+          console.warn(
+            `Failed to fetch messages for ${community.name} (${community.guid})`,
+            error,
+          );
+          return [];
+        }
+      });
+
+      // Esperamos a que todas terminen
+      const results = await Promise.all(promises);
+
+      // Aplanamos el array de arrays (flat) y ordenamos por fecha (más reciente primero)
+      const aggregatedFeeds = results
+        .flat()
+        .sort((a, b) => b.sentAt - a.sentAt);
+
+      setAllFeeds(aggregatedFeeds);
+    } catch (error) {
+      console.error('Error aggregating feeds:', error);
+    } finally {
+      setLoadingAllFeeds(false);
+    }
+  };
+
+  // Cargar feeds cuando cambian las comunidades unidas (inicial)
+  useEffect(() => {
+    if (listCommunitiesJoined.length > 0) {
+      fetchAllFeeds();
+    }
+  }, [listCommunitiesJoined]);
+
+  // Manejador de cambio de tab
+  const handleTabChange = (index: number) => {
+    // 0: My feed, 1: My communities
+    if (index === 0) {
+      // Solo cargar si no hay feeds y hay comunidades, para evitar limpiar la lista al cambiar de tab
+      if (allFeeds.length === 0 && listCommunitiesJoined.length > 0) {
+        fetchAllFeeds();
+      }
+    }
+  };
+
   useEffect(() => {
     if (whatTypeListCommunity === 'all') {
       fetchNotJoinedGroups(`${idUserForChats}`)
@@ -108,6 +175,10 @@ const Communities = ({navigation}: Props) => {
     }
   }, [detailsUser, whatTypeListCommunity]);
 
+  useEffect(() => {
+    console.log('All Feeds updated:', allFeeds);
+  }, [allFeeds]);
+
   // Si no tiene Connect, mostrar pantalla de upgrade
   if (!isConnect) {
     return (
@@ -130,20 +201,21 @@ const Communities = ({navigation}: Props) => {
     );
   }
 
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <MaterialDesignIcons
-          name="comment-flash"
-          size={30}
-          color={colors.primary}
-        />
-        <Text style={styles.headerTitle}>Communities</Text>
-      </View>
+  // Renderizado del Header Colapsable
+  const renderHeader = () => {
+    return (
+      <View style={{backgroundColor: colors.background}}>
+        {/* Header Title */}
+        <View style={styles.header}>
+          <MaterialDesignIcons
+            name="comment-flash"
+            size={30}
+            color={colors.primary}
+          />
+          <Text style={styles.headerTitle}>Communities</Text>
+        </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Communities Section (Moved outside of tabs) */}
+        {/* Communities Horizontal Scroll Section */}
         <View style={styles.communitiesSection}>
           <View style={styles.communitiesHeader}>
             <Text style={styles.sectionTitle}>All communities</Text>
@@ -214,94 +286,86 @@ const Communities = ({navigation}: Props) => {
             ))}
           </ScrollView>
         </View>
+      </View>
+    );
+  };
 
-        {/* Tabs (Moved inside ScrollView) */}
-        <View style={styles.tabsContainer}>
-          <TouchableOpacity
-            style={styles.tabButton}
-            onPress={() => setActiveTab('feed')}>
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'feed' && styles.tabTextActive,
-              ]}>
-              My feed
-            </Text>
-            {activeTab === 'feed' && <View style={styles.tabIndicator} />}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.tabButton}
-            onPress={() => setActiveTab('communities')}>
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'communities' && styles.tabTextActive,
-              ]}>
-              My communities
-            </Text>
-            {activeTab === 'communities' && (
-              <View style={styles.tabIndicator} />
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Contenido Tab: My Feed */}
-        {activeTab === 'feed' && (
-          <View style={{padding: 20, alignItems: 'center'}}>
-            <Text style={{color: colors.textSecondary}}>
-              No posts in your feed yet.
-            </Text>
-          </View>
-        )}
-
-        {/* Contenido Tab: My Communities */}
-        {activeTab === 'communities' && (
-          <View style={styles.myCommunitiesContainer}>
-            {listCommunitiesJoined.length === 0 ? (
-              <Text style={styles.noCommunitiesText}>
-                You haven't joined any communities yet.
+  // Renderizado de items para "My Communities"
+  const renderCommunityItem = ({item}: {item: Data}) => (
+    <View style={styles.cardContainer}>
+      <ImageBackground
+        source={{uri: item.icon}}
+        style={styles.cardImageBackground}
+        imageStyle={{borderRadius: 16}}>
+        <View style={styles.cardOverlay}>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>{item.name}</Text>
+            <View style={styles.cardRatingContainer}>
+              <MaterialDesignIcons name="star" size={16} color="#FFD700" />
+              <Text style={styles.cardMembersText}>
+                ({item.membersCount} members)
               </Text>
-            ) : (
-              listCommunitiesJoined.map(community => (
-                <View key={community.guid} style={styles.cardContainer}>
-                  <ImageBackground
-                    source={{uri: community.icon}}
-                    style={styles.cardImageBackground}
-                    imageStyle={{borderRadius: 16}}>
-                    <View style={styles.cardOverlay}>
-                      <View style={styles.cardContent}>
-                        <Text style={styles.cardTitle}>{community.name}</Text>
-                        <View style={styles.cardRatingContainer}>
-                          <MaterialDesignIcons
-                            name="star"
-                            size={16}
-                            color="#FFD700"
-                          />
-                          <Text style={styles.cardMembersText}>
-                            4.3 ({community.membersCount} members)
-                          </Text>
-                        </View>
-                        <Button
-                          mode="contained"
-                          style={styles.viewCommunityButton}
-                          labelStyle={styles.viewCommunityButtonLabel}
-                          onPress={() =>
-                            navigation.navigate('CommunitiesDetails', {
-                              communityId: community.guid,
-                            })
-                          }>
-                          View Community
-                        </Button>
-                      </View>
-                    </View>
-                  </ImageBackground>
-                </View>
-              ))
-            )}
+            </View>
+            <Button
+              mode="contained"
+              style={styles.viewCommunityButton}
+              labelStyle={styles.viewCommunityButtonLabel}
+              onPress={() =>
+                navigation.navigate('CommunitiesDetails', {
+                  communityId: item.guid,
+                })
+              }>
+              View Community
+            </Button>
           </View>
-        )}
-      </ScrollView>
+        </View>
+      </ImageBackground>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Tabs.Container
+        renderHeader={renderHeader}
+        headerContainerStyle={{backgroundColor: colors.background}}
+        onIndexChange={handleTabChange}>
+        {/* Tab: My Feed */}
+        <Tabs.Tab name="My feed">
+          <FlatListFeed
+            groupMessages={allFeeds}
+            currentUserMember={null}
+            idUserForChats={`${idUserForChats}`}
+            communityId={''}
+            groupDetails={{} as ResDetailsGroup}
+            loadingFeed={loadingAllFeeds}
+            setLoadingFeed={setLoadingAllFeeds}
+            addReactionToMessage={addReactionToMessage}
+            uploadImageToGroup={uploadImageToGroup}
+            addMessage={addMessage}
+            fetchFeed={fetchAllFeeds}
+            handleTabChange={() => {}}
+            isAllFeed={true}
+            listCommunitiesJoined={listCommunitiesJoined} // Agregado
+          />
+        </Tabs.Tab>
+
+        {/* Tab: My Communities */}
+        <Tabs.Tab name="My communities">
+          <Tabs.FlatList
+            data={listCommunitiesJoined}
+            keyExtractor={item => item.guid}
+            renderItem={renderCommunityItem}
+            contentContainerStyle={styles.myCommunitiesContainer}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.noCommunitiesText}>
+                  You haven't joined any communities yet.
+                </Text>
+              </View>
+            }
+          />
+        </Tabs.Tab>
+      </Tabs.Container>
     </View>
   );
 };
@@ -449,161 +513,11 @@ const styles = StyleSheet.create({
   communityNameDisabled: {
     color: colors.textDisabled,
   },
-  tabsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    marginBottom: 10, // Espacio después de las tabs
-  },
-  tabButton: {
-    marginRight: 40,
-    paddingBottom: 12,
-    position: 'relative',
-  },
-  tabText: {
-    fontSize: 16,
-    color: colors.textDisabled,
-  },
-  tabTextActive: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  tabIndicator: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: colors.primary,
-    borderRadius: 2,
-  },
-  createPostContainer: {
-    backgroundColor: colors.background,
-    margin: 20,
-    padding: 15,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  createPostInput: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 15,
-  },
-  userAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  postInput: {
-    flex: 1,
-    fontSize: 15,
-    color: colors.text,
-    paddingTop: 8,
-  },
-  postActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  addPostIn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  addPostInText: {
-    fontSize: 14,
-    color: colors.text,
-    marginLeft: 6,
-    marginRight: 4,
-  },
-  publishButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  publishButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  feedPost: {
-    backgroundColor: colors.background,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    padding: 15,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  postHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  postedIn: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  communityLink: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  viewCommunity: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  postUser: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  postUserAvatar: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    marginRight: 12,
-  },
-  postUserName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  postUserLocation: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  postTitle: {
-    fontSize: 15,
-    color: colors.text,
-    marginBottom: 12,
-  },
-  postQuote: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  postContent: {
-    fontSize: 15,
-    color: colors.text,
-    lineHeight: 22,
-  },
   // Estilos para My Communities Cards
   myCommunitiesContainer: {
     paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
+    paddingTop: 400,
+    paddingBottom: 120,
   },
   noCommunitiesText: {
     textAlign: 'center',
@@ -613,6 +527,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     height: 200,
+
     marginBottom: 20,
     borderRadius: 16,
     overflow: 'hidden',
@@ -663,6 +578,12 @@ const styles = StyleSheet.create({
     color: colors.primary, // Color del texto del botón
     fontWeight: 'bold',
     fontSize: 12,
+  },
+  emptyContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
   },
 });
 

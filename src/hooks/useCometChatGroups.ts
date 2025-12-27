@@ -167,6 +167,7 @@ export const useCometChatGroups = () => {
     }
   };
 
+  //   TODO: fetchJoinedGroups
   const fetchJoinedGroups = async (
     userUid: string,
   ): Promise<{communities: Data[]; message: string}> => {
@@ -382,6 +383,7 @@ export const useCometChatGroups = () => {
     }
   };
 
+  //   TODO: GetMessageGroup
   const getMessagesGroup = async (
     guid: string,
   ): Promise<{messages: DataMessageOfCommunity[]; message: string}> => {
@@ -539,6 +541,41 @@ export const useCometChatGroups = () => {
     }
   };
 
+  const removeMemberFromGroup = async (
+    guid: string,
+    uid: string,
+    onBehalfOf: string,
+  ): Promise<{message: string}> => {
+    try {
+      const url = `${urlsApiGroups.listGroups}/${guid}/members/${uid}`;
+
+      const {data} = await axios.delete(url, {
+        headers: {
+          apikey: restKey,
+          onBehalfOf,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Member removed from group:', data);
+
+      return Promise.resolve({
+        message: 'Member removed successfully',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        console.error(
+          'Error removing member from group:',
+          error.response?.data || error.message,
+        );
+      }
+
+      return Promise.reject({
+        message: 'Error removing member from group',
+      });
+    }
+  };
+
   return {
     fetchAllGroups,
     fetGroupWithInterest,
@@ -553,5 +590,6 @@ export const useCometChatGroups = () => {
     fetchJoinedGroups,
     fetchNotJoinedGroups,
     fetchGroupsWithInterestNotJoined,
+    removeMemberFromGroup,
   };
 };
