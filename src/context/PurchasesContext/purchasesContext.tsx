@@ -9,8 +9,10 @@ import {privateDBForIAP} from '../../db/db';
 import {AxiosError} from 'axios';
 import {
   endConnection,
+  getProducts,
   getSubscriptions,
   initConnection,
+  Product,
   type Subscription,
 } from 'react-native-iap';
 import {Platform} from 'react-native';
@@ -20,6 +22,8 @@ interface PurchasesContextProps {
   isConnect: boolean;
   expires: string;
   suscriptions: Subscription[];
+  products: Product[];
+  isLoadingProducts: boolean;
   isLoadingSuscritions: boolean;
   verifySubscription: (
     data: dataForVerifySubscription,
@@ -36,6 +40,8 @@ const purchasesInitialState = {
   error: null,
   suscriptions: [],
   isLoadingSuscritions: false,
+  products: [],
+  isLoadingProducts: false,
 };
 
 export const PurchasesProvider = ({
@@ -45,6 +51,15 @@ export const PurchasesProvider = ({
 }) => {
   const [state, dispatch] = useReducer(purchasesReducer, purchasesInitialState);
   const ANDROID_SUBSCRIPTION_SKUS = ['sofy_connect_895_1m'];
+  // Definimos tus nuevos SKUs
+  const ANDROID_PRODUCT_SKUS = [
+    'sofy_product_superlike_01',
+    'sofy_product_superlike_2',
+    'sofy_product_superlike_03',
+    'sofy_product_compliment_01',
+    'sofy_product_compliment_02',
+    'sofy_compliments_03',
+  ];
 
   const {status, access_token, transactionId} = useContext(AuthContext);
 
@@ -147,6 +162,33 @@ export const PurchasesProvider = ({
     }
   };
 
+  const fetchProducts = async () => {
+    if (Platform.OS !== 'android') return;
+
+    dispatch({type: 'setLoadingProducts', payload: true});
+
+    try {
+      // 1. Nos aseguramos de que la conexión esté abierta
+      // await initConnection();
+
+      // 2. Usamos getProducts para productos únicos (NO suscripciones)
+      const items: Product[] = await getProducts({
+        skus: ANDROID_PRODUCT_SKUS,
+      });
+
+      if (items.length > 0) {
+        dispatch({
+          type: 'setProducts',
+          payload: items,
+        });
+      }
+    } catch (err) {
+      console.error('❌ Error al obtener productos únicos:', err);
+    } finally {
+      dispatch({type: 'setLoadingProducts', payload: false});
+    }
+  };
+
   const fetchSubscriptionDetails = async () => {
     //TODO: Solo intentamos la conexión si estamos en Android, ya que el SKU es de Play Console
     if (Platform.OS !== 'android') {
@@ -164,7 +206,7 @@ export const PurchasesProvider = ({
     });
     try {
       // 1. Inicializar la conexión con el servicio de facturación
-      await initConnection();
+      // await initConnection();
 
       //   console.log('✅ Conexión IAP inicializada correctamente.');
 
@@ -172,6 +214,8 @@ export const PurchasesProvider = ({
       const subscriptions = await getSubscriptions({
         skus: ANDROID_SUBSCRIPTION_SKUS,
       });
+
+      console.log('✅ Suscripciones obtenidas:', subscriptions.length);
 
       if (subscriptions.length > 0) {
         // const subscriptionProduct = subscriptions[0] as SubscriptionAndroid;
@@ -213,15 +257,6 @@ export const PurchasesProvider = ({
     }
   };
 
-  //   TODO:useEffects de prueba
-  //   useEffect(() => {
-  //     console.log('isConnect:', state.isConnect);
-  //   }, [state.isConnect]);
-
-  //   useEffect(() => {
-  //     console.log('List suscriptions:', state.suscriptions);
-  //   }, [state.suscriptions]);
-
   useEffect(() => {
     if (status === 'not-authenticated' && !access_token && !transactionId) {
       // Si el usuario no está autenticado, desconectamos la compra
@@ -232,8 +267,19 @@ export const PurchasesProvider = ({
   }, [status, access_token, transactionId, state.isConnect]);
 
   useEffect(() => {
+    const initIAP = async () => {
+      try {
+        if (Platform.OS === 'android') {
+          await initConnection();
+          await Promise.all([fetchSubscriptionDetails(), fetchProducts()]);
+        }
+      } catch (err) {
+        console.error('Error initializing IAP:', err);
+      }
+    };
+
     if (!state.isConnect) {
-      fetchSubscriptionDetails();
+      initIAP();
     }
 
     return () => {

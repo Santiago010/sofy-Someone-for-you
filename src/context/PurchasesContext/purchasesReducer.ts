@@ -1,10 +1,12 @@
-import {Subscription} from 'react-native-iap';
+import {Product, Subscription} from 'react-native-iap';
 
 export interface PurchasesState {
   isConnect: boolean;
   expires: string;
   error: string | null;
   suscriptions: Subscription[];
+  products: Product[];
+  isLoadingProducts: boolean;
   isLoadingSuscritions: boolean;
 }
 
@@ -30,6 +32,14 @@ type PurchasesAction =
     }
   | {
       type: 'resetPurchaseState';
+    }
+  | {
+      type: 'setLoadingProducts';
+      payload: boolean;
+    }
+  | {
+      type: 'setProducts';
+      payload: Product[];
     };
 
 export const purchasesReducer = (
@@ -60,6 +70,17 @@ export const purchasesReducer = (
         isConnect: false,
         expires: '',
         suscriptions: [],
+      };
+    case 'setLoadingProducts':
+      return {
+        ...state,
+        isLoadingProducts: action.payload,
+      };
+
+    case 'setProducts':
+      return {
+        ...state,
+        products: action.payload,
       };
 
     default:

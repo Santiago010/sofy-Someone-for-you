@@ -24,8 +24,6 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-
-	<!-- 🔒 Permitir cargas no seguras (solo para pruebas, mejor usar HTTPS en producción) -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -33,47 +31,35 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-
-	<!-- 📍 Permisos de privacidad -->
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Esta app necesita acceso a tu ubicación para mostrar usuarios cercanos.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Esta app necesita acceso a tu ubicación en segundo plano para funcionalidades de proximidad.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Esta aplicación necesita acceso a la cámara para tomar fotos.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Esta app necesita acceso a tu ubicación en segundo plano para funcionalidades de proximidad.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Esta app necesita acceso a tu ubicación para mostrar usuarios cercanos.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Esta app necesita acceder al micrófono para grabar mensajes de voz.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Esta aplicación necesita acceso a tu galería de fotos para seleccionar imágenes.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Esta app necesita guardar archivos multimedia en tu galería.</string>
-
-	<!-- 🎬 Pantalla de inicio -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Esta aplicación necesita acceso a tu galería de fotos para seleccionar imágenes.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>MaterialDesignIcons.ttf</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
-
-	<!-- 📱 Configuración del dispositivo -->
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
 	</array>
-
-	<!-- 🔄 Orientaciones soportadas -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-
-	<!-- 🧭 Apariencia -->
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-
-	<!-- 🔤 Fuentes -->
-	<key>UIAppFonts</key>
-	<array>
-		<string>MaterialDesignIcons.ttf</string>
-	</array>
 </dict>
 </plist>

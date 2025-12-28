@@ -268,7 +268,7 @@ const FlatListFeed = ({
     }
   };
 
-  // --- Render Helpers ---
+  //TODO:funcion para render helpers --- Render Helpers ---
   const renderTextWithLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
@@ -550,9 +550,6 @@ const FlatListFeed = ({
           <TouchableOpacity
             onPress={() => {
               addReactionToMessage(item.id, '👍', `${idUserForChats}`);
-              // En modo AllFeed, tal vez no queramos cambiar de tab, o sí.
-              // Si handleTabChange maneja tabs del padre, aquí podría no aplicar igual si estamos en Communities screen.
-              // Pero lo dejamos funcional.
               if (!isAllFeed) {
                 handleTabChange(1);
               } else {
@@ -589,6 +586,7 @@ const FlatListFeed = ({
     );
   };
 
+  //   TODO: manejar loading del feed --- Manejo de Loading ---
   if (loadingFeed) {
     return (
       <View style={styles.tabLoadingContainer}>

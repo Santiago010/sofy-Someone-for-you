@@ -64,6 +64,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
   const [groupDetails, setGroupDetails] = useState<ResDetailsGroup>(
     {} as ResDetailsGroup,
   );
+
   const [groupMembers, setGroupMembers] = useState<DataMembersCommunity[]>([]);
   const [groupMessages, setGroupMessages] = useState<DataMessageOfCommunity[]>(
     [],
@@ -72,6 +73,11 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
   const [currentUserMember, setCurrentUserMember] =
     useState<DataMembersCommunity | null>(null);
 
+  // Nuevos estados para la carga individual de tabs
+  const [loadingFeed, setLoadingFeed] = useState(false);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+
+  //   TODO:useeffect para volver a cargar los detalles de un grupo cuando el usuario se une
   useEffect(() => {
     if (actualUserIsJoined) {
       Promise.all([
@@ -84,6 +90,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     }
   }, [actualUserIsJoined]);
 
+  //   TODO:useEffect para no mostrar el boton de unirse si ya es miembro
   useEffect(() => {
     const memberFound = groupMembers.find(
       member => member.uid === `${idUserForChats}`,
@@ -100,14 +107,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     setShowBtnJoinGroup(!(isMember || actualUserIsJoined));
   }, [groupMembers, idUserForChats, actualUserIsJoined]);
 
-  // Nuevos estados para la carga individual de tabs
-  const [loadingFeed, setLoadingFeed] = useState(false);
-  const [loadingMembers, setLoadingMembers] = useState(false);
-
-  useEffect(() => {
-    console.log(currentUserMember);
-  }, [currentUserMember]);
-
+  //TODO: Cargar detalles del grupo, miembros y mensajes al montar el componente
   useEffect(() => {
     setLoading(true);
     Promise.all([
@@ -128,7 +128,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
       });
   }, [communityId]);
 
-  // Función para recargar mensajes (Feed)
+  //TODO: Función para recargar mensajes (Feed) es llamada por handleTabChange
   const fetchFeed = async () => {
     setLoadingFeed(true);
     try {
@@ -141,6 +141,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     }
   };
 
+  //TODO: Función para que el usuario actual se una al grupo
   const addActualUserToGroup = async () => {
     try {
       await addMembersToGroup(communityId, [`${idUserForChats}`]);
@@ -149,7 +150,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
       console.error('Error joining group:', error);
     }
   };
-  // Función para recargar miembros
+  //TODO: Función para recargar miembros, se llama cuando handleDeleteMember, handleTabChange
   const fetchMembers = async () => {
     setLoadingMembers(true);
     try {
@@ -162,6 +163,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     }
   };
 
+  //TODO: funcion para eliminar un miembro cuando soy admin
   const handleDeleteMember = async (member: DataMembersCommunity) => {
     try {
       await removeMemberFromGroup(
@@ -176,7 +178,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     }
   };
 
-  // Manejador del cambio de pestañas
+  //TODO: Manejador del cambio de pestañas
   const handleTabChange = (index: number) => {
     // El orden de las tabs es: 0: About, 1: Feed, 2: Members
     if (index === 1) {
@@ -186,7 +188,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     }
   };
 
-  // Renderizado de las acciones al deslizar (Swipe)
+  //TODO:funcion para Renderizado las acciones al deslizar (Swipe)
   const renderRightActions = (item: DataMembersCommunity) => {
     const isOwner = `${idUserForChats}` === groupDetails?.data?.owner;
 
@@ -230,6 +232,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     );
   };
 
+  //   TODO:funcion para Renderizado de cada miembro en la lista
   const renderMemberItem = ({item}: {item: DataMembersCommunity}) => {
     const content = (
       <View style={styles.memberItemContainer}>
@@ -261,6 +264,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     return content;
   };
 
+  //   TODO:loading principal
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -270,6 +274,8 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     );
   }
 
+  // CORRECCIÓN: Desestructuramos desde la ruta correcta
+  const {name, icon, membersCount, description, tags} = groupDetails.data;
   // CORRECCIÓN: Accedemos a groupDetails.details.data en lugar de groupDetails.data
   if (!groupDetails || !groupDetails.data) {
     return (
@@ -279,9 +285,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     );
   }
 
-  // CORRECCIÓN: Desestructuramos desde la ruta correcta
-  const {name, icon, membersCount, description, tags} = groupDetails.data;
-
+  //   TODO:funcion para renderizar el header con la informacion de la comunidad -->
   const renderHeader = () => {
     return (
       <View style={styles.headerContainer}>
@@ -331,7 +335,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
           <Text variant="titleMedium" style={styles.topNavTitle}>
             {name}
           </Text>
-          <View style={{width: 40}} />
+          <View />
         </View>
 
         {/* 3. Collapsible Tab View */}
@@ -507,11 +511,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginTop: 50,
+    textAlign: 'center',
+    marginTop: 10,
     marginBottom: 12,
     color: colors.text,
   },
   longDescription: {
+    textAlign: 'center',
+    fontSize: 16,
     color: colors.textSecondary,
     lineHeight: 22,
     marginBottom: 24,
@@ -527,10 +534,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   chip: {
-    backgroundColor: colors.backgroundSecondary, // O un color suave
+    backgroundColor: colors.primary,
+    // O un color suave
   },
   chipText: {
     color: colors.text,
+    fontSize: 14,
   },
   // Estilos para la lista de miembros y Swipeable
   listContent: {

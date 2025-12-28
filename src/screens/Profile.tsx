@@ -24,6 +24,8 @@ import {type SubscriptionAndroid} from 'react-native-iap';
 import Carousel from 'react-native-reanimated-carousel';
 import ModalInfoPlanConnect from '../components/ModalInfoPlanConnect';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
+import ModalCompliments from '../components/ModalCompliments';
+import ModalSuperLike from '../components/ModalSuperLike';
 
 export const Profile = () => {
   const [dataInfouser, setdataInfouser] = useState({
@@ -36,9 +38,15 @@ export const Profile = () => {
   const userIdRef = useRef(0); // Nuevo ref para almacenar el userId actual
 
   const {detailsUser, GetDetailsUser} = useContext(AuthContext);
-  const {suscriptions, isConnect} = useContext(PurchasesContext);
+  const {suscriptions, isConnect, products} = useContext(PurchasesContext);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalComplimentsVisible, setModalComplimentsVisible] = useState(false);
+  const [modalSuperLikeVisible, setModalSuperLikeVisible] = useState(false);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    console.log('Products loaded in Profile:', products);
+  }, [products]);
 
   // Llamar a GetDetailsUser cada vez que la pantalla obtiene el foco
   useFocusEffect(
@@ -49,7 +57,6 @@ export const Profile = () => {
 
   useEffect(() => {
     if (detailsUser !== null) {
-      console.log(detailsUser.individualFiles[0].file.url);
       setdataInfouser({
         name: detailsUser.name,
         lastName: detailsUser.lastname,
@@ -60,9 +67,58 @@ export const Profile = () => {
     }
   }, [detailsUser]);
 
-  // Evitar que el Carousel repita productos si solo hay uno
-  const carouselData =
-    suscriptions.length > 1 ? suscriptions : suscriptions.slice(0, 1);
+  // Agrupar productos
+  const complimentsProducts = products.filter(p =>
+    p.name.toLowerCase().includes('compliment'),
+  );
+  const superLikeProducts = products.filter(p =>
+    p.name.toLowerCase().includes('super like'),
+  );
+
+  const complimentsSummary =
+    complimentsProducts.length > 0
+      ? {
+          origin: 'product-group',
+          type: 'compliment',
+          title: 'Compliments',
+          description: complimentsProducts[0].description,
+          formattedPrice: complimentsProducts
+            .map(
+              p =>
+                p.oneTimePurchaseOfferDetails?.formattedPrice ||
+                p.localizedPrice ||
+                p.price,
+            )
+            .join(' or '),
+          products: complimentsProducts,
+        }
+      : null;
+
+  const superLikeSummary =
+    superLikeProducts.length > 0
+      ? {
+          origin: 'product-group',
+          type: 'superlike',
+          title: 'Super Like',
+          description: superLikeProducts[0].description,
+          formattedPrice: superLikeProducts
+            .map(
+              p =>
+                p.oneTimePurchaseOfferDetails?.formattedPrice ||
+                p.localizedPrice ||
+                p.price,
+            )
+            .join(' or '),
+          products: superLikeProducts,
+        }
+      : null;
+
+  // Combinar suscripciones y grupos de productos
+  const carouselData = [
+    ...suscriptions.map(s => ({...s, origin: 'subscription'})),
+    ...(complimentsSummary ? [complimentsSummary] : []),
+    ...(superLikeSummary ? [superLikeSummary] : []),
+  ];
 
   return (
     <View style={styles.container}>
@@ -160,40 +216,76 @@ export const Profile = () => {
               <View style={styles.carouselContainer}>
                 <Carousel
                   loop={carouselData.length > 1}
-                  width={Math.min(Dimensions.get('window').width * 0.85, 350)}
-                  height={280}
+                  width={Math.min(Dimensions.get('window').width * 0.9, 350)}
+                  height={300}
                   data={carouselData}
                   scrollAnimationDuration={1000}
-                  renderItem={({item, index}) => {
-                    const subscriptionProduct = item as SubscriptionAndroid;
+                  renderItem={({item}: {item: any}) => {
+                    const origin = item.origin;
+                    let formattedPrice = 'N/A';
+                    let title = item.title;
+                    let description = item.description;
 
-                    // Extracción del precio para la UI
-                    const offer =
-                      subscriptionProduct.subscriptionOfferDetails?.[0];
-                    const pricePhase =
-                      offer?.pricingPhases.pricingPhaseList?.[0];
-                    const formattedPrice = pricePhase?.formattedPrice || 'N/A';
+                    if (origin === 'subscription') {
+                      const subscriptionProduct = item as SubscriptionAndroid;
+                      const offer =
+                        subscriptionProduct.subscriptionOfferDetails?.[0];
+                      const pricePhase =
+                        offer?.pricingPhases.pricingPhaseList?.[0];
+                      formattedPrice = pricePhase?.formattedPrice || 'N/A';
+                    } else if (origin === 'product-group') {
+                      formattedPrice = item.formattedPrice;
+                      title = item.title;
+                      description = item.description;
+                    } else {
+                      // Fallback para productos individuales si quedaran
+                      formattedPrice =
+                        item.oneTimePurchaseOfferDetails?.formattedPrice ||
+                        item.localizedPrice ||
+                        item.price ||
+                        'N/A';
+                    }
+
                     return (
                       <View style={styles.styleBoxTwo}>
-                        <Text style={styles.platinumTitle}>{item.title}</Text>
+                        <Text style={styles.platinumTitle}>{title}</Text>
                         <Text style={styles.platinumSubtitle}>
-                          {item.description}
+                          {description}
                         </Text>
                         <Text style={styles.priceText}>{formattedPrice}</Text>
-                        <TouchableOpacity
-                          onPress={() => setModalVisible(true)}
-                          style={styles.platinumButton}>
-                          <Text style={styles.platinumButtonText}>
-                            GET {` ${item.title}`}
-                          </Text>
-                        </TouchableOpacity>
-                        {/* <TouchableOpacity
-                        onPress={() => handlePurchase(item)}
-                        style={styles.platinumButton}>
-                        <Text style={styles.platinumButtonText}>
-                          GET {` ${item.title}`}
-                        </Text>
-                      </TouchableOpacity> */}
+                        {origin === 'subscription' ? (
+                          <TouchableOpacity
+                            onPress={() => setModalVisible(true)}
+                            style={styles.platinumButton}>
+                            <Text style={styles.platinumButtonText}>
+                              GET {` ${title}`}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : origin === 'product-group' ? (
+                          <TouchableOpacity
+                            onPress={() => {
+                              if (item.type === 'compliment') {
+                                setModalComplimentsVisible(true);
+                              } else if (item.type === 'superlike') {
+                                setModalSuperLikeVisible(true);
+                              }
+                            }}
+                            style={styles.platinumButton}>
+                            <Text style={styles.platinumButtonText}>
+                              GET {` ${title}`}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity
+                            onPress={() =>
+                              console.log('Product pressed:', title)
+                            }
+                            style={styles.platinumButton}>
+                            <Text style={styles.platinumButtonText}>
+                              GET {` ${title}`}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
                       </View>
                     );
                   }}
@@ -210,6 +302,22 @@ export const Profile = () => {
           setModalVisible={setModalVisible}
           productFromProfile={suscriptions[0]}
           userIdRef={userIdRef.current}
+        />
+      )}
+
+      {complimentsSummary && (
+        <ModalCompliments
+          modalVisible={modalComplimentsVisible}
+          setModalVisible={setModalComplimentsVisible}
+          products={complimentsSummary.products}
+        />
+      )}
+
+      {superLikeSummary && (
+        <ModalSuperLike
+          modalVisible={modalSuperLikeVisible}
+          setModalVisible={setModalSuperLikeVisible}
+          products={superLikeSummary.products}
         />
       )}
     </View>
