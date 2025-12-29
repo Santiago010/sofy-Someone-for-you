@@ -8,6 +8,8 @@ export interface PurchasesState {
   products: Product[];
   isLoadingProducts: boolean;
   isLoadingSuscritions: boolean;
+  amountOfCompliments: number;
+  amountOfSuperLikes: number;
 }
 
 type PurchasesAction =
@@ -40,6 +42,21 @@ type PurchasesAction =
   | {
       type: 'setProducts';
       payload: Product[];
+    }
+  | {
+      type: 'setAmountOfCompliments';
+      payload: number;
+    }
+  | {
+      type: 'setAmountOfSuperLikes';
+      payload: number;
+    }
+  | {
+      type: 'setAmountProducts';
+      payload: {
+        superlikes: number;
+        compliments: number;
+      };
     };
 
 export const purchasesReducer = (
@@ -81,6 +98,24 @@ export const purchasesReducer = (
       return {
         ...state,
         products: action.payload,
+      };
+
+    case 'setAmountOfCompliments':
+      return {
+        ...state,
+        amountOfCompliments: action.payload,
+      };
+
+    case 'setAmountOfSuperLikes':
+      return {
+        ...state,
+        amountOfSuperLikes: action.payload,
+      };
+    case 'setAmountProducts':
+      return {
+        ...state,
+        amountOfSuperLikes: action.payload.superlikes,
+        amountOfCompliments: action.payload.compliments,
       };
 
     default:

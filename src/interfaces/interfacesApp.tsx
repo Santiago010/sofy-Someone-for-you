@@ -281,6 +281,8 @@ export interface PayloadDetails2 {
   max_age: number;
   individualFiles: IndividualFile[];
   categories: InterestAndSubInterestResponse[];
+  superlikes: number;
+  compliments: number;
 }
 
 export interface IndividualFile {
@@ -529,7 +531,42 @@ export interface VerifySubscriptionResponse {
   success: boolean;
 }
 
+export interface ResBalanceProducts {
+  superlikes: number;
+  compliments: number;
+}
+
 export interface statusSuscriptionResponse {
   expires: string;
   isConnect: boolean;
+}
+
+export interface dataForVerifyProduct {
+  productId?: string;
+  token?: string;
+  platform: 'ios' | 'android';
+  userId?: number;
+}
+
+export interface ResVerifyProduct {
+  message: string;
+  res: Res;
+}
+
+export interface Res {
+  productId: string;
+  addedAmount: number;
+  newBalance: number;
+}
+
+export interface ConsumeBody {
+  userId: string;
+  field: 'compliments' | 'superlike';
+}
+
+export interface ConsumeResponse {
+  message: string;
+  newBalance: number;
+  error?: string;
+  statusCode?: number;
 }

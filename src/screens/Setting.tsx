@@ -122,6 +122,32 @@ export default function Settings({
               <Text
                 variant="titleMedium"
                 style={{fontWeight: 'bold', marginBottom: 10}}>
+                My Products
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('SeeStateMyProducts')}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingVertical: 10,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.backgroundSecondary,
+                }}>
+                <MaterialDesignIcons
+                  name="gift"
+                  size={24}
+                  style={{marginRight: 10}}
+                />
+                <Text style={{color: colors.text}}>See My Products</Text>
+                <MaterialDesignIcons name="chevron-right" size={24} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Location Section */}
+            <View style={{marginTop: 20}}>
+              <Text
+                variant="titleMedium"
+                style={{fontWeight: 'bold', marginBottom: 10}}>
                 Location
               </Text>
               <TouchableOpacity

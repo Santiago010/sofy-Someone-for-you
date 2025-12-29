@@ -1,4 +1,10 @@
-import React, {createContext, useEffect, useReducer, useCallback} from 'react';
+import React, {
+  createContext,
+  useEffect,
+  useReducer,
+  useCallback,
+  useContext,
+} from 'react';
 import {
   SignUpData,
   loginData,
@@ -26,6 +32,7 @@ import {db, privateDB, publicDBForCompleteUser} from '../../db/db';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {decodeJWT} from '../../helpers/DecodeJWT';
 import {AxiosError} from 'axios';
+import {PurchasesContext} from '../PurchasesContext/purchasesContext';
 
 interface AuthContextProps {
   signUpResponseWithInfoUser: SignUpResponse | null;

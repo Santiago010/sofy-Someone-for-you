@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
+  Platform,
 } from 'react-native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import {colors} from '../theme/globalTheme';
@@ -18,6 +19,8 @@ import {
   purchaseUpdatedListener,
   requestPurchase,
 } from 'react-native-iap';
+import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
+import {AuthContext} from '../context/authContext/authContext';
 
 interface ModalComplimentsProps {
   modalVisible: boolean;
@@ -47,6 +50,9 @@ export default function ModalCompliments({
   );
   const [complimentsDone, setComplimentsDone] = useState(false);
 
+  const {verifyProduct} = useContext(PurchasesContext);
+  const {idUserForChats} = useContext(AuthContext);
+
   const handleSelect = (product: Product) => {
     setSelectedProduct(product);
   };
@@ -71,21 +77,29 @@ export default function ModalCompliments({
       async (purchase: Purchase) => {
         console.info('✅ Compra recibida de Google:', purchase);
 
-        const receipt = purchase.transactionReceipt;
+        if (purchase.transactionReceipt) {
+          const purchaseToken =
+            Platform.OS === 'android'
+              ? purchase.purchaseToken
+              : purchase.transactionReceipt;
 
-        if (receipt) {
-          try {
-            // AQUÍ ES DONDE LLAMAREMOS AL BACKEND (Paso siguiente)
-            // const validation = await verifyPurchaseOnBackend(purchase);
-
-            // IMPORTANTE: Una vez el backend confirme, debemos finalizar la transacción
-            // para que Google sepa que entregamos el producto y no devuelva el dinero.
-            await finishTransaction({purchase, isConsumable: true});
-
-            console.info('🚀 Transacción finalizada con éxito');
-          } catch (error) {
-            console.error('❌ Error validando o finalizando la compra:', error);
-          }
+          verifyProduct({
+            productId: purchase.productId,
+            token: purchaseToken,
+            platform: Platform.OS === 'android' ? 'android' : 'ios',
+            userId: idUserForChats,
+          })
+            .then(response => {
+              finishTransaction({purchase, isConsumable: true}).then(() => {
+                setModalVisible(false);
+                console.log(
+                  '✅ Transacción finalizada correctamente con finishTransaction.',
+                );
+              });
+            })
+            .catch(error => {
+              console.error(error.message, error.error);
+            });
         }
       },
     );

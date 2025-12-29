@@ -4,6 +4,10 @@ import {
   dataForVerifySubscription,
   VerifySubscriptionResponse,
   statusSuscriptionResponse,
+  dataForVerifyProduct,
+  ResVerifyProduct,
+  ConsumeResponse,
+  ResBalanceProducts,
 } from '../../interfaces/interfacesApp';
 import {privateDBForIAP} from '../../db/db';
 import {AxiosError} from 'axios';
@@ -25,10 +29,20 @@ interface PurchasesContextProps {
   products: Product[];
   isLoadingProducts: boolean;
   isLoadingSuscritions: boolean;
+  amountOfCompliments: number;
+  amountOfSuperLikes: number;
+  verifyProduct: (
+    dataResProduct: dataForVerifyProduct,
+  ) => Promise<{message: string; res: any}>;
   verifySubscription: (
     data: dataForVerifySubscription,
   ) => Promise<{message: string; res: any}>;
   getStateSuscription: (userId: number) => Promise<{message: string; res: any}>;
+  consume: (
+    userId: number,
+    field: 'compliments' | 'superlikes',
+  ) => Promise<ConsumeResponse>;
+  getBalanceProducts: (userId: number) => Promise<void>;
 }
 export const PurchasesContext = createContext<PurchasesContextProps>(
   {} as PurchasesContextProps,
@@ -42,6 +56,8 @@ const purchasesInitialState = {
   isLoadingSuscritions: false,
   products: [],
   isLoadingProducts: false,
+  amountOfCompliments: 0,
+  amountOfSuperLikes: 0,
 };
 
 export const PurchasesProvider = ({
@@ -62,6 +78,18 @@ export const PurchasesProvider = ({
   ];
 
   const {status, access_token, transactionId} = useContext(AuthContext);
+
+  const getBalanceProducts = async (userId: number) => {
+    try {
+      const {data} = await privateDBForIAP.get<ResBalanceProducts>(
+        `/balance/${userId}`,
+      );
+
+      setAmountProducts(data.superlikes, data.compliments);
+    } catch (error) {
+      console.error('Error getting balance of products:', error);
+    }
+  };
 
   const getStateSuscription = async (userId: number) => {
     try {
@@ -104,6 +132,125 @@ export const PurchasesProvider = ({
       } else {
         return Promise.reject({
           message: 'Error getting subscription status',
+          error: 'Unexpected error in the server',
+        });
+      }
+    }
+  };
+
+  const setAmountProducts = (superlikes: number, compliments: number) => {
+    dispatch({
+      type: 'setAmountProducts',
+      payload: {
+        superlikes,
+        compliments,
+      },
+    });
+  };
+
+  const giveAmountOfProducts = ({message, res}: ResVerifyProduct) => {
+    const {addedAmount, newBalance, productId} = res;
+
+    if (productId.includes('compliment') || productId.includes('compliments')) {
+      dispatch({type: 'setAmountOfCompliments', payload: newBalance});
+    } else if (productId.includes('superlike')) {
+      dispatch({type: 'setAmountOfSuperLikes', payload: newBalance});
+    }
+
+    console.log(
+      `✅ ${message}: Added ${addedAmount}, New Balance: ${newBalance} for productId: ${productId}`,
+    );
+  };
+
+  const consume = async (
+    userId: number,
+    field: 'compliments' | 'superlikes',
+  ) => {
+    try {
+      console.info('Consuming product:', field);
+      const {data} = await privateDBForIAP.post<ConsumeResponse>('/consume/', {
+        userId: userId.toString(),
+        field,
+      });
+
+      giveAmountOfProducts({
+        message: data.message,
+        res: {
+          addedAmount: -1,
+          newBalance: data.newBalance,
+          productId: field,
+        },
+      });
+
+      return Promise.resolve(data);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          const errorData = error.response.data;
+          return Promise.reject({
+            message: 'Error consuming product RESPONSE',
+            error: errorData,
+          });
+        } else if (error.request) {
+          return Promise.reject({
+            message: 'Error consuming product REQUEST',
+            error: error.request,
+          });
+        } else {
+          return Promise.reject({
+            message: 'Error consuming product IN AXIOSERROR UNKNOWN',
+            error: error.message,
+          });
+        }
+      } else {
+        return Promise.reject({
+          message: 'Error consuming product',
+          error: 'Unexpected error in the server',
+        });
+      }
+    }
+  };
+
+  const verifyProduct = async (dataResProduct: dataForVerifyProduct) => {
+    try {
+      console.info('Verifying product with data:', dataResProduct);
+      const {data} = await privateDBForIAP.post<ResVerifyProduct>(
+        '/verify-product',
+        {
+          productId: dataResProduct.productId,
+          token: dataResProduct.token,
+          platform: dataResProduct.platform,
+          userId: dataResProduct.userId,
+        },
+      );
+      giveAmountOfProducts(data);
+
+      return Promise.resolve({
+        message: 'Product verified and accredited correctly',
+        res: data.res,
+      });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          const errorData = error.response.data;
+          return Promise.reject({
+            message: 'Error verifying product RESPONSE',
+            error: errorData,
+          });
+        } else if (error.request) {
+          return Promise.reject({
+            message: 'Error verifying product REQUEST',
+            error: error.request,
+          });
+        } else {
+          return Promise.reject({
+            message: 'Error verifying product IN AXIOSERROR UNKNOWN',
+            error: error.message,
+          });
+        }
+      } else {
+        return Promise.reject({
+          message: 'Error verifying product',
           error: 'Unexpected error in the server',
         });
       }
@@ -288,7 +435,14 @@ export const PurchasesProvider = ({
   }, [state.isConnect]);
   return (
     <PurchasesContext.Provider
-      value={{verifySubscription, getStateSuscription, ...state}}>
+      value={{
+        getBalanceProducts,
+        verifySubscription,
+        getStateSuscription,
+        ...state,
+        verifyProduct,
+        consume,
+      }}>
       {children}
     </PurchasesContext.Provider>
   );

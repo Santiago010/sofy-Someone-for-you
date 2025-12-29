@@ -6,6 +6,7 @@ import Privacy from '../screens/Privacy';
 import TermsAndServices from '../screens/TermsAndServices';
 import Settings from '../screens/Setting';
 import EditPassword from '../screens/EditPassword';
+import SeeStateMyProducts from '../screens/SeeStateMyProducts';
 
 export type RootStackParamsStackSetttings = {
   Settings: undefined;
@@ -14,6 +15,7 @@ export type RootStackParamsStackSetttings = {
   ContactUs: undefined;
   Privacy: undefined;
   TermsAndServices: undefined;
+  SeeStateMyProducts: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamsStackSetttings>();
@@ -28,6 +30,7 @@ export const StackSettingsApps = () => {
       <Stack.Screen name="Privacy" component={Privacy} />
       <Stack.Screen name="TermsAndServices" component={TermsAndServices} />
       <Stack.Screen name="EditPassword" component={EditPassword} />
+      <Stack.Screen name="SeeStateMyProducts" component={SeeStateMyProducts} />
     </Stack.Navigator>
   );
 };

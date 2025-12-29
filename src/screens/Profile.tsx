@@ -40,6 +40,7 @@ export const Profile = () => {
   const {detailsUser, GetDetailsUser} = useContext(AuthContext);
   const {suscriptions, isConnect, products} = useContext(PurchasesContext);
   const [modalVisible, setModalVisible] = useState(false);
+
   const [modalComplimentsVisible, setModalComplimentsVisible] = useState(false);
   const [modalSuperLikeVisible, setModalSuperLikeVisible] = useState(false);
   const navigation = useNavigation();

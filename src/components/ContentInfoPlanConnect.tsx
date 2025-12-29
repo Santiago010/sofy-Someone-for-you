@@ -99,7 +99,6 @@ export default function ContentInfoPlanConnect({
     purchaseUpdateSubscription = purchaseUpdatedListener(
       async (purchase: Purchase) => {
         setIsPurchasing(false);
-        setIsPurchaseDone(false);
         console.log('✅ Compra Exitosa recibida:', purchase);
 
         if (purchase.transactionReceipt) {
