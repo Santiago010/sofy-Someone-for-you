@@ -208,7 +208,7 @@ export const commonStyles = {
   },
   saveButton: {
     borderRadius: 25,
-    backgroundColor: colors.textSecondary,
+    backgroundColor: colors.primary,
   },
   saveButtonEnabled: {
     backgroundColor: colors.secondary,

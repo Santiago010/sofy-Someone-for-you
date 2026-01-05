@@ -12,6 +12,7 @@ import {AuthContext} from '../context/authContext/authContext';
 import ButtonGoBack from '../components/ButtonGoBack';
 import LogoSofy from '../components/LogoSofy';
 import {colors} from '../theme/globalTheme';
+import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 
 export default function SeeStateMyProducts({navigation}: any) {
   const {amountOfCompliments, amountOfSuperLikes, consume, getBalanceProducts} =
@@ -24,7 +25,7 @@ export default function SeeStateMyProducts({navigation}: any) {
     }
   }, [idUserForChats]);
 
-  const handleConsume = async (field: 'compliments' | 'superlike') => {
+  const handleConsume = async (field: 'compliments' | 'superlikes') => {
     if (!idUserForChats) {
       Alert.alert('Error', 'User not identified');
       return;
@@ -52,21 +53,25 @@ export default function SeeStateMyProducts({navigation}: any) {
         <View style={styles.itemContainer}>
           <Text style={styles.itemTitle}>Compliments</Text>
           <Text style={styles.itemCount}>{amountOfCompliments}</Text>
-          <TouchableOpacity
-            style={styles.consumeButton}
-            onPress={() => handleConsume('compliments')}>
-            <Text style={styles.consumeButtonText}>-</Text>
-          </TouchableOpacity>
+          <View style={styles.iconContainer}>
+            <MaterialDesignIcons
+              name="message-flash"
+              size={30}
+              color={colors.background}
+            />
+          </View>
         </View>
 
         <View style={styles.itemContainer}>
           <Text style={styles.itemTitle}>Super Likes</Text>
           <Text style={styles.itemCount}>{amountOfSuperLikes}</Text>
-          <TouchableOpacity
-            style={styles.consumeButton}
-            onPress={() => handleConsume('superlikes')}>
-            <Text style={styles.consumeButtonText}>-</Text>
-          </TouchableOpacity>
+          <View style={styles.iconContainer}>
+            <MaterialDesignIcons
+              name="star-four-points"
+              size={30}
+              color={colors.background}
+            />
+          </View>
         </View>
       </View>
     </SafeAreaView>
@@ -136,5 +141,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     lineHeight: 26,
+  },
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 40,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

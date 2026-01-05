@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState, useRef} from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Platform,
+  Animated,
 } from 'react-native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import {colors} from '../theme/globalTheme';
@@ -50,6 +51,28 @@ export default function ModalSuperLike({
   const {verifyProduct} = useContext(PurchasesContext);
   const {idUserForChats} = useContext(AuthContext);
 
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const bounceValue = useRef(new Animated.Value(0)).current;
+
+  const startBounceAnimation = () => {
+    bounceValue.setValue(0);
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounceValue, {
+          toValue: -10,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceValue, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  };
+
   const handleSelect = (product: Product) => {
     setSelectedProduct(product);
   };
@@ -59,11 +82,14 @@ export default function ModalSuperLike({
       return;
     }
 
+    setIsPurchasing(true);
+
     try {
       await requestPurchase({skus: [selectedProduct.productId]});
       setSuperLikeDone(true);
     } catch (error) {
-      console.error('❌ Error al solicitar la compra:', err);
+      console.error('❌ Error al solicitar la compra:', error);
+      setIsPurchasing(false);
     }
   };
 
@@ -88,7 +114,16 @@ export default function ModalSuperLike({
           })
             .then(response => {
               finishTransaction({purchase, isConsumable: true}).then(() => {
-                setModalVisible(false);
+                setSuperLikeDone(false);
+                setShowSuccessMessage(true);
+                setIsPurchasing(false);
+                startBounceAnimation();
+
+                setTimeout(() => {
+                  setModalVisible(false);
+                  setShowSuccessMessage(false);
+                }, 3330);
+
                 console.log(
                   '✅ Transacción finalizada correctamente con finishTransaction.',
                 );
@@ -96,6 +131,7 @@ export default function ModalSuperLike({
             })
             .catch(error => {
               console.error(error.message, error.error);
+              setIsPurchasing(false);
             });
         }
       },
@@ -104,6 +140,7 @@ export default function ModalSuperLike({
     // 2. Escuchador de errores
     const purchaseErrorProduct = purchaseErrorListener(error => {
       console.warn('purchaseErrorListener', error);
+      setIsPurchasing(false);
     });
 
     return () => {
@@ -174,13 +211,34 @@ export default function ModalSuperLike({
             our Terms.
           </Text>
 
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={handlePurchase}>
-            <Text style={styles.actionButtonText}>
-              Get {selectedProduct?.name || 'Super Like'}
-            </Text>
-          </TouchableOpacity>
+          {showSuccessMessage ? (
+            <View style={styles.successContainer}>
+              <Animated.Text
+                style={[
+                  styles.successTitle,
+                  {transform: [{translateY: bounceValue}]},
+                ]}>
+                Unlock your potential: Your purchase is live!
+              </Animated.Text>
+              <Text style={styles.successSubtitle}>
+                {selectedProduct?.name}
+              </Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                isPurchasing && styles.actionButtonDisabled,
+              ]}
+              onPress={handlePurchase}
+              disabled={isPurchasing}>
+              <Text style={styles.actionButtonText}>
+                {isPurchasing
+                  ? 'Processing...'
+                  : `Get ${selectedProduct?.name || 'Super Like'}`}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </Modal>
@@ -217,7 +275,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#E95D2A',
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -258,7 +316,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardSelected: {
-    borderColor: '#E95D2A',
+    borderColor: colors.primary,
     borderWidth: 2,
     backgroundColor: '#FFF5F0',
   },
@@ -311,16 +369,36 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   actionButton: {
-    backgroundColor: '#E95D2A',
+    backgroundColor: colors.primary,
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 30,
     width: '80%',
     alignItems: 'center',
   },
+  actionButtonDisabled: {
+    opacity: 0.7,
+  },
   actionButtonText: {
     color: 'white',
     fontSize: 18,
+    fontWeight: 'bold',
+  },
+  successContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+  },
+  successTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.primary,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  successSubtitle: {
+    fontSize: 18,
+    color: colors.text,
     fontWeight: 'bold',
   },
 });

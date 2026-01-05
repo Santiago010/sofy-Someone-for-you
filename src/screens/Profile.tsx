@@ -76,6 +76,25 @@ export const Profile = () => {
     p.name.toLowerCase().includes('super like'),
   );
 
+  const getLowestPrice = (items: any[]) => {
+    if (!items || items.length === 0) return '';
+    const sorted = [...items].sort((a, b) => {
+      const priceA = a.oneTimePurchaseOfferDetails?.priceAmountMicros
+        ? Number(a.oneTimePurchaseOfferDetails.priceAmountMicros)
+        : Number(a.price) || 0;
+      const priceB = b.oneTimePurchaseOfferDetails?.priceAmountMicros
+        ? Number(b.oneTimePurchaseOfferDetails.priceAmountMicros)
+        : Number(b.price) || 0;
+      return priceA - priceB;
+    });
+    const lowest = sorted[0];
+    return (
+      lowest.oneTimePurchaseOfferDetails?.formattedPrice ||
+      lowest.localizedPrice ||
+      lowest.price
+    );
+  };
+
   const complimentsSummary =
     complimentsProducts.length > 0
       ? {
@@ -83,14 +102,7 @@ export const Profile = () => {
           type: 'compliment',
           title: 'Compliments',
           description: complimentsProducts[0].description,
-          formattedPrice: complimentsProducts
-            .map(
-              p =>
-                p.oneTimePurchaseOfferDetails?.formattedPrice ||
-                p.localizedPrice ||
-                p.price,
-            )
-            .join(' or '),
+          formattedPrice: `From ${getLowestPrice(complimentsProducts)}`,
           products: complimentsProducts,
         }
       : null;
@@ -102,14 +114,7 @@ export const Profile = () => {
           type: 'superlike',
           title: 'Super Like',
           description: superLikeProducts[0].description,
-          formattedPrice: superLikeProducts
-            .map(
-              p =>
-                p.oneTimePurchaseOfferDetails?.formattedPrice ||
-                p.localizedPrice ||
-                p.price,
-            )
-            .join(' or '),
+          formattedPrice: `From ${getLowestPrice(superLikeProducts)}`,
           products: superLikeProducts,
         }
       : null;
@@ -218,7 +223,7 @@ export const Profile = () => {
                 <Carousel
                   loop={carouselData.length > 1}
                   width={Math.min(Dimensions.get('window').width * 0.9, 350)}
-                  height={300}
+                  height={500}
                   data={carouselData}
                   scrollAnimationDuration={1000}
                   renderItem={({item}: {item: any}) => {

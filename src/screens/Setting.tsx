@@ -139,7 +139,11 @@ export default function Settings({
                   style={{marginRight: 10}}
                 />
                 <Text style={{color: colors.text}}>See My Products</Text>
-                <MaterialDesignIcons name="chevron-right" size={24} />
+                <MaterialDesignIcons
+                  name="chevron-right"
+                  size={24}
+                  style={{marginLeft: 'auto'}}
+                />
               </TouchableOpacity>
             </View>
 

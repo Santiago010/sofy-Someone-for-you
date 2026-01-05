@@ -23,6 +23,51 @@ const urlsApiGroups = {
 };
 
 export const useCometChatGroups = () => {
+  const updateGroup = async (
+    guid: string,
+    onBehalfOf: string,
+    payload: {
+      name?: string;
+      type?: 'public' | 'private' | 'password';
+      password?: string;
+      icon?: string;
+      description?: string;
+      metadata?: Record<string, any>;
+      owner?: string;
+      tags?: string[];
+      unset?: string[];
+    },
+  ): Promise<{message: string}> => {
+    try {
+      const url = `${urlsApiGroups.listGroups}/${guid}`;
+
+      const {data} = await axios.put(url, payload, {
+        headers: {
+          apikey: restKey,
+          onBehalfOf,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Group updated:', data);
+
+      return Promise.resolve({
+        message: 'Group updated successfully',
+      });
+    } catch (error) {
+      if (error instanceof axios.AxiosError) {
+        console.error(
+          'Error updating group:',
+          error.response?.data || error.message,
+        );
+      }
+
+      return Promise.reject({
+        message: 'Error updating group',
+      });
+    }
+  };
+
   const addMessage = async (
     groupGuid: string,
     onBehalfOf: string,
@@ -249,29 +294,37 @@ export const useCometChatGroups = () => {
     message: string;
   }> => {
     try {
-      let tagsQuery = '';
-      interest.forEach(item => {
-        tagsQuery += `&tags=${encodeURIComponent(item.name)}`;
-      });
+      // 👉 1. Normalizamos los intereses (tags que queremos)
+      const interestNames = interest.map(item => item.name);
 
-      // Armamos la URL con filtros por tags y tamaño de página
-      const url = `${urlsApiGroups.listGroups}?perPage=100${tagsQuery}`;
+      // 👉 2. Traemos TODOS los grupos (sin filtrar por tags)
+      const url = `${urlsApiGroups.listGroups}?perPage=100&withTags=true`;
 
       const {data} = await axios.get<ListGroup>(url, {
         headers: {
           apikey: restKey,
           'Content-Type': 'application/json',
-          onBehalfOf: userUid, // Necesario para que venga hasJoined correctamente
         },
       });
 
-      // Filtrar grupos donde el usuario NO ha joined (hasJoined === false)
-      const notJoined = data.data.filter(group => !group.hasJoined);
+      // 👉 3. Filtrado en código (OR lógico de tags)
+      const notJoinedWithInterest = data.data.filter(group => {
+        // no joined
+        if (group.hasJoined) return false;
+
+        // seguridad por si no trae tags
+        if (!group.tags || group.tags.length === 0) return false;
+
+        // OR lógico: alguno de los tags del grupo coincide con interests
+        return group.tags.some(tag => interestNames.includes(tag));
+      });
 
       return Promise.resolve({
-        communities: notJoined,
+        communities: notJoinedWithInterest,
         message:
-          'found ' + notJoined.length + ' communities not joined with interest',
+          'found ' +
+          notJoinedWithInterest.length +
+          ' communities not joined with interest',
       });
     } catch (error) {
       if (error instanceof axios.AxiosError) {
@@ -282,6 +335,7 @@ export const useCometChatGroups = () => {
           );
         }
       }
+
       return Promise.reject({
         communities: [],
         message: 'Error fetching communities not joined',
@@ -591,5 +645,6 @@ export const useCometChatGroups = () => {
     fetchNotJoinedGroups,
     fetchGroupsWithInterestNotJoined,
     removeMemberFromGroup,
+    updateGroup,
   };
 };

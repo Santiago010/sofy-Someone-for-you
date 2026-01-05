@@ -14,7 +14,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackCommunitiesParamList} from '../navigator/StackCommunities';
 import {RouteProp} from '@react-navigation/native';
 import {Tabs} from 'react-native-collapsible-tab-view';
-import {Text, Button, Chip, Surface} from 'react-native-paper';
+import {Text, Button, Chip, Surface, Portal, Dialog} from 'react-native-paper';
 import {colors, commonStyles} from '../theme/globalTheme';
 import ButtonGoBack from '../components/ButtonGoBack';
 import {
@@ -44,7 +44,7 @@ type Props = {
 };
 
 const CommunitiesDetails = ({navigation, route}: Props) => {
-  const {communityId} = route.params;
+  const {communityId, band} = route.params;
   const {
     getDetailsGroup,
     getMembersGroup,
@@ -60,6 +60,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
 
   const [loading, setLoading] = useState(true);
   const [actualUserIsJoined, setActualUserIsJoined] = useState(false);
+  const [showModalForDeleteUser, setShowModalForDeleteUser] = useState(false);
   const [showBtnJoinGroup, setShowBtnJoinGroup] = useState(false);
   const [groupDetails, setGroupDetails] = useState<ResDetailsGroup>(
     {} as ResDetailsGroup,
@@ -69,6 +70,9 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
   const [groupMessages, setGroupMessages] = useState<DataMessageOfCommunity[]>(
     [],
   );
+  const [memberToDelete, setMemberToDelete] =
+    useState<DataMembersCommunity | null>(null);
+
   // Nuevo estado para guardar la info del miembro actual
   const [currentUserMember, setCurrentUserMember] =
     useState<DataMembersCommunity | null>(null);
@@ -163,6 +167,16 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     }
   };
 
+  const handleDeleteMeOfCommunity = async () => {
+    try {
+      await removeMemberFromGroup(communityId, `${idUserForChats}`, `${owner}`);
+      // Navegar hacia atrás después de salir del grupo
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error leaving group:', error);
+    }
+  };
+
   //TODO: funcion para eliminar un miembro cuando soy admin
   const handleDeleteMember = async (member: DataMembersCommunity) => {
     try {
@@ -220,7 +234,10 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
         {isOwner && (
           <TouchableOpacity
             style={[styles.actionButton, {backgroundColor: colors.error}]} // Fondo suave opcional
-            onPress={() => handleDeleteMember(item)}>
+            onPress={() => {
+              setMemberToDelete(item);
+              setShowModalForDeleteUser(true);
+            }}>
             <MaterialDesignIcons
               name={'trash-can'}
               size={28}
@@ -275,7 +292,8 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
   }
 
   // CORRECCIÓN: Desestructuramos desde la ruta correcta
-  const {name, icon, membersCount, description, tags} = groupDetails.data;
+  const {name, icon, membersCount, description, tags, owner} =
+    groupDetails.data;
   // CORRECCIÓN: Accedemos a groupDetails.details.data en lugar de groupDetails.data
   if (!groupDetails || !groupDetails.data) {
     return (
@@ -284,6 +302,8 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
       </View>
     );
   }
+
+  console.log(owner, idUserForChats);
 
   //   TODO:funcion para renderizar el header con la informacion de la comunidad -->
   const renderHeader = () => {
@@ -309,13 +329,33 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
                   numberOfLines={2}>
                   {description}
                 </Text>
-                {showBtnJoinGroup && (
+                {owner === `${idUserForChats}` ? (
+                  <Button
+                    mode="contained"
+                    style={styles.joinButton}
+                    labelStyle={styles.joinButtonLabel}
+                    onPress={() =>
+                      navigation.navigate('CommunitiesEdit', {
+                        communityDetails: groupDetails.data,
+                      })
+                    }>
+                    Edit Community
+                  </Button>
+                ) : showBtnJoinGroup ? (
                   <Button
                     mode="contained"
                     style={styles.joinButton}
                     labelStyle={styles.joinButtonLabel}
                     onPress={() => addActualUserToGroup()}>
                     Join Community
+                  </Button>
+                ) : (
+                  <Button
+                    mode="contained"
+                    style={styles.joinButton}
+                    labelStyle={styles.joinButtonLabel}
+                    onPress={() => handleDeleteMeOfCommunity()}>
+                    Leave Community
                   </Button>
                 )}
               </View>
@@ -331,7 +371,11 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
       <View style={commonStyles.container}>
         {/* 1. Botón atrás y Nombre de comunidad (Fixed Header) */}
         <View style={styles.topNav}>
-          <ButtonGoBack navigation={navigation} />
+          <ButtonGoBack
+            navigation={navigation}
+            band={band}
+            toScreen="Communities"
+          />
           <Text variant="titleMedium" style={styles.topNavTitle}>
             {name}
           </Text>
@@ -417,6 +461,32 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
                 showsVerticalScrollIndicator={false}
               />
             )}
+
+            <Portal>
+              <Dialog
+                visible={showModalForDeleteUser}
+                onDismiss={() => setShowModalForDeleteUser(false)}>
+                <Dialog.Title>Confirmar</Dialog.Title>
+                <Dialog.Content>
+                  <Text variant="bodyMedium">¿Estás seguro de continuar?</Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button onPress={() => setShowModalForDeleteUser(false)}>
+                    Cancelar
+                  </Button>
+                  <Button
+                    onPress={async () => {
+                      if (memberToDelete) {
+                        await handleDeleteMember(memberToDelete);
+                      }
+                      setShowModalForDeleteUser(false);
+                      setMemberToDelete(null);
+                    }}>
+                    Aceptar
+                  </Button>
+                </Dialog.Actions>
+              </Dialog>
+            </Portal>
           </Tabs.Tab>
         </Tabs.Container>
       </View>

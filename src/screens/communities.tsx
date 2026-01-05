@@ -1,4 +1,10 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   View,
   Text,
@@ -16,6 +22,7 @@ import {RootStackCommunitiesParamList} from '../navigator/StackCommunities';
 import ContentInfoPlanConnect from '../components/ContentInfoPlanConnect';
 import {AuthContext} from '../context/authContext/authContext';
 import {useCometChatGroups} from '../hooks/useCometChatGroups';
+import {useCometChat} from '../hooks/useCometChat';
 import {
   Data,
   DataMessageOfCommunity,
@@ -24,6 +31,7 @@ import {
 import {Button} from 'react-native-paper';
 import FlatListFeed from '../components/FlatListFeed'; // Importado
 import {Tabs} from 'react-native-collapsible-tab-view'; // Agregado
+import {useFocusEffect} from '@react-navigation/native';
 
 type Props = {
   navigation: StackNavigationProp<RootStackCommunitiesParamList, 'Communities'>;
@@ -32,6 +40,23 @@ const Communities = ({navigation}: Props) => {
   const [whatTypeListCommunity, setWhatTypeCommunity] = useState('all');
   const {isConnect, suscriptions} = useContext(PurchasesContext);
   const {idUserForChats, GetDetailsUser, detailsUser} = useContext(AuthContext);
+  const {loginUser, isLoggedIn, isInitialized} = useCometChat();
+
+  useEffect(() => {
+    const autoLogin = async () => {
+      if (
+        isConnect &&
+        isInitialized &&
+        !isLoggedIn &&
+        idUserForChats !== null
+      ) {
+        const userUID = `${idUserForChats}`;
+        await loginUser(userUID);
+      }
+    };
+    autoLogin();
+  }, [isInitialized, isLoggedIn, idUserForChats, isConnect]);
+
   const {
     fetchNotJoinedGroups,
     fetchJoinedGroups,
@@ -69,11 +94,10 @@ const Communities = ({navigation}: Props) => {
 
   useEffect(() => {
     GetDetailsUser();
-    console.log('idUserForChats:', idUserForChats);
   }, []);
 
-  // Nuevo useEffect para cargar comunidades unidas
-  useEffect(() => {
+  // Función para cargar comunidades unidas
+  const loadJoinedCommunities = useCallback(() => {
     if (idUserForChats) {
       fetchJoinedGroups(`${idUserForChats}`)
         .then(res => {
@@ -84,6 +108,45 @@ const Communities = ({navigation}: Props) => {
         });
     }
   }, [idUserForChats]);
+
+  // Función para cargar otras comunidades (all o interest)
+  const loadOtherCommunities = useCallback(() => {
+    if (whatTypeListCommunity === 'all') {
+      fetchNotJoinedGroups(`${idUserForChats}`)
+        .then(res => {
+          setListCommunities([addCommunityItem, ...res.communities]);
+        })
+        .catch(err => {
+          setListCommunities([addCommunityItem]);
+          console.error('Error fetching all communities:', err);
+        });
+    } else {
+      if (detailsUser && detailsUser.id) {
+        userIdRef.current = detailsUser.id;
+        fetchGroupsWithInterestNotJoined(
+          `${idUserForChats}`,
+          detailsUser.categories,
+        )
+          .then(res => {
+            setListCommunities([addCommunityItem, ...res.communities]);
+          })
+          .catch(err => {
+            setListCommunities([addCommunityItem]);
+            console.error('Error fetching communities by interest:', err);
+          });
+      }
+    }
+  }, [idUserForChats, whatTypeListCommunity, detailsUser]);
+
+  // useFocusEffect para recargar datos al volver a la pantalla
+  useFocusEffect(
+    useCallback(() => {
+      if (idUserForChats) {
+        loadJoinedCommunities();
+        loadOtherCommunities();
+      }
+    }, [loadJoinedCommunities, loadOtherCommunities, idUserForChats]),
+  );
 
   // Lógica para obtener y agregar feeds de todas las comunidades unidas
   const fetchAllFeeds = async () => {
@@ -144,40 +207,6 @@ const Communities = ({navigation}: Props) => {
       }
     }
   };
-
-  useEffect(() => {
-    if (whatTypeListCommunity === 'all') {
-      fetchNotJoinedGroups(`${idUserForChats}`)
-        .then(res => {
-          setListCommunities([addCommunityItem, ...res.communities]);
-        })
-        .catch(err => {
-          setListCommunities([addCommunityItem]);
-          console.error('Error fetching all communities:', err);
-        });
-    } else {
-      if (detailsUser && detailsUser.id) {
-        userIdRef.current = detailsUser.id;
-        fetchGroupsWithInterestNotJoined(
-          `${idUserForChats}`,
-          detailsUser.categories,
-        )
-          .then(res => {
-            console.log(detailsUser.categories);
-            console.log(res.communities);
-            setListCommunities([addCommunityItem, ...res.communities]);
-          })
-          .catch(err => {
-            setListCommunities([addCommunityItem]);
-            console.error('Error fetching communities by interest:', err);
-          });
-      }
-    }
-  }, [detailsUser, whatTypeListCommunity]);
-
-  useEffect(() => {
-    console.log('All Feeds updated:', allFeeds);
-  }, [allFeeds]);
 
   // Si no tiene Connect, mostrar pantalla de upgrade
   if (!isConnect) {

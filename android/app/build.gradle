@@ -66,8 +66,8 @@ android {
         targetSdkVersion 35
         
         // --- CAMBIO EXPERTO: INCREMENTO DE VERSIÓN OBLIGATORIO ---
-        versionCode 391  // Cambiado de 1 a 2 para que Google lo acepte
-        versionName "1.0.6" // Opcional: cambio cosmético para que sepas que es nueva
+        versionCode 398  // Cambiado de 1 a 2 para que Google lo acepte
+        versionName "1.0.9" // Opcional: cambio cosmético para que sepas que es nueva
     }
     signingConfigs {
         debug {

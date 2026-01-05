@@ -3,7 +3,17 @@ import React from 'react';
 import {Platform, TouchableOpacity} from 'react-native';
 import {colors} from '../theme/globalTheme';
 
-export default function ButtonGoBack({navigation}: any) {
+interface ButtonGoBackProps {
+  navigation: any;
+  band?: boolean;
+  toScreen?: string;
+}
+
+export default function ButtonGoBack({
+  navigation,
+  band,
+  toScreen,
+}: ButtonGoBackProps) {
   return (
     <TouchableOpacity
       style={{
@@ -13,7 +23,13 @@ export default function ButtonGoBack({navigation}: any) {
         marginTop: Platform.OS === 'android' ? 20 : 0,
         alignSelf: 'flex-start',
       }}
-      onPress={() => navigation.goBack()}>
+      onPress={() => {
+        if (band) {
+          navigation.navigate(toScreen);
+        } else {
+          navigation.goBack();
+        }
+      }}>
       <MaterialDesignIcons name="arrow-left" size={24} color="#fff" />
     </TouchableOpacity>
   );

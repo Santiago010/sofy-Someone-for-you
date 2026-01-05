@@ -24,7 +24,7 @@ export const Login = () => {
   const {login, transactionId, errorMessage, removeError, loading} =
     useContext(AuthContext);
   const {onChange, form, email, password} = useForm({
-    email: 'santiago.dev06@gmail.com',
+    email: '',
     password: 'p7EhCx33jwkQ*',
   });
 

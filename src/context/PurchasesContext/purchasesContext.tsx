@@ -167,7 +167,6 @@ export const PurchasesProvider = ({
     field: 'compliments' | 'superlikes',
   ) => {
     try {
-      console.info('Consuming product:', field);
       const {data} = await privateDBForIAP.post<ConsumeResponse>('/consume/', {
         userId: userId.toString(),
         field,

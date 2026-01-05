@@ -3,8 +3,8 @@ import {SafeAreaView, StyleSheet} from 'react-native';
 import {
   CometChatConversations,
   CometChatThemeProvider,
-  CometChatUiKitConstants,
   CometChatI18nProvider,
+  CometChatUiKitConstants,
 } from '@cometchat/chat-uikit-react-native';
 import {CometChat} from '@cometchat/chat-sdk-react-native';
 import Messages from '../components/Messages';
@@ -14,14 +14,9 @@ import {colors} from '../theme/globalTheme';
 
 export default function Chats() {
   const [messageUser, setMessageUser] = useState<CometChat.User>();
-  const [messageGroup, setMessageGroup] = useState<CometChat.Group>();
 
   const {loginUser, isLoggedIn, isInitialized} = useCometChat();
   const {idUserForChats} = useContext(AuthContext);
-
-  useEffect(() => {
-    console.log('messageuser:', messageUser);
-  }, [messageUser, messageGroup]);
 
   useEffect(() => {
     const autoLogin = async () => {
@@ -32,6 +27,12 @@ export default function Chats() {
     };
     autoLogin();
   }, [isInitialized, isLoggedIn, idUserForChats]);
+
+  // Build a valid conversations request
+  const conversationsRequestBuilder =
+    new CometChat.ConversationsRequestBuilder()
+      .setConversationType('user')
+      .setLimit(50);
 
   return (
     <SafeAreaView style={styles.fullScreen}>
@@ -46,13 +47,14 @@ export default function Chats() {
               },
             },
           }}>
-          {isLoggedIn && (
+          {/* Only show when CometChat is ready and user is logged in */}
+          {isInitialized && isLoggedIn && (
             <>
               <CometChatConversations
-                style={{
-                  containerStyle: {
-                    display: messageUser || messageGroup ? 'none' : 'flex',
-                  },
+                conversationsRequestBuilder={conversationsRequestBuilder}
+                // Catch internal errors
+                onError={error => {
+                  console.log('Error UI Conversations:', error);
                 }}
                 onItemPress={(conversation: CometChat.Conversation) => {
                   if (
@@ -64,19 +66,19 @@ export default function Chats() {
                     );
                     return;
                   }
-                  setMessageGroup(
-                    conversation.getConversationWith() as CometChat.Group,
-                  );
+                }}
+                style={{
+                  containerStyle: {
+                    display: messageUser ? 'none' : 'flex',
+                  },
                 }}
               />
 
-              {(messageUser || messageGroup) && (
+              {messageUser && (
                 <Messages
                   user={messageUser}
-                  group={messageGroup}
                   onBack={() => {
                     setMessageUser(undefined);
-                    setMessageGroup(undefined);
                   }}
                 />
               )}
