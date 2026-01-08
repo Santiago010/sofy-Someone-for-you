@@ -1,7 +1,4 @@
-import {
-  BottomTabScreenProps,
-  createBottomTabNavigator,
-} from '@react-navigation/bottom-tabs';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {CardsUsers} from '../screens/CardsUsers';
 import {MaterialDesignIcons} from '@react-native-vector-icons/material-design-icons';
 import {colors} from '../theme/globalTheme';
@@ -14,11 +11,11 @@ import {useMatchSocket} from '../hooks/useMatchSocket';
 import {MatchResponse} from '../interfaces/interfacesApp';
 import {ModalMatchFromSocket} from '../components/ModalMatchFromSocket';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import Communities from '../screens/communities';
 import {BarIndicator} from 'react-native-indicators';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 import {View} from 'react-native';
 import {StackCommunities} from './StackCommunities';
+import MyAffinities from '../screens/MyAffinities';
 
 export type RootBottonTabNavigator = {
   Home: undefined;
@@ -26,6 +23,7 @@ export type RootBottonTabNavigator = {
   StackCommunities: undefined;
   Chats: undefined;
   StackProfile: undefined;
+  MyAffinities: undefined;
 };
 
 const Tab = createBottomTabNavigator<RootBottonTabNavigator>();
@@ -89,7 +87,7 @@ export const BottonTabNavigator = () => {
             tabBarIcon: ({focused, color, size}) => {
               let iconName: string;
 
-              if (route.name === 'Home') {
+              if (route.name === 'MyAffinities') {
                 iconName = focused ? 'fire' : 'fire-circle';
               } else if (route.name === 'Likes') {
                 iconName = focused ? 'heart' : 'heart-outline';
@@ -129,8 +127,9 @@ export const BottonTabNavigator = () => {
               paddingTop: 8,
             },
           })}>
-          <Tab.Screen name="Home" component={CardsUsers} />
+          <Tab.Screen name="MyAffinities" component={MyAffinities} />
           <Tab.Screen name="Likes" component={TopTapNavigatorLikes} />
+          <Tab.Screen name="Home" component={CardsUsers} />
           <Tab.Screen name="StackCommunities" component={StackCommunities} />
           <Tab.Screen name="Chats" component={Chats} />
           <Tab.Screen name="StackProfile" component={StackProfile} />

@@ -43,6 +43,7 @@ export default function EditProfile({
   } = useContext(AuthContext);
   // Estados para los nuevos campos
 
+  //   TODO:setFormDaTa usado para manejar el formulario
   const [formData, setFormData] = useState({
     age: '',
     aboutYou: '',
@@ -75,6 +76,7 @@ export default function EditProfile({
     }
   }, [editDetailsSuccess, navigation]);
 
+  //   TODO:useEffect usado para cargar datos del usuario en el formulario
   useEffect(() => {
     // Cargar datos del usuario en el formData cuando detailsUser esté disponible
     if (detailsUser) {
@@ -142,6 +144,7 @@ export default function EditProfile({
     if (areAllFieldsFilled()) {
       Keyboard.dismiss();
 
+      //   TODO:funcion clave para cuando llamamos a endopint y necesitamos los ids de los intereses
       // Extraer IDs de los subintereses seleccionados
       const subcategories = formData.selectedSubInterests
         .map(sub => sub.id)

@@ -153,7 +153,7 @@ export default function ContentInfoPlanConnect({
       style={
         origin === 'modal' ? styles.containerInModal : styles.containerInScreen
       }>
-      <View style={styles.scrollContent}>
+      <ScrollView style={styles.scrollContent}>
         <LogoSofy withMarginBotton={false} />
         {origin === 'modal' && (
           <TouchableOpacity
@@ -190,7 +190,7 @@ export default function ContentInfoPlanConnect({
           disabled={isPurchasing}>
           <Text style={styles.actionButtonText}>Get Sofy Connect™</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     maxHeight: '90%',
   },
   scrollContent: {
-    alignItems: 'center',
+    // alignItems: 'center',
   },
   title: {
     fontSize: 20,

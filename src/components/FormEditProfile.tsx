@@ -52,6 +52,7 @@ export default function FormEditProfile({
     }));
   };
 
+  //   TODO:funcion llamada en los Chips para cambir el estado de seleccionado
   // Toggle para intereses principales
   const toggleInterest = (interest: InterestAndSubInterestResponse) => {
     setFormData((prev: any) => {
@@ -195,6 +196,7 @@ export default function FormEditProfile({
           />
         </View>
 
+        {/* TODO:selector del formuario de intereses */}
         {/* Selector de intereses con subintereses */}
         {loadingWithSub && (
           <View style={styles.loadingContainer}>
