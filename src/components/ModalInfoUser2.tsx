@@ -12,14 +12,13 @@ import {
 import Carousel from 'react-native-reanimated-carousel';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {Button, Chip} from 'react-native-paper';
-import {resolveLocalhostUrl} from '../helpers/GetImageTemp';
-import {PayloadWhoLikedMe} from '../interfaces/interfacesApp';
+import {PayloadResInteractionsWithMe} from '../interfaces/interfacesApp';
+import {useLikeOrDislike} from '../hooks/useLikeOrDislike';
 
 interface ModalInfoProps {
   modalVisible: boolean;
-  originScreen: 'SeeWhoLikesYou' | 'YouLikedMe';
   toggleModal: () => void;
-  user: PayloadWhoLikedMe;
+  user: PayloadResInteractionsWithMe;
   toggleModalToMatch?: () => void;
 }
 
@@ -27,9 +26,10 @@ export const ModalInfoUser2: FC<ModalInfoProps> = ({
   modalVisible,
   toggleModal,
   user,
-  originScreen,
+
   toggleModalToMatch,
 }) => {
+  const {like} = useLikeOrDislike();
   return (
     <Modal
       animationType="fade"
@@ -124,19 +124,16 @@ export const ModalInfoUser2: FC<ModalInfoProps> = ({
                       </Chip>
                     ))}
                   </View>
-                  {originScreen === 'SeeWhoLikesYou' && (
-                    <Button
-                      mode="contained"
-                      onPress={() => {
-                        if (toggleModalToMatch) {
-                          toggleModalToMatch();
-                        }
-                      }}
-                      style={{...commonStyles.buttonAction, marginTop: 20}}
-                      labelStyle={commonStyles.loginButtonText}>
-                      Return Like
-                    </Button>
-                  )}
+
+                  <Button
+                    mode="contained"
+                    onPress={() => {
+                      like(user.fromIndividual.id);
+                    }}
+                    style={{...commonStyles.buttonAction, marginTop: 20}}
+                    labelStyle={commonStyles.loginButtonText}>
+                    Return Like
+                  </Button>
                 </View>
               )}
           </ScrollView>

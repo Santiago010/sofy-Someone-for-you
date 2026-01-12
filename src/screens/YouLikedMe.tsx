@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
+import {FlatList, StyleSheet, View, TouchableOpacity} from 'react-native';
 import {Text} from 'react-native-paper';
 import {CardViewWithoutAnimation} from '../components/CardViewWithoutAnimation';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
 
-import {PayloadResponseMyLikes} from '../interfaces/interfacesApp';
+import {PayloadResMyInteractionsWithOthers} from '../interfaces/interfacesApp';
 import {colors} from '../theme/globalTheme';
 import {ModalInfoUser} from '../components/ModalInfoUser';
 import {useMyLikes} from '../hooks/useMyLikes';
@@ -13,13 +13,32 @@ import {useFocusEffect} from '@react-navigation/native';
 export default function YouLikedMe() {
   const {widthWindow} = DeviceDimensions();
   const [modalVisible, setModalVisible] = useState(false);
-  const [userToSee, setuserToSee] = useState<PayloadResponseMyLikes>(
-    {} as PayloadResponseMyLikes,
-  );
+  const [userToSee, setuserToSee] =
+    useState<PayloadResMyInteractionsWithOthers>(
+      {} as PayloadResMyInteractionsWithOthers,
+    );
   const {myUsersLikes, loading, error, fetchLikes} = useMyLikes();
   const [focusedFetched, setFocusedFetched] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
   const [isFocused, setIsFocused] = useState(false);
+
+  const INTERACTION_TYPES = ['COMPLIMENT', 'SUPERLIKE', 'LIKE'];
+
+  const toggleFilter = (type: string) => {
+    if (selectedFilters.includes(type)) {
+      setSelectedFilters(selectedFilters.filter(item => item !== type));
+    } else {
+      setSelectedFilters([...selectedFilters, type]);
+    }
+  };
+
+  const filteredUsers =
+    selectedFilters.length > 0
+      ? myUsersLikes.filter(user =>
+          selectedFilters.includes(user.interactionType),
+        )
+      : myUsersLikes;
 
   useFocusEffect(
     React.useCallback(() => {
@@ -49,7 +68,7 @@ export default function YouLikedMe() {
     setModalVisible(!modalVisible);
   };
 
-  const toggleModalWithUser = (user: PayloadResponseMyLikes) => {
+  const toggleModalWithUser = (user: PayloadResMyInteractionsWithOthers) => {
     setuserToSee(user);
     setModalVisible(!modalVisible);
   };
@@ -58,7 +77,7 @@ export default function YouLikedMe() {
     item,
     index,
   }: {
-    item: PayloadResponseMyLikes;
+    item: PayloadResMyInteractionsWithOthers;
     index: number;
   }) => (
     <View
@@ -79,8 +98,37 @@ export default function YouLikedMe() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Users you like</Text>
-        <Text style={styles.subtitle}>Find out who you like</Text>
+        <Text style={styles.title}>
+          Look at the people with whom you interacted
+        </Text>
+        {!loading && (
+          <View style={styles.chipsWrapper}>
+            {INTERACTION_TYPES.map(type => {
+              const isSelected = selectedFilters.includes(type);
+              return (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.modalChip,
+                    isSelected
+                      ? styles.modalChipSelected
+                      : styles.modalChipUnselected,
+                  ]}
+                  onPress={() => toggleFilter(type)}>
+                  <Text
+                    style={[
+                      styles.modalChipText,
+                      isSelected
+                        ? styles.modalChipTextSelected
+                        : styles.modalChipTextUnselected,
+                    ]}>
+                    {type}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
       </View>
 
       {loading ? (
@@ -88,12 +136,10 @@ export default function YouLikedMe() {
       ) : error ? (
         <Text style={styles.subtitle}>Try later or close section</Text>
       ) : myUsersLikes.length === 0 ? (
-        <Text style={styles.subtitle}>
-          you have not yet given any user a like
-        </Text>
+        <Text style={styles.subtitle}>You have no interactions yet</Text>
       ) : (
         <FlatList
-          data={myUsersLikes}
+          data={filteredUsers}
           renderItem={renderCard}
           keyExtractor={item => item.id.toString()}
           numColumns={numColumns}
@@ -106,7 +152,6 @@ export default function YouLikedMe() {
       {modalVisible && userToSee.toIndividual !== null && (
         <ModalInfoUser
           user={userToSee}
-          originScreen={'YouLikedMe'}
           modalVisible={modalVisible}
           completeInfo={true}
           toggleModal={toggleModal}
@@ -144,5 +189,36 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginBottom: 15,
     alignItems: 'center' as const,
+  },
+  chipsWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: 15,
+  },
+  modalChip: {
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderWidth: 1,
+  },
+  modalChipSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  modalChipUnselected: {
+    backgroundColor: 'transparent',
+    borderColor: colors.textSecondary,
+  },
+  modalChipText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  modalChipTextSelected: {
+    color: '#fff',
+  },
+  modalChipTextUnselected: {
+    color: colors.textSecondary,
   },
 });

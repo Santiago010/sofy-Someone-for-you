@@ -1,11 +1,10 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
-import {View, Text, StyleSheet, FlatList} from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import {colors} from '../theme/globalTheme';
 import {CardViewWithoutAnimation2} from '../components/CardViewWithoutAnimation2';
 import {DeviceDimensions} from '../helpers/DeviceDimensiones';
-import {ModalMatch} from '../components/ModalMatch';
 import {useWhoLikesMe} from '../hooks/useWhoLikeMe';
-import {PayloadWhoLikedMe} from '../interfaces/interfacesApp';
+import {PayloadResInteractionsWithMe} from '../interfaces/interfacesApp';
 import {ModalInfoUser2} from '../components/ModalInfoUser2';
 import {useFocusEffect} from '@react-navigation/native';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
@@ -21,9 +20,12 @@ export default function SeeWhoLikesYou() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisibleMatch, setModalVisibleMatch] = useState(false);
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [userToSee, setuserToSee] = useState<PayloadWhoLikedMe>(
-    {} as PayloadWhoLikedMe,
+  const [userToSee, setuserToSee] = useState<PayloadResInteractionsWithMe>(
+    {} as PayloadResInteractionsWithMe,
   );
+
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const INTERACTION_TYPES = ['COMPLIMENT', 'SUPERLIKE', 'LIKE'];
 
   useEffect(() => {
     console.log('ID User for Chats:', idUserForChats);
@@ -32,6 +34,21 @@ export default function SeeWhoLikesYou() {
   const [isFocused, setIsFocused] = useState(false);
   const [focusedFetched, setFocusedFetched] = useState(false);
   const [modalVisibleSofyConnect, setModalVisibleSofyConnect] = useState(false);
+
+  const toggleFilter = (type: string) => {
+    if (selectedFilters.includes(type)) {
+      setSelectedFilters(selectedFilters.filter(item => item !== type));
+    } else {
+      setSelectedFilters([...selectedFilters, type]);
+    }
+  };
+
+  const filteredUsers =
+    selectedFilters.length > 0
+      ? whoLikesMe.filter(user =>
+          selectedFilters.includes(user.interactionType),
+        )
+      : whoLikesMe;
 
   useFocusEffect(
     React.useCallback(() => {
@@ -61,7 +78,7 @@ export default function SeeWhoLikesYou() {
     setModalVisible(!modalVisible);
   };
 
-  const toggleModalWithUser = (user: PayloadWhoLikedMe) => {
+  const toggleModalWithUser = (user: PayloadResInteractionsWithMe) => {
     setuserToSee(user);
     setModalVisible(!modalVisible);
   };
@@ -79,7 +96,7 @@ export default function SeeWhoLikesYou() {
     item,
     index,
   }: {
-    item: PayloadWhoLikedMe;
+    item: PayloadResInteractionsWithMe;
     index: number;
   }) => (
     <View
@@ -95,6 +112,7 @@ export default function SeeWhoLikesYou() {
         toggleModalWithUser={toggleModalWithUser}
         isConnect={isConnect}
         setModalVisibleSofyConnect={() => setModalVisibleSofyConnect(true)}
+        isBlur={item.interactionType === 'LIKE'}
       />
     </View>
   );
@@ -105,6 +123,34 @@ export default function SeeWhoLikesYou() {
         <Text style={styles.subtitle}>
           Find out who showed interest in your profile
         </Text>
+        {!loading && (
+          <View style={styles.chipsWrapper}>
+            {INTERACTION_TYPES.map(type => {
+              const isSelected = selectedFilters.includes(type);
+              return (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.modalChip,
+                    isSelected
+                      ? styles.modalChipSelected
+                      : styles.modalChipUnselected,
+                  ]}
+                  onPress={() => toggleFilter(type)}>
+                  <Text
+                    style={[
+                      styles.modalChipText,
+                      isSelected
+                        ? styles.modalChipTextSelected
+                        : styles.modalChipTextUnselected,
+                    ]}>
+                    {type}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
       </View>
 
       {loading ? (
@@ -112,12 +158,10 @@ export default function SeeWhoLikesYou() {
       ) : error ? (
         <Text style={styles.subtitle}>Try later or close section</Text>
       ) : whoLikesMe.length === 0 ? (
-        <Text style={styles.subtitle}>
-          you have not yet given any user a like
-        </Text>
+        <Text style={styles.subtitle}>You have no interactions yet</Text>
       ) : (
         <FlatList
-          data={whoLikesMe}
+          data={filteredUsers}
           renderItem={renderCard}
           keyExtractor={item => item.id.toString()}
           numColumns={numColumns}
@@ -130,7 +174,6 @@ export default function SeeWhoLikesYou() {
       {modalVisible && userToSee.fromIndividual !== null && (
         <ModalInfoUser2
           user={userToSee}
-          originScreen={'SeeWhoLikesYou'}
           modalVisible={modalVisible}
           toggleModal={toggleModal}
           toggleModalToMatch={toggleModalToMatch}
@@ -143,14 +186,6 @@ export default function SeeWhoLikesYou() {
         productFromProfile={suscriptions[0]}
         userIdRef={idUserForChats}
       />
-
-      {modalVisibleMatch && userToSee.fromIndividual !== null && (
-        <ModalMatch
-          user={userToSee}
-          modalVisible={modalVisibleMatch}
-          toggleModal={toggleModalMatch}
-        />
-      )}
     </View>
   );
 }
@@ -183,5 +218,36 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginBottom: 15,
     alignItems: 'center' as const,
+  },
+  chipsWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: 15,
+  },
+  modalChip: {
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderWidth: 1,
+  },
+  modalChipSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  modalChipUnselected: {
+    backgroundColor: 'transparent',
+    borderColor: colors.textSecondary,
+  },
+  modalChipText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  modalChipTextSelected: {
+    color: '#fff',
+  },
+  modalChipTextUnselected: {
+    color: colors.textSecondary,
   },
 });

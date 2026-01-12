@@ -11,6 +11,7 @@ import SeeStateMyProducts from '../screens/SeeStateMyProducts';
 export type RootStackParamsStackSetttings = {
   Settings: undefined;
   EditPhoneNumber: undefined;
+  EditPassword: undefined;
   SeeLocation: undefined;
   ContactUs: undefined;
   Privacy: undefined;

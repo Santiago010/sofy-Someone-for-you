@@ -1,12 +1,14 @@
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import {privateDB} from '../db/db';
 import {
-  PayloadWhoLikedMe,
-  ResponseWhoLikedMe,
+  PayloadResInteractionsWithMe,
+  ResInteractionsWithMe,
 } from '../interfaces/interfacesApp';
 
 export function useWhoLikesMe() {
-  const [whoLikesMe, setWhoLikesMe] = useState<PayloadWhoLikedMe[]>([]);
+  const [whoLikesMe, setWhoLikesMe] = useState<PayloadResInteractionsWithMe[]>(
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,8 +16,8 @@ export function useWhoLikesMe() {
     setLoading(true);
     setError(null);
     try {
-      const {data} = await privateDB.get<ResponseWhoLikedMe>(
-        '/individuals/who-liked-me',
+      const {data} = await privateDB.get<ResInteractionsWithMe>(
+        '/individuals/who-interacted-with-me',
       );
       setWhoLikesMe(data.payload);
     } catch (err) {

@@ -26,6 +26,7 @@ import ModalInfoPlanConnect from '../components/ModalInfoPlanConnect';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 import ModalCompliments from '../components/ModalCompliments';
 import ModalSuperLike from '../components/ModalSuperLike';
+import {Button} from 'react-native-paper';
 
 export const Profile = () => {
   const [dataInfouser, setdataInfouser] = useState({
@@ -217,6 +218,24 @@ export const Profile = () => {
                   </Text>
                 </TouchableOpacity>
               </View>
+            </View>
+            <View style={styles.interactionsContainer}>
+              <Text style={styles.interactionsTitle}>My Interactions</Text>
+              <Text style={styles.interactionText}>
+                Interactions Sent: {detailsUser?.my_interactions}
+              </Text>
+              <Text style={styles.interactionText}>
+                Interactions Received: {detailsUser?.interactions_with_me}
+              </Text>
+              <Button
+                mode="contained"
+                style={styles.interactionsButton}
+                labelStyle={styles.interactionsButtonLabel}
+                onPress={() => {
+                  navigation.navigate('Interactions' as never);
+                }}>
+                See My Interactions
+              </Button>
             </View>
             {!isConnect && (
               <View style={styles.carouselContainer}>
@@ -514,5 +533,45 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.primary, // O el color que uses para precios
     marginBottom: 15,
+  },
+  interactionsContainer: {
+    backgroundColor: colors.backgroundSecondary,
+    padding: 20,
+    borderRadius: 20,
+    marginHorizontal: 15,
+    marginVertical: 10,
+    alignItems: 'center',
+    shadowColor: colors.textSecondary,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    elevation: 3,
+  },
+  interactionsTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  interactionText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: colors.textSecondary,
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  interactionsButton: {
+    marginTop: 15,
+    backgroundColor: colors.primary,
+    borderRadius: 25,
+    width: '80%',
+  },
+  interactionsButtonLabel: {
+    color: colors.background,
+    fontSize: 14,
+    fontWeight: 'bold',
+    paddingVertical: 2,
   },
 });

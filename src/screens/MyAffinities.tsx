@@ -228,8 +228,13 @@ const MyAffinities = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const {GetDetailsUser, detailsUser} = useContext(AuthContext);
-  const {isConnect, amountOfSuperLikes, amountOfCompliments, consume} =
-    useContext(PurchasesContext);
+  const {
+    isConnect,
+    amountOfSuperLikes,
+    amountOfCompliments,
+    consume,
+    getBalanceProducts,
+  } = useContext(PurchasesContext);
   const {superlike, dislike} = useLikeOrDislike();
 
   const {
@@ -253,6 +258,8 @@ const MyAffinities = () => {
     if (detailsUser) {
       const interestFromUser = detailsUser.categories || [];
       setInterest({selectedInterest: interestFromUser});
+
+      getBalanceProducts(detailsUser.id);
     }
   }, [detailsUser]);
 
@@ -536,14 +543,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.background,
+    paddingTop: 10,
   },
   itemContainer: {
     // Calculated height to make paging work nicely.
     // Screen height - top offset (approx logo size + padding) - bottom inset if any
-    height: height * 0.8,
+    height: height * 0.6,
     width: width,
     paddingHorizontal: 10,
-    marginBottom: 20,
+    marginBottom: 5,
     justifyContent: 'center',
   },
   card: {
@@ -559,7 +567,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   imageContainer: {
-    flex: 0.6,
+    flex: 0.5,
     position: 'relative',
   },
   image: {

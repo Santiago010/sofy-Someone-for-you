@@ -1,15 +1,15 @@
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
-import React, {FC} from 'react';
+import React, {FC, useState} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {colors} from '../theme/globalTheme';
-import {Chip} from 'react-native-paper';
-import {PayloadResponseMyLikes} from '../interfaces/interfacesApp';
+import {Chip, Portal, Dialog, Button, Paragraph} from 'react-native-paper';
+import {PayloadResMyInteractionsWithOthers} from '../interfaces/interfacesApp';
 interface CardViewWithoutAnimationProps {
-  card: PayloadResponseMyLikes;
+  card: PayloadResMyInteractionsWithOthers;
   index: number;
   width?: number;
   height?: number;
-  toggleModalWithUser: (user: PayloadResponseMyLikes) => void;
+  toggleModalWithUser: (user: PayloadResMyInteractionsWithOthers) => void;
 }
 
 export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
@@ -19,71 +19,98 @@ export const CardViewWithoutAnimation: FC<CardViewWithoutAnimationProps> = ({
   toggleModalWithUser,
 }) => {
   const dynamicStyles = styles(width, height);
+  const [visible, setVisible] = useState(false);
+
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
+
+  const hasComplimentMessage =
+    card.interactionType === 'COMPLIMENT' && card.message;
 
   return (
-    <TouchableOpacity
-      style={dynamicStyles.card}
-      onPress={() => toggleModalWithUser(card)}>
-      <View style={dynamicStyles.cardImage}>
-        <Image
-          source={{
-            uri: card.toIndividual.individualFiles[0]?.file.url,
-          }}
-          style={dynamicStyles.image}
-        />
-      </View>
-      <View style={dynamicStyles.cardFooter}>
-        <View
-          style={{
-            flexDirection: 'column',
-          }}>
-          <Text style={dynamicStyles.cardFooterName}>
-            {card.toIndividual.name} {card.toIndividual.lastname}
-          </Text>
-          <Text style={dynamicStyles.cardFooterAge}>
-            {card.toIndividual.age}
-          </Text>
+    <>
+      <TouchableOpacity
+        style={dynamicStyles.card}
+        onPress={() => toggleModalWithUser(card)}
+        onLongPress={() => {
+          if (hasComplimentMessage) {
+            showDialog();
+          }
+        }}
+        delayLongPress={500}>
+        <View style={dynamicStyles.cardImage}>
+          <Image
+            source={{
+              uri: card.toIndividual.individualFiles[0]?.file.url,
+            }}
+            style={dynamicStyles.image}
+          />
         </View>
-
-        <View style={{height: height * 0.55}}>
-          <View style={dynamicStyles.boxInterest}>
-            <MaterialDesignIcons
-              name="library"
-              size={Math.min(width, height) * 0.1}
-              color={colors.backgroundSecondary}
-            />
-            <Text
-              style={{
-                marginLeft: 10,
-                fontWeight: 'bold',
-                color: colors.backgroundSecondary,
-                fontSize: Math.min(width, height) * 0.1,
-              }}>
-              Interests
+        <View style={dynamicStyles.cardFooter}>
+          <View
+            style={{
+              flexDirection: 'column',
+            }}>
+            <Text style={dynamicStyles.cardFooterName}>
+              {card.toIndividual.name} {card.toIndividual.lastname}
+            </Text>
+            <Text style={dynamicStyles.cardFooterAge}>
+              {card.toIndividual.age}
             </Text>
           </View>
-          <View style={dynamicStyles.interestContainer}>
-            {card.toIndividual.categories.map(category => (
-              <Chip
-                key={category.id}
-                mode="flat"
-                onPress={() => {}}
+
+          <View style={{height: height * 0.55}}>
+            <View style={dynamicStyles.boxInterest}>
+              <MaterialDesignIcons
+                name="library"
+                size={Math.min(width, height) * 0.1}
+                color={colors.backgroundSecondary}
+              />
+              <Text
                 style={{
-                  margin: 2,
-                  backgroundColor: colors.text,
-                  opacity: 0.8,
-                }}
-                textStyle={{
+                  marginLeft: 10,
+                  fontWeight: 'bold',
                   color: colors.backgroundSecondary,
-                  fontSize: Math.min(width, height) * 0.07,
+                  fontSize: Math.min(width, height) * 0.1,
                 }}>
-                {category.name}
-              </Chip>
-            ))}
+                Interests
+              </Text>
+            </View>
+            <View style={dynamicStyles.interestContainer}>
+              {card.toIndividual.categories.map(category => (
+                <Chip
+                  key={category.id}
+                  mode="flat"
+                  onPress={() => {}}
+                  style={{
+                    margin: 2,
+                    backgroundColor: colors.text,
+                    opacity: 0.8,
+                  }}
+                  textStyle={{
+                    color: colors.backgroundSecondary,
+                    fontSize: Math.min(width, height) * 0.07,
+                  }}>
+                  {category.name}
+                </Chip>
+              ))}
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+
+      <Portal>
+        <Dialog visible={visible} onDismiss={hideDialog}>
+          <Dialog.Title>Compliment</Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>{card.message}</Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={hideDialog}>Done</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    </>
   );
 };
 

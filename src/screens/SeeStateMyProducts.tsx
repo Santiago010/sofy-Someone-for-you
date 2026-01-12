@@ -15,8 +15,13 @@ import {colors} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 
 export default function SeeStateMyProducts({navigation}: any) {
-  const {amountOfCompliments, amountOfSuperLikes, consume, getBalanceProducts} =
-    useContext(PurchasesContext);
+  const {
+    amountOfCompliments,
+    amountOfSuperLikes,
+    consume,
+    getBalanceProducts,
+    isConnect,
+  } = useContext(PurchasesContext);
   const {idUserForChats} = useContext(AuthContext);
 
   useEffect(() => {
@@ -52,7 +57,17 @@ export default function SeeStateMyProducts({navigation}: any) {
 
         <View style={styles.itemContainer}>
           <Text style={styles.itemTitle}>Compliments</Text>
-          <Text style={styles.itemCount}>{amountOfCompliments}</Text>
+          {isConnect ? (
+            <MaterialDesignIcons
+              name="all-inclusive"
+              size={30}
+              color={colors.secondary}
+              style={{marginRight: 20}}
+            />
+          ) : (
+            <Text style={styles.itemCount}>{amountOfCompliments}</Text>
+          )}
+
           <View style={styles.iconContainer}>
             <MaterialDesignIcons
               name="message-flash"
@@ -64,8 +79,19 @@ export default function SeeStateMyProducts({navigation}: any) {
 
         <View style={styles.itemContainer}>
           <Text style={styles.itemTitle}>Super Likes</Text>
-          <Text style={styles.itemCount}>{amountOfSuperLikes}</Text>
-          <View style={styles.iconContainer}>
+
+          {isConnect ? (
+            <MaterialDesignIcons
+              name="all-inclusive"
+              size={30}
+              color={colors.primary}
+              style={{marginRight: 20}}
+            />
+          ) : (
+            <Text style={styles.itemCountTwo}>{amountOfSuperLikes}</Text>
+          )}
+
+          <View style={styles.iconContainerTwo}>
             <MaterialDesignIcons
               name="star-four-points"
               size={30}
@@ -125,6 +151,12 @@ const styles = StyleSheet.create({
   itemCount: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: colors.secondary,
+    marginRight: 20,
+  },
+  itemCountTwo: {
+    fontSize: 24,
+    fontWeight: 'bold',
     color: colors.primary,
     marginRight: 20,
   },
@@ -143,6 +175,14 @@ const styles = StyleSheet.create({
     lineHeight: 26,
   },
   iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 40,
+    backgroundColor: colors.secondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconContainerTwo: {
     width: 50,
     height: 50,
     borderRadius: 40,

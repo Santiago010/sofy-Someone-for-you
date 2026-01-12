@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import {appId, region, restKey} from '../assets/KeysCometChat';
 import {
   InterestAndSubInterestResponse,
@@ -9,13 +9,15 @@ import {
   DataMembersCommunity,
   DataMessageOfCommunity,
   ListGroup,
+  PayloadResDetailsOneMemberOfBackend,
   ResCreateGroup,
   ResDetailsGroup,
+  ResDetailsOneMemberOfBackend,
   ResMembersCommunity,
   ResMessageOfCommunity,
   ResUploadFileGroup,
 } from '../interfaces/interfacesIAP';
-import {privateDB} from '../db/db';
+import {db, privateDB} from '../db/db';
 
 const urlsApiGroups = {
   listGroups: `https://${appId}.api-${region}.cometchat.io/v3/groups`,
@@ -630,6 +632,43 @@ export const useCometChatGroups = () => {
     }
   };
 
+  const getDetailsOfOneMember = async (
+    uid: string,
+  ): Promise<{
+    detailsMember?: PayloadResDetailsOneMemberOfBackend;
+    message: string;
+  }> => {
+    try {
+      const {data} = await privateDB.get<ResDetailsOneMemberOfBackend>(
+        `/individuals/details/${uid}`,
+      );
+      return Promise.resolve({
+        detailsMember: data.payload,
+        message: 'Member details fetched successfully',
+      });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          const errorData = error.response.data;
+          return Promise.reject({
+            message: errorData.message,
+          });
+        } else if (error.request) {
+          return Promise.reject({
+            message: 'Error in the Response',
+          });
+        } else {
+          return Promise.reject({
+            message: 'Error in the Response',
+          });
+        }
+      } else {
+        return Promise.reject({
+          message: 'Unexpected error in the server',
+        });
+      }
+    }
+  };
   return {
     fetchAllGroups,
     fetGroupWithInterest,
@@ -646,5 +685,6 @@ export const useCometChatGroups = () => {
     fetchGroupsWithInterestNotJoined,
     removeMemberFromGroup,
     updateGroup,
+    getDetailsOfOneMember,
   };
 };

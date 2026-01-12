@@ -20,15 +20,16 @@ export function useLikeOrDislike() {
 
   const superlike = async (targetIndividualId: number) => {
     try {
-      await privateDB.post<LikeResponse>('/individuals/super-like', {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+      const response = await privateDB.post<LikeResponse>(
+        '/individuals/super-like',
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          targetIndividualId: targetIndividualId,
         },
-        targetIndividualId: targetIndividualId,
-      });
-      console.log(
-        `superlike hecho satisfactoriamente a: ${targetIndividualId}`,
       );
+      console.log(`superlike hecho satisfactoriamente a: ${response.data}`);
       return true;
     } catch (err) {
       console.error('Error in the request Like');
@@ -38,16 +39,17 @@ export function useLikeOrDislike() {
 
   const compliment = async (targetIndividualId: number, message: string) => {
     try {
-      await privateDB.post<LikeResponse>('/individuals/compliment', {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+      const response = await privateDB.post<LikeResponse>(
+        '/individuals/compliment',
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          targetIndividualId: targetIndividualId,
+          message: message,
         },
-        targetIndividualId: targetIndividualId,
-        message: message,
-      });
-      console.log(
-        `coompliment hecho satisfactoriamente a: ${targetIndividualId}`,
       );
+      console.log(`compliment hecho satisfactoriamente a: ${response.data}`);
       return true;
     } catch (err) {
       console.error('Error in the request Like');

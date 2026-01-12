@@ -89,7 +89,7 @@ export const BottonTabNavigator = () => {
 
               if (route.name === 'MyAffinities') {
                 iconName = focused ? 'fire' : 'fire-circle';
-              } else if (route.name === 'Likes') {
+              } else if (route.name === 'Home') {
                 iconName = focused ? 'heart' : 'heart-outline';
               } else if (route.name === 'Chats') {
                 iconName = focused ? 'chat' : 'chat-outline';
@@ -128,9 +128,8 @@ export const BottonTabNavigator = () => {
             },
           })}>
           <Tab.Screen name="MyAffinities" component={MyAffinities} />
-          <Tab.Screen name="Likes" component={TopTapNavigatorLikes} />
-          <Tab.Screen name="Home" component={CardsUsers} />
           <Tab.Screen name="StackCommunities" component={StackCommunities} />
+          <Tab.Screen name="Home" component={CardsUsers} />
           <Tab.Screen name="Chats" component={Chats} />
           <Tab.Screen name="StackProfile" component={StackProfile} />
         </Tab.Navigator>

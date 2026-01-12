@@ -21,11 +21,13 @@ import {
   DataMembersCommunity,
   DataMessageOfCommunity,
   ResDetailsGroup,
+  PayloadResDetailsOneMemberOfBackend,
 } from '../interfaces/interfacesIAP';
 import {AuthContext} from '../context/authContext/authContext';
 import {Swipeable, GestureHandlerRootView} from 'react-native-gesture-handler';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import FlatListFeed from '../components/FlatListFeed'; // Importamos el nuevo componente
+import {ModalInfoMember} from '../components/ModalInfoMember';
 
 // Habilitar animaciones en Android
 if (
@@ -54,6 +56,7 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     uploadImageToGroup,
     addMessage,
     removeMemberFromGroup,
+    getDetailsOfOneMember,
   } = useCometChatGroups();
 
   const {idUserForChats} = useContext(AuthContext);
@@ -80,6 +83,25 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
   // Nuevos estados para la carga individual de tabs
   const [loadingFeed, setLoadingFeed] = useState(false);
   const [loadingMembers, setLoadingMembers] = useState(false);
+
+  const [userForSeeDetails, setUserForSeeDetails] =
+    useState<PayloadResDetailsOneMemberOfBackend>(
+      {} as PayloadResDetailsOneMemberOfBackend,
+    );
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
+
+  const handleShowMemberDetails = (uid: string) => {
+    getDetailsOfOneMember(uid).then(res => {
+      if (res && res.detailsMember) {
+        setUserForSeeDetails(res.detailsMember);
+        setModalVisible(true);
+      }
+    });
+  };
 
   //   TODO:useeffect para volver a cargar los detalles de un grupo cuando el usuario se une
   useEffect(() => {
@@ -210,21 +232,10 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
       <View style={styles.actionsContainer}>
         {/* Botón 3: Robot Love */}
         <TouchableOpacity
-          style={[styles.actionButton, {backgroundColor: colors.primary}]} // Fondo suave opcional
-          onPress={() => console.log('Robot action')}>
+          style={[styles.actionButton, {backgroundColor: colors.secondary}]} // Fondo suave opcional
+          onPress={() => handleShowMemberDetails(item.uid!)}>
           <MaterialDesignIcons
             name={'robot-love'}
-            size={28}
-            color={colors.backgroundSecondary}
-          />
-        </TouchableOpacity>
-
-        {/* Botón 2: Book Heart */}
-        <TouchableOpacity
-          style={[styles.actionButton, {backgroundColor: colors.secondary}]} // Fondo suave opcional
-          onPress={() => console.log('Book action')}>
-          <MaterialDesignIcons
-            name={'book-heart'}
             size={28}
             color={colors.backgroundSecondary}
           />
@@ -490,6 +501,16 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
           </Tabs.Tab>
         </Tabs.Container>
       </View>
+      {modalVisible &&
+        userForSeeDetails &&
+        Object.keys(userForSeeDetails).length > 0 && (
+          <ModalInfoMember
+            modalVisible={modalVisible}
+            toggleModal={toggleModal}
+            user={userForSeeDetails}
+            completeInfo={true}
+          />
+        )}
     </GestureHandlerRootView>
   );
 };
