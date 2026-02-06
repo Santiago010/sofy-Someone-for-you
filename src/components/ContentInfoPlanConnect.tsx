@@ -62,26 +62,32 @@ export default function ContentInfoPlanConnect({
     if (isPurchasing) return;
     setIsPurchasing(true);
 
-    const offer = (product as SubscriptionAndroid)
-      .subscriptionOfferDetails?.[0];
-
-    const offerToken = offer?.offerToken;
-
-    if (!offerToken) {
-      console.error(
-        'Offer Token no encontrado. Asegúrate de que el plan base está configurado correctamente.',
-      );
-      setIsPurchasing(false);
-      return;
-    }
-
     try {
-      //   console.log('Iniciando compra para:', product.productId);
+      if (Platform.OS === 'android') {
+        const offer = (product as SubscriptionAndroid)
+          .subscriptionOfferDetails?.[0];
 
-      await requestSubscription({
-        sku: product.productId,
-        subscriptionOffers: [{sku: product.productId, offerToken: offerToken}],
-      });
+        const offerToken = offer?.offerToken;
+
+        if (!offerToken) {
+          console.error(
+            'Offer Token no encontrado. Asegúrate de que el plan base está configurado correctamente.',
+          );
+          setIsPurchasing(false);
+          return;
+        }
+
+        await requestSubscription({
+          sku: product.productId,
+          subscriptionOffers: [
+            {sku: product.productId, offerToken: offerToken},
+          ],
+        });
+      } else {
+        await requestSubscription({
+          sku: product.productId,
+        });
+      }
 
       setIsPurchaseDone(true);
     } catch (error) {
@@ -91,6 +97,7 @@ export default function ContentInfoPlanConnect({
   };
 
   useEffect(() => {
+
     if (!isPurchaseDone) return;
 
     let purchaseUpdateSubscription;
@@ -128,6 +135,20 @@ export default function ContentInfoPlanConnect({
         }
       },
     );
+
+    //     // En tu useEffect, agrega esto temporalmente al principio del listener
+    // purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
+    // console.log('🧹 LIMPIEZA: Finalizando transacción atascada:', purchase.productId);
+    
+    // // ¡¡¡ESTO ES SOLO PARA LIMPIAR LA COLA!!!
+    // await finishTransaction({ purchase, isConsumable: false });
+    
+    // // Detén la ejecución aquí para que no llame al backend y rompas el ciclo
+    // return; 
+
+    // /* ... Tu código original estaba aquí ...
+    // */
+    // });
 
     purchaseErrorSubscription = purchaseErrorListener(error => {
       setIsPurchasing(false);

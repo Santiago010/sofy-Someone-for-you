@@ -27,9 +27,7 @@ export default function SeeWhoLikesYou() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const INTERACTION_TYPES = ['COMPLIMENT', 'SUPERLIKE', 'LIKE'];
 
-  useEffect(() => {
-    console.log('ID User for Chats:', idUserForChats);
-  }, []);
+
 
   const [isFocused, setIsFocused] = useState(false);
   const [focusedFetched, setFocusedFetched] = useState(false);

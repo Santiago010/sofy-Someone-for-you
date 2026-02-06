@@ -85,8 +85,12 @@ export default function ModalSuperLike({
     setIsPurchasing(true);
 
     try {
-      await requestPurchase({skus: [selectedProduct.productId]});
-      setSuperLikeDone(true);
+      if (Platform.OS === 'android') {
+        await requestPurchase({skus: [selectedProduct.productId]});
+      } else {
+        await requestPurchase({sku: selectedProduct.productId});
+      }
+      // Listener is always active
     } catch (error) {
       console.error('❌ Error al solicitar la compra:', error);
       setIsPurchasing(false);
@@ -94,11 +98,13 @@ export default function ModalSuperLike({
   };
 
   useEffect(() => {
-    if (!superLikeDone) return;
-
     const purchaseUpdateProduct = purchaseUpdatedListener(
       async (purchase: Purchase) => {
-        console.info('✅ Compra recibida de Google:', purchase);
+        console.info('✅ Compra recibida:', purchase);
+
+        // Verificar si este producto pertenece a este modal
+        const isMyProduct = products.some(p => p.productId === purchase.productId);
+        if (!isMyProduct) return;
 
         if (purchase.transactionReceipt) {
           const purchaseToken =
@@ -123,10 +129,6 @@ export default function ModalSuperLike({
                   setModalVisible(false);
                   setShowSuccessMessage(false);
                 }, 3330);
-
-                console.log(
-                  '✅ Transacción finalizada correctamente con finishTransaction.',
-                );
               });
             })
             .catch(error => {
@@ -147,7 +149,7 @@ export default function ModalSuperLike({
       purchaseUpdateProduct.remove();
       purchaseErrorProduct.remove();
     };
-  }, [superLikeDone]);
+  }, [products, idUserForChats]);
 
   return (
     <Modal
@@ -179,8 +181,10 @@ export default function ModalSuperLike({
             {sortedProducts.map((item, index) => {
               const isSelected = selectedProduct?.productId === item.productId;
               // Extraer cantidad del nombre (ej: "5 Super Like")
-              const quantity = item.name.match(/\d+/)?.[0] || '';
-              const name = item.name.replace(/\d+/, '').trim();
+              const displayName = item.name || item.title || '';
+              // Extraer cantidad del nombre (ej: "5 Super Like")
+              const quantity = displayName.match(/\d+/)?.[0] || '';
+              const name = displayName.replace(/\d+/, '').trim();
               const price =
                 item.oneTimePurchaseOfferDetails?.formattedPrice ||
                 item.localizedPrice ||

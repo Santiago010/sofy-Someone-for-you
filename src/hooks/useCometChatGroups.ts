@@ -51,8 +51,6 @@ export const useCometChatGroups = () => {
         },
       });
 
-      console.log('Group updated:', data);
-
       return Promise.resolve({
         message: 'Group updated successfully',
       });
@@ -105,7 +103,7 @@ export const useCometChatGroups = () => {
         },
       });
 
-      console.log('Message sent:', data);
+
 
       return Promise.resolve({
         message: 'Message sent successfully',
@@ -198,7 +196,6 @@ export const useCometChatGroups = () => {
           },
         },
       );
-      console.log('Group created:', data);
       return Promise.resolve({
         guidGroup: data.data.guid,
         message: 'Group created successfully',
@@ -498,7 +495,7 @@ export const useCometChatGroups = () => {
         },
       );
 
-      console.log('Reaction added:', data);
+
 
       return Promise.resolve({
         message: 'Reaction added successfully',
@@ -578,7 +575,6 @@ export const useCometChatGroups = () => {
         },
       );
 
-      console.log('Members added to group:', data);
 
       return Promise.resolve({
         message: 'Members added successfully',
@@ -613,7 +609,6 @@ export const useCometChatGroups = () => {
         },
       });
 
-      console.log('Member removed from group:', data);
 
       return Promise.resolve({
         message: 'Member removed successfully',

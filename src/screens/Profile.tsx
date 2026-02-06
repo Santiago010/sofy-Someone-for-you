@@ -16,6 +16,7 @@ import {
   SafeAreaView,
   Dimensions,
   ScrollView,
+  Animated,
 } from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
@@ -26,7 +27,51 @@ import ModalInfoPlanConnect from '../components/ModalInfoPlanConnect';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 import ModalCompliments from '../components/ModalCompliments';
 import ModalSuperLike from '../components/ModalSuperLike';
+import LogoSofyMin from '../components/LogoSofyMin';
 import {Button} from 'react-native-paper';
+
+const ShakeBell = () => {
+  const shakeAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shakeAnimation, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: -1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.delay(1200),
+      ]),
+    ).start();
+  }, [shakeAnimation]);
+
+  const rotation = shakeAnimation.interpolate({
+    inputRange: [-1, 1],
+    outputRange: ['-25deg', '25deg'],
+  });
+
+  return (
+    <Animated.View style={{transform: [{rotate: rotation}], marginRight: 8}}>
+      <MaterialDesignIcons name="bell" size={20} color={colors.primary} />
+    </Animated.View>
+  );
+};
 
 export const Profile = () => {
   const [dataInfouser, setdataInfouser] = useState({
@@ -46,9 +91,7 @@ export const Profile = () => {
   const [modalSuperLikeVisible, setModalSuperLikeVisible] = useState(false);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    console.log('Products loaded in Profile:', products);
-  }, [products]);
+
 
   // Llamar a GetDetailsUser cada vez que la pantalla obtiene el foco
   useFocusEffect(
@@ -71,10 +114,10 @@ export const Profile = () => {
 
   // Agrupar productos
   const complimentsProducts = products.filter(p =>
-    p.name.toLowerCase().includes('compliment'),
+    (p.name || p.title).toLowerCase().includes('compliment'),
   );
   const superLikeProducts = products.filter(p =>
-    p.name.toLowerCase().includes('super like'),
+    (p.name || p.title).toLowerCase().includes('super like'),
   );
 
   const getLowestPrice = (items: any[]) => {
@@ -130,6 +173,7 @@ export const Profile = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{flex: 1}}>
+        <LogoSofyMin />
         <ScrollView contentContainerStyle={{flexGrow: 1, paddingBottom: 100}}>
           <View style={commonStyles.content}>
             <View style={styles.styleBoxOne}>
@@ -221,12 +265,20 @@ export const Profile = () => {
             </View>
             <View style={styles.interactionsContainer}>
               <Text style={styles.interactionsTitle}>My Interactions</Text>
-              <Text style={styles.interactionText}>
-                Interactions Sent: {detailsUser?.my_interactions}
-              </Text>
-              <Text style={styles.interactionText}>
-                Interactions Received: {detailsUser?.interactions_with_me}
-              </Text>
+
+              <View style={styles.interactionRow}>
+                <ShakeBell />
+                <Text style={styles.interactionText}>
+                  Interactions Sent: {detailsUser?.my_interactions}
+                </Text>
+              </View>
+
+              <View style={styles.interactionRow}>
+                <ShakeBell />
+                <Text style={styles.interactionText}>
+                  Interactions Received: {detailsUser?.interactions_with_me}
+                </Text>
+              </View>
               <Button
                 mode="contained"
                 style={styles.interactionsButton}
@@ -252,12 +304,16 @@ export const Profile = () => {
                     let description = item.description;
 
                     if (origin === 'subscription') {
-                      const subscriptionProduct = item as SubscriptionAndroid;
-                      const offer =
-                        subscriptionProduct.subscriptionOfferDetails?.[0];
-                      const pricePhase =
-                        offer?.pricingPhases.pricingPhaseList?.[0];
-                      formattedPrice = pricePhase?.formattedPrice || 'N/A';
+                      if (Platform.OS === 'ios') {
+                        formattedPrice = item.localizedPrice || 'N/A';
+                      } else {
+                        const subscriptionProduct = item as SubscriptionAndroid;
+                        const offer =
+                          subscriptionProduct.subscriptionOfferDetails?.[0];
+                        const pricePhase =
+                          offer?.pricingPhases.pricingPhaseList?.[0];
+                        formattedPrice = pricePhase?.formattedPrice || 'N/A';
+                      }
                     } else if (origin === 'product-group') {
                       formattedPrice = item.formattedPrice;
                       title = item.title;
@@ -303,7 +359,8 @@ export const Profile = () => {
                         ) : (
                           <TouchableOpacity
                             onPress={() =>
-                              console.log('Product pressed:', title)
+                            {}
+                            //   console.log('Product pressed:', title)
                             }
                             style={styles.platinumButton}>
                             <Text style={styles.platinumButtonText}>
@@ -555,11 +612,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
+  interactionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 5,
+  },
   interactionText: {
     fontWeight: 'bold',
     fontSize: 16,
     color: colors.textSecondary,
-    marginBottom: 5,
     textAlign: 'center',
   },
   interactionsButton: {

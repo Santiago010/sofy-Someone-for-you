@@ -16,13 +16,13 @@ export const useMatchSocket = (
   //   TODO:intento de conexion
   useEffect(() => {
     if (!idUserForMatch) {
-      console.log('❌ No hay idUserForMatch, esperando...');
+    //   console.log('❌ No hay idUserForMatch, esperando...');
       return;
     }
 
-    console.log(
-      `🔄 Intentando conectar con idUserForMatch: ${idUserForMatch} con url: ${socketurl}`,
-    );
+    // console.log(
+    //   `🔄 Intentando conectar con idUserForMatch: ${idUserForMatch} con url: ${socketurl}`,
+    // );
 
     const socket = io(socketurl, {
       query: {individualId: idUserForMatch},
@@ -39,7 +39,7 @@ export const useMatchSocket = (
       console.log(
         `✅ Conectado al WebSocket de matches con ID: ${idUserForMatch}`,
       );
-      console.log(`🔗 Socket ID: ${socket.id}`);
+    //   console.log(`🔗 Socket ID: ${socket.id}`);
     });
 
     socket.on('connect_error', error => {
@@ -52,13 +52,13 @@ export const useMatchSocket = (
 
     socket.on('disconnect', reason => {
       console.log(
-        `❌ Desconectado del WebSocket de matches (ID: ${idUserForMatch})`,
+        // `❌ Desconectado del WebSocket de matches (ID: ${idUserForMatch})`,
       );
-      console.log(`📋 disconnect Socket reason: ${reason}`);
+    //   console.log(`📋 disconnect Socket reason: ${reason}`);
     });
 
     socket.on('reconnect_attempt', attemptNumber => {
-      console.log(`🔄 Intento de reconexión #${attemptNumber}`);
+    //   console.log(`🔄 Intento de reconexión #${attemptNumber}`);
     });
 
     socket.on('reconnect_failed', () => {
@@ -66,7 +66,6 @@ export const useMatchSocket = (
     });
 
     socket.on('match', (data: MatchResponse) => {
-      console.log('🎉 ¡Match encontrado!', data);
 
       onMatchReceived(data);
     });
@@ -76,7 +75,6 @@ export const useMatchSocket = (
     });
 
     return () => {
-      console.log(`🔌 Limpiando conexión del socket (ID: ${idUserForMatch})`);
       socket.disconnect();
     };
   }, [idUserForMatch, onMatchReceived]);

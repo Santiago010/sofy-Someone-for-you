@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { emojiForPlatform } from '../helpers/emojiForPlatform';
 
 export const baseURL = 'https://someoneforyou.com.mx/api/v1';
 

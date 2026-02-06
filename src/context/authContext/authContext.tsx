@@ -321,7 +321,6 @@ export const AuthProvider = ({
 
   // Usamos useCallback para evitar que la función se recree en cada render
   const GetDetailsUser = useCallback(async () => {
-    console.log('GetDetailsUser called');
     try {
       const {data} = await privateDB.get<GetDetailsResponse>(
         '/individuals/me/details',

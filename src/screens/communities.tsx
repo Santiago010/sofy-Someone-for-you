@@ -28,6 +28,7 @@ import {
   DataMessageOfCommunity,
   ResDetailsGroup,
 } from '../interfaces/interfacesIAP';
+import LogoSofyMin from '../components/LogoSofyMin';
 import {Button} from 'react-native-paper';
 import FlatListFeed from '../components/FlatListFeed'; // Importado
 import {Tabs} from 'react-native-collapsible-tab-view'; // Agregado
@@ -234,6 +235,7 @@ const Communities = ({navigation}: Props) => {
   const renderHeader = () => {
     return (
       <View style={{backgroundColor: colors.background}}>
+        <LogoSofyMin />
         {/* Header Title */}
         <View style={styles.header}>
           <MaterialDesignIcons
@@ -556,7 +558,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     height: 200,
-
+    marginTop: 60,
     marginBottom: 20,
     borderRadius: 16,
     overflow: 'hidden',

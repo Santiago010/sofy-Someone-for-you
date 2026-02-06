@@ -28,6 +28,7 @@ import {useLikeOrDislike} from '../hooks/useLikeOrDislike';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 import {ModalForCompliment} from '../components/ModalForCompliment';
 import {ModalMessageSuperLike} from '../components/ModalMessageSuperLike';
+import {AffinitiesContext} from '../context/AffinitiesContext/AffinitiesContext';
 import {ModalMessageErrorConsumeProduct} from '../components/ModalMessageErrorConsumeProduct';
 import ModalMessageWithoutProduct from './ModalMessageWithoutProduct';
 
@@ -203,16 +204,18 @@ const AffinityItem = memo(({item, onInteraction}: AffinityItemProps) => {
 });
 
 const MyAffinities = () => {
-  const [interest, setInterest] = useState({
-    selectedInterest: [] as InterestAndSubInterestResponse[],
-  });
+  const {
+    selectedInterests,
+    setSelectedInterests,
+    userList,
+    setUserList,
+    isInitialized,
+  } = useContext(AffinitiesContext);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [tempSelectedInterests, setTempSelectedInterests] = useState<
     InterestAndSubInterestResponse[]
   >([]);
-
-  // Optimistic List State
-  const [localList, setLocalList] = useState<ListGetUserForInterest[]>([]);
 
   // Interaction Modals State
   const [complimentModalVisible, setComplimentModalVisible] = useState(false);
@@ -256,32 +259,36 @@ const MyAffinities = () => {
 
   useEffect(() => {
     if (detailsUser) {
-      const interestFromUser = detailsUser.categories || [];
-      setInterest({selectedInterest: interestFromUser});
-
+      if (!isInitialized) {
+        const interestFromUser = detailsUser.categories || [];
+        setSelectedInterests(interestFromUser);
+      }
       getBalanceProducts(detailsUser.id);
     }
-  }, [detailsUser]);
+  }, [detailsUser, isInitialized]);
 
   useEffect(() => {
-    if (interest.selectedInterest.length > 0) {
-      getListMyAffinities(interest.selectedInterest);
+    if (selectedInterests.length > 0 && userList.length === 0) {
+      getListMyAffinities(selectedInterests);
     }
-  }, [interest, getListMyAffinities]);
+  }, [selectedInterests, userList, getListMyAffinities]);
 
   useEffect(() => {
     if (listUserWithMyAffinities && listUserWithMyAffinities.length > 0) {
-      setLocalList(listUserWithMyAffinities);
+      setUserList(listUserWithMyAffinities);
     }
-  }, [listUserWithMyAffinities]);
+  }, [listUserWithMyAffinities, setUserList]);
 
-  const removeUserFromList = useCallback((id: number) => {
-    setLocalList(prev => prev.filter(user => user.id !== id));
-    setSelectedItem(null);
-  }, []);
+  const removeUserFromList = useCallback(
+    (id: number) => {
+      setUserList(prev => prev.filter(user => user.id !== id));
+      setSelectedItem(null);
+    },
+    [setUserList],
+  );
 
   const openFilterModal = () => {
-    setTempSelectedInterests(interest.selectedInterest);
+    setTempSelectedInterests(selectedInterests);
     setModalVisible(true);
   };
 
@@ -298,7 +305,8 @@ const MyAffinities = () => {
 
   const applyFilter = () => {
     if (tempSelectedInterests.length > 0) {
-      setInterest({selectedInterest: tempSelectedInterests});
+      setSelectedInterests(tempSelectedInterests);
+      setUserList([]);
       setModalVisible(false);
     }
   };
@@ -378,7 +386,6 @@ const MyAffinities = () => {
 
   const renderItem: ListRenderItem<ListGetUserForInterest> = useCallback(
     ({item}) => {
-      // console.log('Rendering item:', item.name);
       return (
         <AffinityItem
           item={item}
@@ -399,6 +406,9 @@ const MyAffinities = () => {
   if (isLoading && listUserWithMyAffinities.length === 0) {
     return (
       <View style={styles.loaderContainer}>
+        <View style={styles.headerContainer}>
+          <LogoSofyMin />
+        </View>
         <BarIndicator count={4} size={50} color={colors.primary} />
       </View>
     );
@@ -414,12 +424,25 @@ const MyAffinities = () => {
       </View>
 
       <FlatList
-        data={localList}
+        data={userList}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
         pagingEnabled
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{flexGrow: 1}}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <MaterialDesignIcons
+              name="account-alert"
+              color={colors.text}
+              size={50}
+            />
+            <Text style={styles.emptyText}>
+              No users found with these interests, or you have already seen
+              everyone.
+            </Text>
+          </View>
+        )}
         // Using snapToInterval or pagingEnabled expects items to be full height of scroll view
       />
 
@@ -744,6 +767,18 @@ const styles = StyleSheet.create({
     left: 20,
     zIndex: 10,
     padding: 5,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: colors.text,
+    textAlign: 'center',
+    marginTop: 10,
   },
 });
 

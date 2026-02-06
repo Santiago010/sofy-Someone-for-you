@@ -15,6 +15,7 @@ import {AuthProvider} from './src/context/authContext/authContext';
 import {MyStack} from './src/navigator/MyStack';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {PurchasesProvider} from './src/context/PurchasesContext/purchasesContext';
+import {AffinitiesProvider} from './src/context/AffinitiesContext/AffinitiesContext';
 
 function AppState({
   children,
@@ -25,7 +26,9 @@ function AppState({
     <SafeAreaProvider>
       <AuthProvider>
         <PurchasesProvider>
-          <PaperProvider>{children}</PaperProvider>
+          <AffinitiesProvider>
+            <PaperProvider>{children}</PaperProvider>
+          </AffinitiesProvider>
         </PurchasesProvider>
       </AuthProvider>
     </SafeAreaProvider>

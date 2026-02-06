@@ -128,7 +128,6 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
 
     const isMember = !!memberFound;
 
-    console.log(isMember);
     // Ocultar botón si ya es miembro en la lista O si acabamos de unirnos exitosamente (flag local)
     setShowBtnJoinGroup(!(isMember || actualUserIsJoined));
   }, [groupMembers, idUserForChats, actualUserIsJoined]);
@@ -314,7 +313,6 @@ const CommunitiesDetails = ({navigation, route}: Props) => {
     );
   }
 
-  console.log(owner, idUserForChats);
 
   //   TODO:funcion para renderizar el header con la informacion de la comunidad -->
   const renderHeader = () => {

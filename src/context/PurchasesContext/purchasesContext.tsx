@@ -21,6 +21,7 @@ import {
 } from 'react-native-iap';
 import {Platform} from 'react-native';
 import {AuthContext} from '../authContext/authContext';
+import { emojiForPlatform } from '../../helpers/emojiForPlatform';
 
 interface PurchasesContextProps {
   isConnect: boolean;
@@ -67,6 +68,7 @@ export const PurchasesProvider = ({
 }) => {
   const [state, dispatch] = useReducer(purchasesReducer, purchasesInitialState);
   const ANDROID_SUBSCRIPTION_SKUS = ['sofy_connect_895_1m'];
+  const IOS_SUBSCRIPTION_SKUS = ['rt_899_1m'];
   // Definimos tus nuevos SKUs
   const ANDROID_PRODUCT_SKUS = [
     'sofy_product_superlike_01',
@@ -76,6 +78,15 @@ export const PurchasesProvider = ({
     'sofy_product_compliment_02',
     'sofy_compliments_03',
   ];
+
+  const IOS_PRODUCT_SKUS = [
+    'sofy_product_compliment_01', // 5 Compliments
+    'sofy_product_compliment_02', // 10 Compliments
+    'sofy_product_compliment_03', // 15 Compliments
+    'sofy_product_superlike_01',  // 5 Super Like
+    'sofy_product_superlike_02',  // 10 Super Like
+    'sofy_product_superlike_03',  // 15 Super Like
+  ]
 
   const {status, access_token, transactionId} = useContext(AuthContext);
 
@@ -93,7 +104,7 @@ export const PurchasesProvider = ({
 
   const getStateSuscription = async (userId: number) => {
     try {
-      console.info('Getting subscription status for user:', userId);
+      console.info(emojiForPlatform(), 'Verificando suscripción para el usuario:', userId);
       const {data} = await privateDBForIAP.get<statusSuscriptionResponse>(
         `/status?userId=${userId}`,
       );
@@ -157,9 +168,6 @@ export const PurchasesProvider = ({
       dispatch({type: 'setAmountOfSuperLikes', payload: newBalance});
     }
 
-    console.log(
-      `✅ ${message}: Added ${addedAmount}, New Balance: ${newBalance} for productId: ${productId}`,
-    );
   };
 
   const consume = async (
@@ -309,7 +317,7 @@ export const PurchasesProvider = ({
   };
 
   const fetchProducts = async () => {
-    if (Platform.OS !== 'android') return;
+    if (Platform.OS !== 'android' && Platform.OS !== 'ios') return;
 
     dispatch({type: 'setLoadingProducts', payload: true});
 
@@ -318,8 +326,11 @@ export const PurchasesProvider = ({
       // await initConnection();
 
       // 2. Usamos getProducts para productos únicos (NO suscripciones)
+      const itemSkus =
+        Platform.OS === 'android' ? ANDROID_PRODUCT_SKUS : IOS_PRODUCT_SKUS;
+
       const items: Product[] = await getProducts({
-        skus: ANDROID_PRODUCT_SKUS,
+        skus: itemSkus,
       });
 
       if (items.length > 0) {
@@ -337,9 +348,9 @@ export const PurchasesProvider = ({
 
   const fetchSubscriptionDetails = async () => {
     //TODO: Solo intentamos la conexión si estamos en Android, ya que el SKU es de Play Console
-    if (Platform.OS !== 'android') {
+    if (Platform.OS !== 'android' && Platform.OS !== 'ios') {
       console.error(
-        'Esta prueba solo es válida para Android con el SKU proporcionado.',
+        'Esta prueba solo es válida para Android y iOS con el SKU proporcionado.',
       );
 
       return;
@@ -357,8 +368,13 @@ export const PurchasesProvider = ({
       //   console.log('✅ Conexión IAP inicializada correctamente.');
 
       // 2. Obtener la lista de suscripciones (usando tu SKU)
+      const skus =
+        Platform.OS === 'android'
+          ? ANDROID_SUBSCRIPTION_SKUS
+          : IOS_SUBSCRIPTION_SKUS;
+
       const subscriptions = await getSubscriptions({
-        skus: ANDROID_SUBSCRIPTION_SKUS,
+        skus: skus,
       });
 
       console.log('✅ Suscripciones obtenidas:', subscriptions.length);
@@ -415,9 +431,11 @@ export const PurchasesProvider = ({
   useEffect(() => {
     const initIAP = async () => {
       try {
-        if (Platform.OS === 'android') {
+        if (Platform.OS === 'android' || Platform.OS === 'ios') {
           await initConnection();
-          await Promise.all([fetchSubscriptionDetails(), fetchProducts()]);
+          // Hacemos las peticiones de forma secuencial para evitar errores de cancelación
+          await fetchSubscriptionDetails();
+          await fetchProducts();
         }
       } catch (err) {
         console.error('Error initializing IAP:', err);

@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useRef} from 'react';
 import {
   Modal,
   View,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
+  Animated,
 } from 'react-native';
 import {useCometChat} from '../hooks/useCometChat';
 import {AuthContext} from '../context/authContext/authContext';
@@ -34,6 +35,20 @@ export const ModalMatchFromSocket: React.FC<ModalMatchProps> = ({
   const {sendMessageToUser} = useCometChat();
   const {idUserForChats, removeUserFromWhoLikedMe} = useContext(AuthContext);
   const navigation = useNavigation();
+
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (modalVisible) {
+      scaleAnim.setValue(0);
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 5,
+        tension: 40,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [modalVisible]);
 
   const handleSend = async () => {
     if (!message.trim()) return;
@@ -61,7 +76,8 @@ export const ModalMatchFromSocket: React.FC<ModalMatchProps> = ({
       animationType="fade"
       onRequestClose={toggleModal}>
       <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
+        <Animated.View
+          style={[styles.modalContainer, {transform: [{scale: scaleAnim}]}]}>
           <ImageBackground
             source={{uri: user.matchedWith.individualFiles?.[0]?.file?.url}}
             style={styles.background}
@@ -92,7 +108,7 @@ export const ModalMatchFromSocket: React.FC<ModalMatchProps> = ({
               </View>
             </View>
           </ImageBackground>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );

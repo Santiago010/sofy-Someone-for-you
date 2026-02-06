@@ -8,6 +8,7 @@ import {
 } from '@cometchat/chat-uikit-react-native';
 import {CometChat} from '@cometchat/chat-sdk-react-native';
 import Messages from '../components/Messages';
+import LogoSofyMin from '../components/LogoSofyMin';
 import {useCometChat} from '../hooks/useCometChat';
 import {AuthContext} from '../context/authContext/authContext';
 import {colors} from '../theme/globalTheme';
@@ -36,6 +37,7 @@ export default function Chats() {
 
   return (
     <SafeAreaView style={styles.fullScreen}>
+      <LogoSofyMin />
       <CometChatI18nProvider autoDetectLanguage={false}>
         <CometChatThemeProvider
           theme={{
@@ -54,7 +56,6 @@ export default function Chats() {
                 conversationsRequestBuilder={conversationsRequestBuilder}
                 // Catch internal errors
                 onError={error => {
-                  console.log('Error UI Conversations:', error);
                 }}
                 onItemPress={(conversation: CometChat.Conversation) => {
                   if (

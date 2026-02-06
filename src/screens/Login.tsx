@@ -28,9 +28,7 @@ export const Login = () => {
     password: 'p7EhCx33jwkQ*',
   });
 
-  useEffect(() => {
-    console.log(email);
-  }, [email]);
+ 
 
   const sendData = () => {
     Keyboard.dismiss();

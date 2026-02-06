@@ -13,9 +13,10 @@ import {ModalMatchFromSocket} from '../components/ModalMatchFromSocket';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {BarIndicator} from 'react-native-indicators';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
-import {View} from 'react-native';
+import {Platform, View} from 'react-native';
 import {StackCommunities} from './StackCommunities';
 import MyAffinities from '../screens/MyAffinities';
+import { emojiForPlatform } from '../helpers/emojiForPlatform';
 
 export type RootBottonTabNavigator = {
   Home: undefined;
@@ -52,9 +53,8 @@ export const BottonTabNavigator = () => {
 
   useEffect(() => {
     if (idUserForChats) {
-      console.log('Verificando suscripción para el usuario:', idUserForChats);
       getStateSuscription(idUserForChats).then(res => {
-        console.log(res.res);
+        console.log(emojiForPlatform(),res.res);
       });
     }
   }, [idUserForChats]);
