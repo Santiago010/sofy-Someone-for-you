@@ -12,6 +12,7 @@ import LogoSofyMin from '../components/LogoSofyMin';
 import {useCometChat} from '../hooks/useCometChat';
 import {AuthContext} from '../context/authContext/authContext';
 import {colors} from '../theme/globalTheme';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function Chats() {
   const [messageUser, setMessageUser] = useState<CometChat.User>();
@@ -36,8 +37,8 @@ export default function Chats() {
       .setLimit(50);
 
   return (
-    <SafeAreaView style={styles.fullScreen}>
-      <LogoSofyMin />
+    <GestureHandlerRootView style={{flex: 1}} >
+      {/* <LogoSofyMin /> */}
       <CometChatI18nProvider autoDetectLanguage={false}>
         <CometChatThemeProvider
           theme={{
@@ -87,7 +88,8 @@ export default function Chats() {
           )}
         </CometChatThemeProvider>
       </CometChatI18nProvider>
-    </SafeAreaView>
+    </GestureHandlerRootView>
+    
   );
 }
 

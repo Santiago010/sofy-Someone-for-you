@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, KeyboardAvoidingViewComponent, KeyboardAvoidingView, Platform} from 'react-native';
 import {
   CometChatMessageHeader,
   CometChatMessageList,
@@ -30,19 +30,19 @@ const Messages = ({
   onBack: () => void;
 }) => {
   return (
-    <View /* root container fills the entire screen */ style={styles.root}>
-      {/* Top bar: avatar, name & back button */}
-      <CometChatMessageHeader
-        user={user}
-        group={group}
-        onBack={onBack}
-        showBackButton
-      />
+    <KeyboardAvoidingView
+      style={styles.root} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      // Ajusta este offset si el composer queda muy arriba o muy abajo
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 32 : 40} 
+    >
+      <CometChatMessageHeader user={user} group={group} onBack={onBack} showBackButton />
+      
+      {/* La lista debe tener flex: 1 para que se encoja cuando el teclado suba */}
+      <View style={{ flex: 1 }}>
+        <CometChatMessageList user={user} group={group} />
+      </View>
 
-      {/* Scrollable list of chat messages */}
-      <CometChatMessageList user={user} group={group} />
-
-      {/* Input field + action buttons (emoji, attach, send, etc.) */}
       <CometChatMessageComposer
         hideVideoAttachmentOption={false}
         hideFileAttachmentOption={true}
@@ -51,10 +51,9 @@ const Messages = ({
         user={user}
         group={group}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
-
 const styles = StyleSheet.create({
   /** Ensures the component stretches to use all available space */
   root: {
