@@ -116,6 +116,47 @@ export const useCometChat = () => {
     }
   };
 
+  const updateUserName = async (uid: string, name: string) => {
+    try {
+      const body = {
+        name,
+      };
+
+      const response = await axios.put(`${urlApiUsers}/${uid}`, body, {
+        headers: {
+          apikey: authKey,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.info(response.data);
+
+      return {success: true, data: response.data};
+    } catch (error) {
+        console.error(error);
+      return {success: false, error};
+    }
+  };
+
+  const updateUserAvatar = async (uid: string, avatar: string) => {
+    try {
+      const body = {
+        avatar,
+      };
+
+      const response = await axios.put(`${urlApiUsers}/${uid}`, body, {
+        headers: {
+          apikey: authKey,
+          'Content-Type': 'application/json',
+        },
+      });
+console.info(response.data);
+      return {success: true, data: response.data};
+    } catch (error) {
+        console.error(error);
+      return {success: false, error};
+    }
+  };
+
   const sendMessageToUser = async (
     senderUid: string,
     receiverId: string,
@@ -163,5 +204,7 @@ export const useCometChat = () => {
     logoutUser,
     createCometChatUser,
     sendMessageToUser,
+    updateUserName,
+    updateUserAvatar,
   };
 };

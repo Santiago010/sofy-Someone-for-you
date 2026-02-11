@@ -131,7 +131,7 @@ export const InfoUser = () => {
       completeInfoUser(completeInfoData).then(response => {
         createCometChatUser(
           `${response.res.id}`,
-          response.res.name,
+          `${response.res.name} ${response.res.lastname}`,
           response.res.individualFiles[0].file.url,
         )
           .then(res => {
@@ -147,8 +147,7 @@ export const InfoUser = () => {
   return (
     <KeyboardAvoidingView
       style={{flex: 1}}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView style={commonStyles.container}>
           <View style={commonStyles.content}>

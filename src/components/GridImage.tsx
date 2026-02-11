@@ -28,8 +28,13 @@ interface GridImageProps {
   setImages: React.Dispatch<React.SetStateAction<string[]>>;
   onImageFilesChange?: (files: UploadFile[]) => void;
   individualFiles?: IndividualFile[];
-  onAddImage?: (photo: UploadFile) => Promise<void>;
+  onAddImage?: (
+    photo: UploadFile,
+    imageToChangeInCometChat: boolean,
+    idUserForChatsFromParams: string,
+  ) => Promise<void>;
   onRemoveImage?: (fileId: string) => Promise<void>;
+  idUserForChats?: number;
   onRefreshData?: () => void;
 }
 
@@ -40,6 +45,7 @@ export default function GridImage({
   individualFiles = [],
   onAddImage,
   onRemoveImage,
+  idUserForChats,
   onRefreshData,
 }: GridImageProps) {
   const [visible, setVisible] = useState(false);
@@ -177,6 +183,7 @@ export default function GridImage({
 
   // Procesar respuesta de imagen
   const handleImageResponse = async (response: any) => {
+    let imageToChangeInCometChat = false
     setLoading(false);
 
     if (response.didCancel) {
@@ -230,6 +237,10 @@ export default function GridImage({
 
       // Si hay función para subir al backend, usarla
       if (onAddImage && selectedSlotIndex !== null) {
+        if(selectedSlotIndex === 5){
+            imageToChangeInCometChat = true
+        }
+          
         // Activar loading para este slot
         const newLoadingStates = [...loadingStates];
         newLoadingStates[selectedSlotIndex] = true;
@@ -238,7 +249,11 @@ export default function GridImage({
         hideModal();
 
         try {
-          await onAddImage(file);
+          await onAddImage(
+            file,
+            imageToChangeInCometChat,
+           `${idUserForChats}` ,
+          );
 
           // Refrescar datos si está disponible
           if (onRefreshData) {

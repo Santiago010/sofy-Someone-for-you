@@ -79,7 +79,9 @@ export const BottonTabNavigator = () => {
     );
   } else {
     return (
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView
+        style={{flex: 1, backgroundColor: colors.background}}
+        edges={['top', 'left', 'right']}>
         <Tab.Navigator
           screenOptions={({route}) => ({
             headerShown: false, // <-- Mostrar el header en las tabs

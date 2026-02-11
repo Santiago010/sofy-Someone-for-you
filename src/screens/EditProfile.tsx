@@ -39,7 +39,7 @@ export default function EditProfile({
     removeError,
     editDetailsSuccess,
     setEditDetailsSuccessFun,
-    loading,
+    loading,idUserForChats
   } = useContext(AuthContext);
   // Estados para los nuevos campos
 
@@ -163,14 +163,16 @@ export default function EditProfile({
         description: formData.aboutYou,
       };
 
-      EditDetailsInfo(editDetailsInfoUser);
+      if(detailsUser?.name !== formData.firstName || detailsUser?.lastname !== formData.lastName){
+        EditDetailsInfo(editDetailsInfoUser,true,`${idUserForChats}`);
+      }else{
+        EditDetailsInfo(editDetailsInfoUser,false,`${idUserForChats}`);
+      }
     }
   };
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+      style={{flex: 1}}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView style={commonStyles.container}>
           <SafeAreaView>

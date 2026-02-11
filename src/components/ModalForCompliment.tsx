@@ -19,28 +19,31 @@ import MaterialDesignIcons from '@react-native-vector-icons/material-design-icon
 const {width: windowWidth} = Dimensions.get('window');
 
 const COMPLIMENTS = [
-  'Tus fotos tienen ese ‘no sé qué’ que me hace olvidar el resto del feed.',
-  'Si tu sonrisa fuese GIF, estaría en bucle infinito en mi mente.',
-  'Me da igual tu signo, ya me hipnotizaste sin hacer horóscopo.',
-  '¿Eres Wi-Fi? Porque siento la conexión sin haber pedido contraseña.',
-  'Tu estilo es como el avión en modo avión: despega y desaparece lo aburrido.',
-  'No sé quién diseñó tu feed, pero parece tráiler de buena vida.',
-  'Tienes la magia de los domingos sin alarma.',
-  'Tu mirada es el botón de ‘pausa’ de un día frenético.',
-  'Hablas tan calmado que hasta el autocorrect se relaja.',
-  'Creo que tus abuelos deben sentirse orgullosos cada vez que alguien te sonríe.',
-  'Das ese abrazo virtual que se siente en 3D.',
-  'Si la amabilidad fuese sticker, tú serías el pack completo.',
-  'Tu bio es tan interesante que me hizo olvidar por qué abrí la app.',
-  '¿Estudiaste diseño o nacés sabiendo combinar colores que yo ni nombro?',
-  'Parecés libro corto de leer y largo de recordar.',
-  'Tus fotos de viaje parecen National Geographic con filtro de ‘invitame’.',
-  'Debés ser bueno/a en puzzle, porque completás el vacío del feed.',
-  'Te juro que si me das match, prometo no abrir con ‘hola’.',
-  'Estoy a un swipe de estrenar tu nombre en mis favoritos.',
-  'No busco príncipe ni princesa, solo alguien que me haga reír como tu última historia.',
-  'Me da igual el restaurante; si venís vos, hasta el menú se ve vegano.',
-  'Prefiero un café contigo que mil likes en mi última foto.',
+  'Your skills are very interesting; I feel a strong connection with them.',
+  'There’s so much to learn from someone like you.',
+  'I’m thrilled to see I’m not the only one who values what you mention.',
+  'Your interests resonate with me deeply; I’d love to get to know you better.',
+  'Your perspective creates a special connection for me.',
+  'It’s hard to find people who share my priorities and interests.',
+  'It’s a pleasure to find someone genuinely interested in what they share.',
+  'I’m not looking for a prince or princess, just someone who makes me laugh like you do.',
+  'Simple profile, but it says a lot.',
+  'You seem like a very considerate person.',
+  'Your maturity really shines through. It’s refreshing to read something like this.',
+  'Your profile inspires confidence, and I’d love to connect with you.',
+  'Your profile caught my eye; I’d like to get to know you.',
+  'I love the vibe you give off. Would you like to chat?',
+  'I saw something interesting on your profile. What’s your favorite place to relax?',
+  'I find what you share really interesting. Would you like to chat?',
+  'It’s always nice to meet new people. How about we talk for a bit?',
+  'I’d love to know more about you. Want to chat?',
+  'I think your profile is great. Would you like to talk for a while?',
+  'If your smile were a GIF, it would be on an endless loop in my mind.',
+  'Are you Wi-Fi? Because I feel the connection without needing a password.',
+  'Your feed feels like a trailer for the good life.',
+  'You have that calm, Sunday-morning energy.',
+  'You give off the kind of warmth that feels like a real hug.',
+  'Your bio is so interesting I forgot why I opened the app.',
 ];
 
 interface ModalForComplimentProps {
@@ -64,6 +67,15 @@ export const ModalForCompliment: React.FC<ModalForComplimentProps> = ({
 
   // Animation value for bounce effect
   const scaleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    
+  
+    return () => {
+      setMessage('');
+    }
+  }, [])
+  
 
   // Trigger animation when success state becomes true
   useEffect(() => {
@@ -179,15 +191,14 @@ export const ModalForCompliment: React.FC<ModalForComplimentProps> = ({
                     <ScrollView style={styles.menuScroll}>
                       {COMPLIMENTS.map((compl, index) => (
                         <React.Fragment key={index}>
-                          <Menu.Item
+                          <TouchableOpacity
+                            style={styles.menuItem}
                             onPress={() => {
                               setMessage(compl);
                               closeMenu();
-                            }}
-                            title={compl}
-                            titleStyle={styles.menuItemText}
-                            titleNumberOfLines={10}
-                          />
+                            }}>
+                            <Text style={styles.menuItemText}>{compl}</Text>
+                          </TouchableOpacity>
                           <Divider />
                         </React.Fragment>
                       ))}
@@ -355,5 +366,10 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: 14,
     color: colors.text,
+  },
+  menuItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    justifyContent: 'center',
   },
 });

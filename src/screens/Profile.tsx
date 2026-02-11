@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: colors.backgroundSecondary,
+    backgroundColor: colors.background,
   },
   cardFooterName: {
     fontSize: 28,
@@ -423,11 +423,13 @@ const styles = StyleSheet.create({
   },
   styleBoxOne: {
     justifyContent: 'center',
-    height: 482,
-    backgroundColor: colors.background,
+    // height: 482, // Removed fixed height
+    minHeight: 480,
+    backgroundColor: colors.backgroundSecondary,
     borderRadius: 66,
     margin: 15,
     padding: 20,
+    paddingBottom: 30, // Added padding for safety
     shadowColor: colors.textSecondary,
     shadowOffset: {
       width: 0,
@@ -439,10 +441,12 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'android' && {
       top: 0,
       marginTop: 20,
-      height: 480,
+      height: 480, // Keep fixed height for Android as it was working fine, or change to minHeight if testing shows
     }),
     ...(Platform.OS === 'ios' && {
-      top: -99,
+      // height: 'auto', // Let it grow
+      justifyContent: 'flex-start', // Align to top to avoid centering shift when growing
+      paddingTop: 40, // Adjust top padding if needed due to shift
     }),
   },
   profileImageContainer: {
@@ -523,7 +527,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   styleBoxTwo: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.backgroundSecondary,
     margin: 15,
     marginTop: 5,
     padding: 20,

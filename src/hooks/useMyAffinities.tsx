@@ -11,6 +11,7 @@ const useMyAffinities = () => {
     ListGetUserForInterest[]
   >([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const [errorInGetListUser, setErrorInGetListUser] = useState<string | null>(
     null,
   );
@@ -24,10 +25,11 @@ const useMyAffinities = () => {
           `/individuals/by-categories?ids=${ids}`,
         );
         setListUserWithMyAffinities(data.payload);
-        setIsLoading(false);
       } catch (error) {
         setErrorInGetListUser('Error fetching affinities');
+      } finally {
         setIsLoading(false);
+        setHasFetched(true);
       }
     },
     [],
@@ -38,6 +40,7 @@ const useMyAffinities = () => {
     getListMyAffinities,
     listUserWithMyAffinities,
     isLoading,
+    hasFetched,
     errorInGetListUser,
   };
 };

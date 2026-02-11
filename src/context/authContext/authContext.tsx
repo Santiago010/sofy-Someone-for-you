@@ -26,6 +26,7 @@ import {
   PayloadDetails2,
   IDResponse,
   ChangePasspord,
+  ResponseUploadPhoto,
 } from '../../interfaces/interfacesApp';
 import {AuthState, authReducer} from './authReducer';
 import {db, privateDB, publicDBForCompleteUser} from '../../db/db';
@@ -33,6 +34,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {decodeJWT} from '../../helpers/DecodeJWT';
 import {AxiosError} from 'axios';
 import {PurchasesContext} from '../PurchasesContext/purchasesContext';
+import {useCometChat} from '../../hooks/useCometChat'
 
 interface AuthContextProps {
   signUpResponseWithInfoUser: SignUpResponse | null;
@@ -54,12 +56,12 @@ interface AuthContextProps {
     completeInfoUser: CompleteInfoUser2,
   ) => Promise<{message: string; res: CompleteInfoUserResponse}>;
   GetDetailsUser: () => void;
-  EditDetailsInfo: (data: EditDetailsInfoUser2) => void;
+  EditDetailsInfo: (data: EditDetailsInfoUser2,nameAndLastNameChanged:boolean,idUserFromChatsForParams:string) => void;
   changePassword: (data: ChangePasspord) => Promise<void>;
   setANewPassword: (token: string, newPassword: string) => Promise<void>;
   forgotYourPassword: (email: string) => Promise<void>;
   setEditDetailsSuccessFun: (stateEdit: boolean) => void;
-  addImage: (photo: UploadFile) => Promise<void>;
+  addImage: (photo: UploadFile,imageToChangeInCometChat:boolean,idUserForChatsFromParams:string) => Promise<void>;
   removeImage: (id: string) => Promise<void>;
   getIDUserForChats: () => void;
 }
@@ -84,6 +86,8 @@ export const AuthProvider = ({
   children: JSX.Element | JSX.Element[];
 }) => {
   const [state, dispatch] = useReducer(authReducer, authInicialState);
+
+  const {updateUserName,updateUserAvatar} = useCometChat();
 
   const setANewPassword = async (
     token: string,
@@ -276,7 +280,7 @@ export const AuthProvider = ({
     dispatch({type: 'setEditDetailsSuccess', payload: stateEdit});
   };
 
-  const EditDetailsInfo = async (editDetailsInfoUser: EditDetailsInfoUser2) => {
+  const EditDetailsInfo = async (editDetailsInfoUser: EditDetailsInfoUser2,nameAndLastNameChanged:boolean,idUserFromChatsForParams:string) => {
     dispatch({type: 'setLoading', payload: true});
     try {
       const {data} = await privateDB.patch<ResponseEditDetailsUser>(
@@ -295,6 +299,11 @@ export const AuthProvider = ({
           phone: editDetailsInfoUser.phone,
         },
       );
+    //   TODO:ACA
+    if(nameAndLastNameChanged){
+        console.log('entra aca');
+     await updateUserName(idUserFromChatsForParams,`${data.payload.name} ${data.payload.lastname}`);
+    }
       setEditDetailsSuccessFun(true);
       dispatch({type: 'setLoading', payload: false});
       GetDetailsUser();
@@ -387,7 +396,7 @@ export const AuthProvider = ({
     }
   };
 
-  const addImage = async (photo: UploadFile): Promise<void> => {
+  const addImage = async (photo: UploadFile,imageToChangeInCometChat:boolean,idUserForChatsFromParams:string): Promise<void> => {
     try {
       const formData = new FormData();
 
@@ -397,11 +406,14 @@ export const AuthProvider = ({
         name: photo.name,
       } as any);
 
-      await privateDB.post('/individuals-files/upload', formData, {
+      const {data}= await privateDB.post<ResponseUploadPhoto>('/individuals-files/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      if(imageToChangeInCometChat){
+        await updateUserAvatar(idUserForChatsFromParams,data.payload.url);
+      }
       return Promise.resolve();
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -544,10 +556,12 @@ export const AuthProvider = ({
 
   async function logout() {
     try {
-      await AsyncStorage.setItem('access_token', '');
-      await AsyncStorage.setItem('access_token_only_complete_user', '');
-      await AsyncStorage.setItem('firstname', '');
-      await AsyncStorage.setItem('lastname', '');
+      await AsyncStorage.multiRemove([
+        'access_token',
+        'access_token_only_complete_user',
+        'firstname',
+        'lastname',
+      ]);
       dispatch({type: 'logout'});
     } catch (error) {}
   }

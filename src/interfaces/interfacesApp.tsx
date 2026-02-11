@@ -250,6 +250,22 @@ export interface CompleteInfoUserError {
   statusCode: number;
 }
 
+export interface ResponseUploadPhoto {
+    error:      boolean;
+    statusCode: number;
+    payload:    PayloadUploadPhoto;
+    message:    string;
+}
+
+export interface PayloadUploadPhoto {
+    success:     boolean;
+    fileId:      number;
+    fileName:    string;
+    url:         string;
+    photosCount: number;
+    message:     string;
+}
+
 export interface GetDetailsResponse {
   error: boolean;
   statusCode: number;

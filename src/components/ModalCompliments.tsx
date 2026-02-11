@@ -105,7 +105,6 @@ export default function ModalCompliments({
 
     const purchaseUpdateProduct = purchaseUpdatedListener(
       async (purchase: Purchase) => {
-        console.info('✅ Compra recibida:', purchase);
 
         // Verificar si este producto pertenece a este modal
         const isMyProduct = products.some(p => p.productId === purchase.productId);

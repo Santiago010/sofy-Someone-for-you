@@ -37,9 +37,10 @@ const {height, width} = Dimensions.get('window');
 interface AffinityItemProps {
   item: ListGetUserForInterest;
   onInteraction: (action: string) => void;
+  containerHeight: number;
 }
 
-const AffinityItem = memo(({item, onInteraction}: AffinityItemProps) => {
+const AffinityItem = memo(({item, onInteraction, containerHeight}: AffinityItemProps) => { // Added containerHeight
   const [showBtnChangeImagetoLeft, setShowBtnChangeImagetoLeft] =
     useState(false);
   const [showBtnChangeImagetoRight, setShowBtnChangeImagetoRight] =
@@ -74,13 +75,11 @@ const AffinityItem = memo(({item, onInteraction}: AffinityItemProps) => {
     }
   };
 
-  const imageUrl =
-    item.individualFiles && item.individualFiles[positionContainerImage]
-      ? item.individualFiles[positionContainerImage].file.url
-      : 'https://via.placeholder.com/400';
+  const imageUrl = item.individualFiles[positionContainerImage].file.url
+   
 
   return (
-    <View style={styles.itemContainer}>
+    <View style={[styles.itemContainer, {height: containerHeight}]}>
       {/* Card taking full screen height approx */}
       <View style={styles.card}>
         {/* Image Section */}
@@ -148,7 +147,7 @@ const AffinityItem = memo(({item, onInteraction}: AffinityItemProps) => {
           <Text style={styles.infoTitle}>
             {item.name} {item.lastname}, {item.age}
           </Text>
-          <Text style={styles.descriptionText} numberOfLines={3}>
+          <Text style={styles.descriptionText} numberOfLines={10}>
             {item.description}
           </Text>
 
@@ -216,6 +215,7 @@ const MyAffinities = () => {
   const [tempSelectedInterests, setTempSelectedInterests] = useState<
     InterestAndSubInterestResponse[]
   >([]);
+  const [containerHeight, setContainerHeight] = useState(0); // Added state for dynamic height
 
   // Interaction Modals State
   const [complimentModalVisible, setComplimentModalVisible] = useState(false);
@@ -240,10 +240,11 @@ const MyAffinities = () => {
   } = useContext(PurchasesContext);
   const {superlike, dislike} = useLikeOrDislike();
 
-  const {
+    const {
     getListMyAffinities,
     listUserWithMyAffinities,
     isLoading,
+    hasFetched,
     errorInGetListUser,
   } = useMyAffinities();
 
@@ -272,6 +273,8 @@ const MyAffinities = () => {
       getListMyAffinities(selectedInterests);
     }
   }, [selectedInterests, userList, getListMyAffinities]);
+
+
 
   useEffect(() => {
     if (listUserWithMyAffinities && listUserWithMyAffinities.length > 0) {
@@ -390,6 +393,7 @@ const MyAffinities = () => {
         <AffinityItem
           item={item}
           onInteraction={action => handleInteraction(action, item)}
+          containerHeight={containerHeight}
         />
       );
     },
@@ -400,6 +404,7 @@ const MyAffinities = () => {
       detailsUser,
       removeUserFromList,
       handleInteraction,
+      containerHeight, // added dependency
     ],
   );
 
@@ -423,28 +428,56 @@ const MyAffinities = () => {
         <LogoSofyMin />
       </View>
 
-      <FlatList
-        data={userList}
-        renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{flexGrow: 1}}
-        ListEmptyComponent={() => (
-          <View style={styles.emptyContainer}>
-            <MaterialDesignIcons
-              name="account-alert"
-              color={colors.text}
-              size={50}
-            />
-            <Text style={styles.emptyText}>
-              No users found with these interests, or you have already seen
-              everyone.
-            </Text>
-          </View>
+      <View
+        style={{flex: 1}}
+        onLayout={e => {
+          const {height} = e.nativeEvent.layout;
+          setContainerHeight(height);
+        }}>
+        {containerHeight > 0 && ( // Only render FlatList when height is calculated
+          <FlatList
+            data={userList}
+            renderItem={renderItem}
+            keyExtractor={item => item.id.toString()}
+            pagingEnabled
+            snapToAlignment="start"
+            decelerationRate="fast"
+            snapToInterval={containerHeight}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{flexGrow: 1}}
+            getItemLayout={(data, index) => ({
+              length: containerHeight,
+              offset: containerHeight * index,
+              index,
+            })}
+            ListEmptyComponent={() => {
+              if (isLoading || !hasFetched) {
+                console.log('llega aca isLoading?');
+                return (
+                  <View style={styles.emptyContainer}>
+                    <BarIndicator count={4} size={50} color={colors.primary} />
+                  </View>
+                );
+              }else{
+                console.log('llega aca not isLoading?');
+                return (
+                  <View style={styles.emptyContainer}>
+                  <MaterialDesignIcons
+                    name="account-alert"
+                    color={colors.text}
+                    size={50}
+                  />
+                  <Text style={styles.emptyText}>
+                    No users found with these interests, or you have already seen
+                    everyone.
+                  </Text>
+                </View>
+                )
+              }
+            }}
+          />
         )}
-        // Using snapToInterval or pagingEnabled expects items to be full height of scroll view
-      />
+      </View>
 
       {/* Filter Modal */}
       <Modal
@@ -569,24 +602,24 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   itemContainer: {
-    // Calculated height to make paging work nicely.
-    // Screen height - top offset (approx logo size + padding) - bottom inset if any
-    height: height * 0.6,
+    // Height will be overridden inline
     width: width,
-    paddingHorizontal: 10,
-    marginBottom: 5,
+    paddingHorizontal: 0, // Removed padding to be full width
+    marginBottom: 0, // Removed margin to prevent gaps
     justifyContent: 'center',
+    // backgroundColor: colors.primary, // optional
   },
   card: {
     flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: 20,
+    backgroundColor: colors.backgroundSecondary,
+    // borderRadius: 20, // Removed or reduced border radius for full screen feel if desired, keeping for card look
+    borderRadius: 0,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    // shadowColor: '#000', // Remove shadow if full screen
+    // shadowOffset: {width: 0, height: 2},
+    // shadowOpacity: 0.1,
+    // shadowRadius: 4,
+    // elevation: 3,
     marginBottom: 0,
   },
   imageContainer: {

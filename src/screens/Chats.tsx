@@ -37,7 +37,7 @@ export default function Chats() {
       .setLimit(50);
 
   return (
-    <GestureHandlerRootView style={{flex: 1}} >
+    <GestureHandlerRootView style={{flex: 1, backgroundColor: colors.background}} >
       {/* <LogoSofyMin /> */}
       <CometChatI18nProvider autoDetectLanguage={false}>
         <CometChatThemeProvider

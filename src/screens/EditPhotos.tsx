@@ -22,7 +22,7 @@ export default function EditPhotos({
 }) {
   const [images, setImages] = useState<string[]>([]);
 
-  const {detailsUser, removeImage, addImage, GetDetailsUser} =
+  const {detailsUser, removeImage, addImage, GetDetailsUser,idUserForChats} =
     useContext(AuthContext);
 
   // Función para manejar cambios en los archivos de fotos (modo local)
@@ -58,6 +58,7 @@ export default function EditPhotos({
             setImages={setImages}
             onImageFilesChange={handleImageFilesChange}
             individualFiles={detailsUser?.individualFiles || []}
+            idUserForChats={idUserForChats}
             onAddImage={addImage}
             onRemoveImage={removeImage}
             onRefreshData={handleRefreshData}
