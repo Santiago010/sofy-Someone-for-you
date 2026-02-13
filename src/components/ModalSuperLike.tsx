@@ -2,12 +2,11 @@ import React, {useContext, useEffect, useState, useRef} from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Modal,
   TouchableOpacity,
-  Dimensions,
   Platform,
   Animated,
+  StyleSheet,
 } from 'react-native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import {colors} from '../theme/globalTheme';
@@ -18,9 +17,13 @@ import {
   purchaseErrorListener,
   purchaseUpdatedListener,
   requestPurchase,
+  PurchaseError,
 } from 'react-native-iap';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 import {AuthContext} from '../context/authContext/authContext';
+
+// Importa tus estilos aquí si están en otro archivo, 
+// o asume que el objeto 'styles' ya existe en tu archivo local.
 
 interface ModalSuperLikeProps {
   modalVisible: boolean;
@@ -33,7 +36,7 @@ export default function ModalSuperLike({
   setModalVisible,
   products,
 }: ModalSuperLikeProps) {
-  // Ordenar productos por precio o cantidad
+  // Ordenar productos por precio
   const sortedProducts = [...products].sort((a, b) => {
     const priceA = parseFloat(
       a.oneTimePurchaseOfferDetails?.priceAmountMicros || '0',
@@ -47,8 +50,13 @@ export default function ModalSuperLike({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(
     sortedProducts.length > 0 ? sortedProducts[1] || sortedProducts[0] : null,
   );
+
   // Ref para trackear si estamos esperando una compra iniciada por este componente
   const isWaitingForPurchaseRef = useRef(false);
+
+  // NUEVO: Ref para evitar procesar la misma transacción múltiples veces en paralelo
+  const processingTransactionIds = useRef<Set<string>>(new Set());
+
   const {verifyProduct} = useContext(PurchasesContext);
   const {idUserForChats} = useContext(AuthContext);
 
@@ -104,19 +112,31 @@ export default function ModalSuperLike({
   useEffect(() => {
     const purchaseUpdateProduct = purchaseUpdatedListener(
       async (purchase: Purchase) => {
-        console.log('📦 Transacción de producto recibida:', purchase.productId);
+        const transactionId = purchase.transactionId || purchase.purchaseToken; // ID único
+        console.log('📦 Transacción SuperLike recibida:', purchase.productId, transactionId);
 
-        // Verificar si este producto pertenece a este modal
+        // A. Verificar si este producto pertenece a este modal
         const isMyProduct = products.some(p => p.productId === purchase.productId);
         if (!isMyProduct) return;
 
-        // CRÍTICO: Solo procesamos si estamos esperando una compra de ESTE usuario
+        // B. CRÍTICO: Solo procesamos si estamos esperando una compra de ESTE usuario
         if (!isWaitingForPurchaseRef.current) {
-          console.warn('⚠️ Transacción de producto ignorada - no iniciada por este usuario/sesión');
-          // Limpiamos transacciones pendientes de otros usuarios
-          await finishTransaction({purchase, isConsumable: true});
+          console.warn('⚠️ Transacción ignorada - no iniciada por este usuario/sesión');
+          // Limpiamos transacciones pendientes de otros usuarios para que no se queden trabadas
+          try {
+             await finishTransaction({purchase, isConsumable: true});
+          } catch (e) {}
           return;
         }
+
+        // C. NUEVO: Verificar si YA estamos procesando este ID localmente
+        if (transactionId && processingTransactionIds.current.has(transactionId)) {
+            console.log('🛑 Transacción SuperLike ya en proceso. Ignorando evento duplicado.');
+            return;
+        }
+
+        // Si pasamos los filtros, marcamos como "En Proceso"
+        if (transactionId) processingTransactionIds.current.add(transactionId);
 
         if (purchase.transactionReceipt) {
           const purchaseToken =
@@ -124,40 +144,60 @@ export default function ModalSuperLike({
               ? purchase.purchaseToken
               : purchase.transactionReceipt;
 
-          verifyProduct({
-            productId: purchase.productId,
-            token: purchaseToken,
-            platform: Platform.OS === 'android' ? 'android' : 'ios',
-            userId: idUserForChats,
-          })
-            .then(response => {
-              finishTransaction({purchase, isConsumable: true}).then(() => {
-                isWaitingForPurchaseRef.current = false;
-                setShowSuccessMessage(true);
-                setIsPurchasing(false);
-                startBounceAnimation();
-
-                setTimeout(() => {
-                  setModalVisible(false);
-                  setShowSuccessMessage(false);
-                }, 3330);
-              });
-            })
-            .catch(error => {
-              console.error(error.message, error.error);
-              // Aunque falle la verificación, finalizamos la transacción para no dejarla pendiente
-              finishTransaction({purchase, isConsumable: true}).then(() => {
-                isWaitingForPurchaseRef.current = false;
-                setIsPurchasing(false);
-                console.log('⚠️ Transacción de producto finalizada a pesar del error de verificación');
-              });
+          try {
+            // Llamada al Backend
+            await verifyProduct({
+                productId: purchase.productId,
+                token: purchaseToken,
+                platform: Platform.OS === 'android' ? 'android' : 'ios',
+                userId: idUserForChats,
             });
+
+            console.log('✅ SuperLike verificado con éxito.');
+
+            // Finalizar transacción en las tiendas
+            await finishTransaction({purchase, isConsumable: true});
+
+            // UI de Éxito
+            isWaitingForPurchaseRef.current = false;
+            setShowSuccessMessage(true);
+            setIsPurchasing(false);
+            startBounceAnimation();
+
+            // Cerrar modal
+            setTimeout(() => {
+                setModalVisible(false);
+                setShowSuccessMessage(false);
+                // Limpiar ID del set
+                if (transactionId) processingTransactionIds.current.delete(transactionId);
+            }, 3330);
+
+          } catch (error: any) {
+             console.error('❌ Error verificando SuperLike:', error);
+
+             // Lógica Especial: Si el error es "Ya procesado" (Idempotencia)
+             if (error?.message?.includes('processed') || error?.response?.data?.message?.includes('processed')) {
+                  console.log('⚠️ El backend dice que ya se procesó. Finalizando transacción local.');
+                  await finishTransaction({purchase, isConsumable: true});
+                  
+                  isWaitingForPurchaseRef.current = false;
+                  setIsPurchasing(false);
+                  setModalVisible(false); 
+             } else {
+                  // Error real (Red, Tarjeta, etc)
+                  // No finalizamos la transacción para permitir reintento de Google después
+                  setIsPurchasing(false);
+                  isWaitingForPurchaseRef.current = false;
+                  // Permitir reintentar este ID en el futuro inmediato
+                  if (transactionId) processingTransactionIds.current.delete(transactionId);
+             }
+          }
         }
       },
     );
 
     // 2. Escuchador de errores
-    const purchaseErrorProduct = purchaseErrorListener(error => {
+    const purchaseErrorProduct = purchaseErrorListener((error: PurchaseError) => {
       console.warn('purchaseErrorListener', error);
       setIsPurchasing(false);
       isWaitingForPurchaseRef.current = false;
@@ -200,7 +240,6 @@ export default function ModalSuperLike({
               const isSelected = selectedProduct?.productId === item.productId;
               // Extraer cantidad del nombre (ej: "5 Super Like")
               const displayName = item.name || item.title || '';
-              // Extraer cantidad del nombre (ej: "5 Super Like")
               const quantity = displayName.match(/\d+/)?.[0] || '';
               const name = displayName.replace(/\d+/, '').trim();
               const price =

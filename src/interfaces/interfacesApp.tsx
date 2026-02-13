@@ -4,6 +4,7 @@ export interface Usuario {
   uid: string;
 }
 
+
 export interface SignUpData {
   firstName: string;
   lastName: string;
@@ -769,4 +770,10 @@ export interface File {
   createdAt: Date;
   updatedAt: Date;
   url: string;
+}
+
+
+export interface removeDislikeResponse {
+   success: boolean;
+   message: string;
 }

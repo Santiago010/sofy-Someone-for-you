@@ -1,7 +1,22 @@
 import {privateDB} from '../db/db';
-import {LikeResponse} from '../interfaces/interfacesApp';
+import {LikeResponse,removeDislikeResponse} from '../interfaces/interfacesApp';
 
 export function useLikeOrDislike() {
+
+    const removeDislike = async ( targetIndividualId: number) => {
+        try {
+            await privateDB.post<removeDislikeResponse>('/individuals/remove-dislike', {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                targetIndividualId,
+            });
+            return true;
+        } catch (err) {
+            console.error('Error in the request dislike');
+            return false;
+        }
+    }
   const like = async (targetIndividualId: number) => {
     try {
       await privateDB.post<LikeResponse>('/individuals/like', {
@@ -69,5 +84,5 @@ export function useLikeOrDislike() {
     }
   };
 
-  return {like, dislike, superlike, compliment};
+  return {like, dislike, superlike, compliment,removeDislike};
 }

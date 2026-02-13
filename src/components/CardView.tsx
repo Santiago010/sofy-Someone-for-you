@@ -36,6 +36,8 @@ interface CardViewProps {
   nextCardScale: SharedValue<number>;
   onLike?: () => void;
   onDislike?: () => void;
+  onRemoveDislike?: () => void;
+  hasLastDislikedUser?: boolean;
 }
 
 const CardView: FC<CardViewProps> = ({
@@ -48,6 +50,8 @@ const CardView: FC<CardViewProps> = ({
   panHandlers,
   onLike,
   onDislike,
+  onRemoveDislike,
+  hasLastDislikedUser,
 }) => {
   const [showBtnChangeImagetoLeft, setShowBtnChangeImagetoLeft] =
     useState(false);
@@ -292,7 +296,7 @@ const CardView: FC<CardViewProps> = ({
           </View>
         )}
 
-        {isTopCard && onLike && onDislike && (
+        {isTopCard && onLike && onDislike && onRemoveDislike && (
           <View style={styles.actionButtonContainer}>
             {Platform.OS === 'ios' ? (
               <TouchableOpacity onPress={onDislike} style={styles.actionBtn}>
@@ -308,6 +312,36 @@ const CardView: FC<CardViewProps> = ({
                   name="close"
                   size={30}
                   color={colors.error}
+                />
+              </Pressable>
+            )}
+
+            {Platform.OS === 'ios' ? (
+              <TouchableOpacity
+                disabled={!hasLastDislikedUser}
+                onPress={onRemoveDislike}
+                style={[
+                  styles.actionBtn,
+                  !hasLastDislikedUser && {opacity: 0.5},
+                ]}>
+                <MaterialDesignIcons
+                  name="account-convert"
+                  size={30}
+                  color={colors.secondary}
+                />
+              </TouchableOpacity>
+            ) : (
+              <Pressable
+                disabled={!hasLastDislikedUser}
+                onPress={onRemoveDislike}
+                style={[
+                  styles.actionBtn,
+                  !hasLastDislikedUser && {opacity: 0.5},
+                ]}>
+                <MaterialDesignIcons
+                  name="account-convert"
+                  size={30}
+                  color={colors.secondary}
                 />
               </Pressable>
             )}

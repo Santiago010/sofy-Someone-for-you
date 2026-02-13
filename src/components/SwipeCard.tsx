@@ -59,7 +59,7 @@ export default function SwipeCard({
     hasMorePages,
     isFetching,
   } = useRecomendations();
-  const {like, dislike} = useLikeOrDislike();
+  const {like, dislike,removeDislike} = useLikeOrDislike();
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -68,6 +68,9 @@ export default function SwipeCard({
 
   const [requestedRecs, setRequestedRecs] = useState(false);
   const [focusedFetched, setFocusedFetched] = useState(false);
+
+  const [lastDislikedUser, setLastDislikedUser] =
+    useState<PayloadRecomendationsResponse | null>(null);
 
   // Ref para manejar el nextPage
   const nextPageRef = useRef(1);
@@ -156,38 +159,55 @@ export default function SwipeCard({
     nextCardScale.value = withTiming(0.9, {duration: REST_DURATION});
   }, [translateX, translateY, nextCardScale]);
 
+  // Ref para tener siempre la versión más reciente de la función
+  const onSwipeCompleteRef = useRef<typeof onSwipeComplete>(null as any);
+  onSwipeCompleteRef.current = onSwipeComplete;
+
   // onSwipeComplete ya no usa useCallback, así accede siempre al estado más reciente
   function onSwipeComplete(direccion: 'right' | 'left' | 'up' | 'down') {
-    const action =
-      direccion === 'right' || direccion === 'up' ? 'LIKED' : 'DISLIKED';
+    const currentCard = recomendations[0];
+    if (!currentCard) {
+      resetPosition();
+      return;
+    }
 
-    setRecomendations(prev => {
-      if (prev.length > 0) {
-        const currentCardId = prev[0].id;
-        // Llama a like o dislike según la dirección
-        if (direccion === 'right') {
-          like(currentCardId);
-        } else if (direccion === 'left') {
-          dislike(currentCardId);
-        }
-        // Elimina la primera tarjeta
-        const newRecs = prev.slice(1);
-        // Animaciones
-        translateX.value = 0;
-        translateY.value = 0;
-        nextCardScale.value = 0.8;
-        nextCardScale.value = withDelay(
-          100,
-          withTiming(0.9, {duration: 400, easing: Easing.exp}),
-        );
-        return newRecs;
-      } else {
-        // Si no hay tarjetas, resetea la posición
-        resetPosition();
-        return prev;
-      }
-    });
+    const currentCardId = currentCard.id;
+
+    // Llama a like o dislike según la dirección
+    if (direccion === 'right') {
+      like(currentCardId);
+      setLastDislikedUser(null);
+    } else if (direccion === 'left') {
+      dislike(currentCardId);
+      setLastDislikedUser(currentCard);
+    } else {
+      setLastDislikedUser(null);
+    }
+
+    // Actualizamos las recomendaciones eliminando la primera
+    setRecomendations(prev => prev.slice(1));
+
+    // Animaciones
+    translateX.value = 0;
+    translateY.value = 0;
+    nextCardScale.value = 0.8;
+    nextCardScale.value = withDelay(
+      100,
+      withTiming(0.9, {duration: 400, easing: Easing.exp}),
+    );
   }
+
+  const handleRemoveDislike = useCallback(async () => {
+    if (!lastDislikedUser) {
+      return;
+    }
+
+    const success = await removeDislike(lastDislikedUser.id);
+    if (success) {
+      setRecomendations(prev => [lastDislikedUser, ...prev]);
+      setLastDislikedUser(null);
+    }
+  }, [lastDislikedUser, removeDislike, setRecomendations]);
 
   const renderLocationError = () => (
     <View
@@ -257,7 +277,11 @@ export default function SwipeCard({
         {
           duration: SWIPE_OUT_DURATION,
         },
-        () => runOnJS(onSwipeComplete)(direccion),
+        () => {
+          if (onSwipeCompleteRef.current) {
+            runOnJS(onSwipeCompleteRef.current)(direccion);
+          }
+        },
       );
     },
     [translateX, translateY], // ya no depende de recomendations ni de onSwipeComplete
@@ -319,6 +343,8 @@ export default function SwipeCard({
         translateY={index === 0 ? translateY : dummyTranslate}
         onLike={handleLike}
         onDislike={handleDisliked}
+        onRemoveDislike={handleRemoveDislike}
+        hasLastDislikedUser={!!lastDislikedUser}
       />
     ),
     [
@@ -330,6 +356,8 @@ export default function SwipeCard({
       dummyTranslate,
       handleLike,
       handleDisliked,
+      handleRemoveDislike,
+      lastDislikedUser,
     ],
   );
 
