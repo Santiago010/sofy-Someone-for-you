@@ -219,8 +219,13 @@ export const PurchasesProvider = ({
   };
 
   const verifyProduct = async (dataResProduct: dataForVerifyProduct) => {
+    console.log({
+        origin :'purchaseContext verifyProduct',
+      platform: emojiForPlatform(),
+      productId: dataResProduct.productId,
+      userId: dataResProduct.userId,
+    });
     try {
-      console.info('Verifying product with data:', dataResProduct);
       const {data} = await privateDBForIAP.post<ResVerifyProduct>(
         '/verify-product',
         {
@@ -266,7 +271,8 @@ export const PurchasesProvider = ({
 
   const verifySubscription = async (dataBody: dataForVerifySubscription) => {
     try {
-      console.info('Verifying subscription with data:', dataBody);
+        // TODO:2 LOG
+      console.info('Verifying subscription with data:');
       const {data} = await privateDBForIAP.post<VerifySubscriptionResponse>(
         '/verify-subscription',
         {

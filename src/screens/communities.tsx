@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   Image,
   ImageBackground,
+  Platform,
 } from 'react-native';
 import {colors} from '../theme/globalTheme';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
@@ -194,6 +195,7 @@ const Communities = ({navigation}: Props) => {
   // Cargar feeds cuando cambian las comunidades unidas (inicial)
   useEffect(() => {
     if (listCommunitiesJoined.length > 0) {
+      console.log('listCommunitiesJoined', listCommunitiesJoined);
       fetchAllFeeds();
     }
   }, [listCommunitiesJoined]);
@@ -547,19 +549,18 @@ const styles = StyleSheet.create({
   // Estilos para My Communities Cards
   myCommunitiesContainer: {
     paddingHorizontal: 20,
-    paddingTop: 400,
-    paddingBottom: 120,
+    paddingTop: Platform.OS === 'android' ? 460 : 20,
+    paddingBottom: 90,
+    flexGrow: 1,
   },
   noCommunitiesText: {
     textAlign: 'center',
     color: colors.textSecondary,
-    marginTop: 20,
     fontSize: 16,
   },
   cardContainer: {
     height: 200,
-    marginTop: 60,
-    marginBottom: 20,
+    marginVertical: 12,
     borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: colors.backgroundSecondary,

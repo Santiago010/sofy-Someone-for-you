@@ -13,7 +13,7 @@ export const CodeVerificationEmail = () => {
     useContext(AuthContext);
 
   const {onChange, form, code} = useForm({
-    code: '',
+    code: '123456',
     transactionIdValue: transactionId,
   });
 
@@ -48,7 +48,7 @@ export const CodeVerificationEmail = () => {
             </Text>
             <TextInput
               mode="outlined"
-              placeholder="Enter your code"
+              placeholder="Code Default: 123456"
               value={code}
               onChangeText={text => onChange(text, 'code')}
               keyboardType="email-address"

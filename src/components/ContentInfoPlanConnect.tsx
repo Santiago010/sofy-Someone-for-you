@@ -56,11 +56,15 @@ export default function ContentInfoPlanConnect({
 
   const [isPurchasing, setIsPurchasing] = useState(false);
   const {verifySubscription} = useContext(PurchasesContext);
-  const [isPurchaseDone, setIsPurchaseDone] = useState(false);
+  // Usamos una ref para trackear si estamos esperando una compra iniciada por este componente
+  const isWaitingForPurchaseRef = React.useRef(false);
 
   const handlePurchase = async (product: Subscription) => {
     if (isPurchasing) return;
     setIsPurchasing(true);
+    
+    // Marcamos que AHORA SÍ estamos esperando una compra legítima
+    isWaitingForPurchaseRef.current = true;
 
     try {
       if (Platform.OS === 'android') {
@@ -74,6 +78,7 @@ export default function ContentInfoPlanConnect({
             'Offer Token no encontrado. Asegúrate de que el plan base está configurado correctamente.',
           );
           setIsPurchasing(false);
+          isWaitingForPurchaseRef.current = false;
           return;
         }
 
@@ -89,24 +94,33 @@ export default function ContentInfoPlanConnect({
         });
       }
 
-      setIsPurchaseDone(true);
+      // NO seteamos isPurchaseDone aquí - el listener lo manejará
     } catch (error) {
       console.error('Error al solicitar suscripción:', error);
       setIsPurchasing(false);
+      isWaitingForPurchaseRef.current = false;
     }
   };
 
+  // Los listeners deben estar SIEMPRE activos, no solo cuando isPurchaseDone es true
   useEffect(() => {
-
-    if (!isPurchaseDone) return;
-
     let purchaseUpdateSubscription;
     let purchaseErrorSubscription;
 
     purchaseUpdateSubscription = purchaseUpdatedListener(
       async (purchase: Purchase) => {
+        console.log('📦 Transacción recibida:', purchase.productId);
+        
+        // CRÍTICO: Solo procesamos si estamos esperando una compra de ESTE usuario
+        if (!isWaitingForPurchaseRef.current) {
+          console.warn('⚠️ Transacción ignorada - no iniciada por este usuario/sesión');
+          // Limpiamos transacciones pendientes de otros usuarios
+          await finishTransaction({purchase, isConsumable: false});
+          return;
+        }
+
         setIsPurchasing(false);
-        console.log('✅ Compra Exitosa recibida:', purchase);
+        console.log('✅ Compra Exitosa recibida:');
 
         if (purchase.transactionReceipt) {
           const purchaseToken =
@@ -123,6 +137,7 @@ export default function ContentInfoPlanConnect({
             .then(response => {
               console.log(response.message, response.res);
               finishTransaction({purchase, isConsumable: false}).then(() => {
+                isWaitingForPurchaseRef.current = false;
                 setModalVisible(false);
                 console.log(
                   '✅ Transacción finalizada correctamente con finishTransaction.',
@@ -131,28 +146,19 @@ export default function ContentInfoPlanConnect({
             })
             .catch(error => {
               console.error(error.message, error.error);
+              // Aunque falle la verificación, finalizamos la transacción para no dejarla pendiente
+              finishTransaction({purchase, isConsumable: false}).then(() => {
+                isWaitingForPurchaseRef.current = false;
+                console.log('⚠️ Transacción finalizada a pesar del error de verificación');
+              });
             });
         }
       },
     );
 
-    //     // En tu useEffect, agrega esto temporalmente al principio del listener
-    // purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
-    // console.log('🧹 LIMPIEZA: Finalizando transacción atascada:', purchase.productId);
-    
-    // // ¡¡¡ESTO ES SOLO PARA LIMPIAR LA COLA!!!
-    // await finishTransaction({ purchase, isConsumable: false });
-    
-    // // Detén la ejecución aquí para que no llame al backend y rompas el ciclo
-    // return; 
-
-    // /* ... Tu código original estaba aquí ...
-    // */
-    // });
-
     purchaseErrorSubscription = purchaseErrorListener(error => {
       setIsPurchasing(false);
-      setIsPurchaseDone(false);
+      isWaitingForPurchaseRef.current = false;
       console.warn('❌ Error en la compra:', error);
       if (error.code !== 'E_USER_CANCELLED') {
         Alert.alert(`Error de Pago: ${error.message}`);
@@ -167,7 +173,7 @@ export default function ContentInfoPlanConnect({
         purchaseErrorSubscription.remove();
       }
     };
-  }, [isPurchaseDone]);
+  }, [userIdRef, verifySubscription, setModalVisible]); // Dependencias estables
 
   return (
     <View

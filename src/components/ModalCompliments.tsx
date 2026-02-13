@@ -19,6 +19,7 @@ import {
   purchaseErrorListener,
   purchaseUpdatedListener,
   requestPurchase,
+  PurchaseError,
 } from 'react-native-iap';
 import {PurchasesContext} from '../context/PurchasesContext/purchasesContext';
 import {AuthContext} from '../context/authContext/authContext';
@@ -34,8 +35,7 @@ export default function ModalCompliments({
   setModalVisible,
   products,
 }: ModalComplimentsProps) {
-  // Ordenar productos por precio o cantidad si es posible.
-  // Asumiremos que el orden viene dado o lo ordenamos por precio ascendente.
+  // Ordenar productos por precio
   const sortedProducts = [...products].sort((a, b) => {
     const priceA = parseFloat(
       a.oneTimePurchaseOfferDetails?.priceAmountMicros || '0',
@@ -49,7 +49,12 @@ export default function ModalCompliments({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(
     sortedProducts.length > 0 ? sortedProducts[1] || sortedProducts[0] : null,
   );
-  const [complimentsDone, setComplimentsDone] = useState(false);
+
+  // Ref para trackear si estamos esperando una compra iniciada por este componente
+  const isWaitingForPurchaseRef = useRef(false);
+
+  // NUEVO: Ref para evitar procesar la misma transacción múltiples veces en paralelo
+  const processingTransactionIds = useRef<Set<string>>(new Set());
 
   const {verifyProduct} = useContext(PurchasesContext);
   const {idUserForChats} = useContext(AuthContext);
@@ -81,11 +86,10 @@ export default function ModalCompliments({
   };
 
   const handlePurchase = async () => {
-    if (!selectedProduct) {
-      return;
-    }
+    if (!selectedProduct) return;
 
     setIsPurchasing(true);
+    isWaitingForPurchaseRef.current = true; // Activamos bandera de espera
 
     try {
       if (Platform.OS === 'android') {
@@ -93,22 +97,44 @@ export default function ModalCompliments({
       } else {
         await requestPurchase({sku: selectedProduct.productId});
       }
-      // Listener is always active
     } catch (error) {
       console.error('❌ Error al solicitar la compra:', error);
       setIsPurchasing(false);
+      isWaitingForPurchaseRef.current = false;
     }
   };
 
   useEffect(() => {
-
-
-    const purchaseUpdateProduct = purchaseUpdatedListener(
+    // 1. Escuchador de actualizaciones de compra
+    const purchaseUpdate = purchaseUpdatedListener(
       async (purchase: Purchase) => {
+        const transactionId = purchase.transactionId || purchase.purchaseToken; // ID único
+        
+        console.log('📦 Evento recibido:', purchase.productId, transactionId);
 
-        // Verificar si este producto pertenece a este modal
+        // A. Verificar si el producto es de este modal
         const isMyProduct = products.some(p => p.productId === purchase.productId);
         if (!isMyProduct) return;
+
+        // B. Verificar si nosotros iniciamos la compra
+        if (!isWaitingForPurchaseRef.current) {
+            // Si no la iniciamos nosotros (ej. compra pendiente antigua), la finalizamos para limpiar
+            // pero NO la verificamos ni damos créditos (o según tu lógica de negocio)
+            console.warn('⚠️ Transacción ignorada (no iniciada aquí). Finalizando...');
+            try {
+               await finishTransaction({purchase, isConsumable: true});
+            } catch (e) {}
+            return;
+        }
+
+        // C. NUEVO: Verificar si YA estamos procesando este ID para evitar duplicados locales
+        if (transactionId && processingTransactionIds.current.has(transactionId)) {
+            console.log('🛑 Transacción ya en proceso localmente. Ignorando evento duplicado.');
+            return;
+        }
+
+        // Si pasamos los filtros, marcamos como "En Proceso"
+        if (transactionId) processingTransactionIds.current.add(transactionId);
 
         if (purchase.transactionReceipt) {
           const purchaseToken =
@@ -116,44 +142,71 @@ export default function ModalCompliments({
               ? purchase.purchaseToken
               : purchase.transactionReceipt;
 
-          verifyProduct({
-            productId: purchase.productId,
-            token: purchaseToken,
-            platform: Platform.OS === 'android' ? 'android' : 'ios',
-            userId: idUserForChats,
-          })
-            .then(response => {
-              finishTransaction({purchase, isConsumable: true}).then(() => {
-                setComplimentsDone(false);
-                setShowSuccessMessage(true);
-                setIsPurchasing(false);
-                startBounceAnimation();
-
-                setTimeout(() => {
-                  setModalVisible(false);
-                  setShowSuccessMessage(false);
-                }, 3330);
-              });
-            })
-            .catch(error => {
-              console.error(error.message, error.error);
-              setIsPurchasing(false);
+          try {
+            // Llamada al Backend
+            await verifyProduct({
+                productId: purchase.productId,
+                token: purchaseToken,
+                platform: Platform.OS === 'android' ? 'android' : 'ios',
+                userId: idUserForChats,
             });
+
+            console.log('✅ Producto verificado con éxito.');
+
+            // Finalizar transacción en las tiendas (CRÍTICO)
+            await finishTransaction({purchase, isConsumable: true});
+
+            // UI de Éxito
+            isWaitingForPurchaseRef.current = false;
+            setShowSuccessMessage(true);
+            setIsPurchasing(false);
+            startBounceAnimation();
+
+            // Cerrar modal después del delay
+            setTimeout(() => {
+                setModalVisible(false);
+                setShowSuccessMessage(false);
+                // Limpiamos el ID del set por si acaso el usuario compra de nuevo lo mismo
+                if (transactionId) processingTransactionIds.current.delete(transactionId);
+            }, 3330);
+
+          } catch (error: any) {
+            console.error('❌ Error verificando:', error);
+            
+            // Lógica Especial: Si el error es "Ya procesado" (Idempotencia), lo tratamos como éxito
+            // Ajusta esto según cómo devuelva el error tu backend o axios
+            if (error?.message?.includes('processed') || error?.response?.data?.message?.includes('processed')) {
+                 console.log('⚠️ El backend dice que ya se procesó. Finalizando transacción local.');
+                 await finishTransaction({purchase, isConsumable: true});
+                 isWaitingForPurchaseRef.current = false;
+                 setIsPurchasing(false);
+                 setModalVisible(false); // Cerramos sin mostrar animación larga
+            } else {
+                 // Error real (ej. tarjeta rechazada, servidor caído)
+                 // IMPORTANTE: Si falló la verificación, NO finalizamos la transacción (finishTransaction)
+                 // para que Google la vuelva a enviar cuando haya internet o el server reviva.
+                 // Solo reseteamos la UI.
+                 setIsPurchasing(false);
+                 isWaitingForPurchaseRef.current = false;
+                 if (transactionId) processingTransactionIds.current.delete(transactionId); // Permitir reintento
+            }
+          }
         }
       },
     );
 
     // 2. Escuchador de errores
-    const purchaseErrorProduct = purchaseErrorListener(error => {
-      console.warn('purchaseErrorListener', error);
+    const purchaseError = purchaseErrorListener((error: PurchaseError) => {
+      console.warn('❌ purchaseErrorListener', error);
       setIsPurchasing(false);
+      isWaitingForPurchaseRef.current = false;
     });
 
     return () => {
-      purchaseUpdateProduct.remove();
-      purchaseErrorProduct.remove();
+      purchaseUpdate.remove();
+      purchaseError.remove();
     };
-  }, [products, idUserForChats]);
+  }, [products, idUserForChats, verifyProduct, setModalVisible]); // Dependencias del useEffect
 
   return (
     <Modal
@@ -184,9 +237,7 @@ export default function ModalCompliments({
           <View style={styles.cardsContainer}>
             {sortedProducts.map((item, index) => {
               const isSelected = selectedProduct?.productId === item.productId;
-              // Extraer cantidad del nombre (ej: "10 Compliments")
               const displayName = item.name || item.title || '';
-              // Extraer cantidad del nombre (ej: "10 Compliments")
               const quantity = displayName.match(/\d+/)?.[0] || '';
               const name = displayName.replace(/\d+/, '').trim();
               const price =
@@ -199,7 +250,6 @@ export default function ModalCompliments({
                   key={item.productId}
                   style={[styles.card, isSelected && styles.cardSelected]}
                   onPress={() => handleSelect(item)}>
-                  {/* Badges simulados - lógica simple para ejemplo */}
                   {index === 2 && (
                     <View style={styles.badgePopular}>
                       <Text style={styles.badgeTextWhite}>MOST POPULAR</Text>
@@ -252,7 +302,6 @@ export default function ModalCompliments({
     </Modal>
   );
 }
-
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,

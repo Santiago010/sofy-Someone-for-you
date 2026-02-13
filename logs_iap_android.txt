@@ -1,0 +1,8 @@
+ LOG  isPurchaseDone false
+ ERROR  Error al solicitar suscripción: [Error: Payment is Cancelled.]
+ LOG  isPurchaseDone true
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ INFO  Subscription verification response: {"expires": "2026-02-12T16:19:01.528Z", "isConnect": true, "message": "Suscripción verificada y activada.", "success": true}
+ LOG  Subscription verification response {"expires": "2026-02-12T16:19:01.528Z", "isConnect": true, "message": "Suscripción verificada y activada.", "success": true}
+ LOG  ✅ Transacción finalizada correctamente con finishTransaction.

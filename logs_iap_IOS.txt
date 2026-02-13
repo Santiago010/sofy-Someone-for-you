@@ -1,0 +1,34 @@
+LOG  isPurchaseDone true
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ LOG  ✅ Compra Exitosa recibida:
+ INFO  Verifying subscription with data:
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}
+ ERROR  Error verifying subscription RESPONSE {"message": "El producto especificado no se encuentra en el recibo de Apple.", "statusCode": 400}

@@ -47,7 +47,8 @@ export default function ModalSuperLike({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(
     sortedProducts.length > 0 ? sortedProducts[1] || sortedProducts[0] : null,
   );
-  const [superLikeDone, setSuperLikeDone] = useState(false);
+  // Ref para trackear si estamos esperando una compra iniciada por este componente
+  const isWaitingForPurchaseRef = useRef(false);
   const {verifyProduct} = useContext(PurchasesContext);
   const {idUserForChats} = useContext(AuthContext);
 
@@ -83,6 +84,8 @@ export default function ModalSuperLike({
     }
 
     setIsPurchasing(true);
+    // Marcamos que AHORA SÍ estamos esperando una compra legítima
+    isWaitingForPurchaseRef.current = true;
 
     try {
       if (Platform.OS === 'android') {
@@ -94,16 +97,26 @@ export default function ModalSuperLike({
     } catch (error) {
       console.error('❌ Error al solicitar la compra:', error);
       setIsPurchasing(false);
+      isWaitingForPurchaseRef.current = false;
     }
   };
 
   useEffect(() => {
     const purchaseUpdateProduct = purchaseUpdatedListener(
       async (purchase: Purchase) => {
+        console.log('📦 Transacción de producto recibida:', purchase.productId);
 
         // Verificar si este producto pertenece a este modal
         const isMyProduct = products.some(p => p.productId === purchase.productId);
         if (!isMyProduct) return;
+
+        // CRÍTICO: Solo procesamos si estamos esperando una compra de ESTE usuario
+        if (!isWaitingForPurchaseRef.current) {
+          console.warn('⚠️ Transacción de producto ignorada - no iniciada por este usuario/sesión');
+          // Limpiamos transacciones pendientes de otros usuarios
+          await finishTransaction({purchase, isConsumable: true});
+          return;
+        }
 
         if (purchase.transactionReceipt) {
           const purchaseToken =
@@ -119,7 +132,7 @@ export default function ModalSuperLike({
           })
             .then(response => {
               finishTransaction({purchase, isConsumable: true}).then(() => {
-                setSuperLikeDone(false);
+                isWaitingForPurchaseRef.current = false;
                 setShowSuccessMessage(true);
                 setIsPurchasing(false);
                 startBounceAnimation();
@@ -132,7 +145,12 @@ export default function ModalSuperLike({
             })
             .catch(error => {
               console.error(error.message, error.error);
-              setIsPurchasing(false);
+              // Aunque falle la verificación, finalizamos la transacción para no dejarla pendiente
+              finishTransaction({purchase, isConsumable: true}).then(() => {
+                isWaitingForPurchaseRef.current = false;
+                setIsPurchasing(false);
+                console.log('⚠️ Transacción de producto finalizada a pesar del error de verificación');
+              });
             });
         }
       },
@@ -142,13 +160,14 @@ export default function ModalSuperLike({
     const purchaseErrorProduct = purchaseErrorListener(error => {
       console.warn('purchaseErrorListener', error);
       setIsPurchasing(false);
+      isWaitingForPurchaseRef.current = false;
     });
 
     return () => {
       purchaseUpdateProduct.remove();
       purchaseErrorProduct.remove();
     };
-  }, [products, idUserForChats]);
+  }, [products, idUserForChats, verifyProduct, setModalVisible]);
 
   return (
     <Modal
