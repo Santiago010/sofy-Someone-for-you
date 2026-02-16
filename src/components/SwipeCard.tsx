@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {
   PanResponder,
   StyleSheet,
@@ -22,6 +22,7 @@ import {
 import useRecomendations from '../hooks/useRecomendations';
 import {BarIndicator} from 'react-native-indicators';
 import {useLikeOrDislike} from '../hooks/useLikeOrDislike';
+import { PurchasesContext } from '../context/PurchasesContext/purchasesContext';
 
 interface Location {
   latitude: number | null;
@@ -60,6 +61,8 @@ export default function SwipeCard({
     isFetching,
   } = useRecomendations();
   const {like, dislike,removeDislike} = useLikeOrDislike();
+
+  const {isConnect} = useContext(PurchasesContext);
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -334,6 +337,7 @@ export default function SwipeCard({
     (card: PayloadRecomendationsResponse, index: number) => (
       <CardView
         key={card.id}
+        isConnect={isConnect}
         card={card}
         index={index}
         panHandlers={index === 0 ? panResponder.panHandlers : {}}

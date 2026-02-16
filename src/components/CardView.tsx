@@ -27,6 +27,7 @@ const {heightWindow, widthWindow} = DeviceDimensions();
 const ROTATION_RANGE = 15;
 
 interface CardViewProps {
+  isConnect?: boolean;
   card: PayloadRecomendationsResponse;
   index: number;
   totalCards: any;
@@ -41,6 +42,7 @@ interface CardViewProps {
 }
 
 const CardView: FC<CardViewProps> = ({
+  isConnect,
   card,
   index,
   totalCards,
@@ -316,34 +318,39 @@ const CardView: FC<CardViewProps> = ({
               </Pressable>
             )}
 
-            {Platform.OS === 'ios' ? (
-              <TouchableOpacity
-                disabled={!hasLastDislikedUser}
-                onPress={onRemoveDislike}
-                style={[
-                  styles.actionBtn,
-                  !hasLastDislikedUser && {opacity: 0.5},
-                ]}>
-                <MaterialDesignIcons
-                  name="account-convert"
-                  size={30}
-                  color={colors.secondary}
-                />
-              </TouchableOpacity>
-            ) : (
-              <Pressable
-                disabled={!hasLastDislikedUser}
-                onPress={onRemoveDislike}
-                style={[
-                  styles.actionBtn,
-                  !hasLastDislikedUser && {opacity: 0.5},
-                ]}>
-                <MaterialDesignIcons
-                  name="account-convert"
-                  size={30}
-                  color={colors.secondary}
-                />
-              </Pressable>
+            
+
+
+            {isConnect && (
+              Platform.OS === 'ios' ? (
+                <TouchableOpacity
+                  disabled={!hasLastDislikedUser}
+                  onPress={onRemoveDislike}
+                  style={[
+                    styles.actionBtn,
+                    !hasLastDislikedUser && {opacity: 0.5},
+                  ]}>
+                  <MaterialDesignIcons
+                    name="account-convert"
+                    size={30}
+                    color={colors.secondary}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <Pressable
+                  disabled={!hasLastDislikedUser}
+                  onPress={onRemoveDislike}
+                  style={[
+                    styles.actionBtn,
+                    !hasLastDislikedUser && {opacity: 0.5},
+                  ]}>
+                  <MaterialDesignIcons
+                    name="account-convert"
+                    size={30}
+                    color={colors.secondary}
+                  />
+                </Pressable>
+              )
             )}
 
             {Platform.OS === 'ios' ? (
