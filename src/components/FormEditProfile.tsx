@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {StyleSheet, View, ActivityIndicator} from 'react-native';
+import {StyleSheet, View, ActivityIndicator, Platform} from 'react-native';
 import {colors, commonStyles} from '../theme/globalTheme';
 import {Button, Chip, RadioButton, Text, TextInput} from 'react-native-paper';
 import Slider from '@react-native-community/slider';
@@ -317,10 +317,21 @@ export default function FormEditProfile({
               value={formData.genderId}>
               {genders.map(gender => (
                 <View key={gender.id} style={styles.radioOption}>
-                  <RadioButton
-                    value={gender.id.toString()}
-                    color={colors.accent}
-                  />
+                  {Platform.OS === 'ios' ? (
+                    <View style={{backgroundColor: colors.backgroundSecondary, borderRadius:50,borderColor:colors.textSecondary,borderWidth:1}}>
+                        <RadioButton
+                      value={gender.id.toString()}
+                      color={colors.accent}
+                    />
+                    </View>
+                    
+                  ) : (
+                    <RadioButton
+                      value={gender.id.toString()}
+                      color={colors.accent}
+                      uncheckedColor="#9E9E9E"
+                    />
+                  )}
                   <Text variant="bodyMedium" style={styles.radioLabel}>
                     {gender.name}
                   </Text>
@@ -380,10 +391,21 @@ export default function FormEditProfile({
               value={formData.showMeId}>
               {genders.map(gender => (
                 <View key={gender.id} style={styles.radioOption}>
-                  <RadioButton
-                    value={gender.id.toString()}
-                    color={colors.accent}
-                  />
+                  {Platform.OS === 'ios' ? (
+                    <View style={{backgroundColor: colors.backgroundSecondary, borderRadius:50,borderColor:colors.textSecondary,borderWidth:1}}>
+                        <RadioButton
+                      value={gender.id.toString()}
+                      color={colors.accent}
+                    />
+                    </View>
+                    
+                  ) : (
+                    <RadioButton
+                      value={gender.id.toString()}
+                      color={colors.accent}
+                      uncheckedColor="#9E9E9E"
+                    />
+                  )}
                   <Text variant="bodyMedium" style={styles.radioLabel}>
                     {gender.name}
                   </Text>

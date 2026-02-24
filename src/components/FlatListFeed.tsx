@@ -32,11 +32,11 @@ import {
   DataMessageOfCommunity,
   ResDetailsGroup,
 } from '../interfaces/interfacesIAP';
-import {UploadFile} from '../interfaces/interfacesApp';
+import {PayloadDetails2, UploadFile} from '../interfaces/interfacesApp';
 
 interface FlatListFeedProps {
   groupMessages: DataMessageOfCommunity[];
-  currentUserMember: DataMembersCommunity | null;
+  currentUser: PayloadDetails2 | null;
   idUserForChats: string;
   communityId: string;
   groupDetails: ResDetailsGroup;
@@ -63,7 +63,7 @@ interface FlatListFeedProps {
 
 const FlatListFeed = ({
   groupMessages,
-  currentUserMember,
+  currentUser,
   idUserForChats,
   communityId,
   groupDetails,
@@ -298,7 +298,7 @@ const FlatListFeed = ({
 
   const renderCreatePost = () => {
     // Permitir renderizar si es AllFeed aunque currentUserMember sea null (usará placeholder)
-    if (!currentUserMember && !isAllFeed) {
+    if (!currentUser && !isAllFeed) {
       return null;
     }
 
@@ -315,9 +315,9 @@ const FlatListFeed = ({
     return (
       <Surface style={styles.createPostCard} elevation={1}>
         <View style={styles.createPostHeader}>
-          {currentUserMember?.avatar ? (
+          {currentUser?.individualFiles[0].file.url ? (
             <Image
-              source={{uri: currentUserMember.avatar}}
+              source={{uri: currentUser?.individualFiles[0].file.url}}
               style={styles.feedAvatar}
             />
           ) : (

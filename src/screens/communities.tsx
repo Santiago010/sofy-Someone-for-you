@@ -366,7 +366,7 @@ const Communities = ({navigation}: Props) => {
         <Tabs.Tab name="My feed">
           <FlatListFeed
             groupMessages={allFeeds}
-            currentUserMember={null}
+            currentUser={detailsUser}
             idUserForChats={`${idUserForChats}`}
             communityId={''}
             groupDetails={{} as ResDetailsGroup}

@@ -25,6 +25,7 @@ export function useLikeOrDislike() {
         },
         targetIndividualId: targetIndividualId,
       });
+      console.log('Like',targetIndividualId);
       return true;
     } catch (err) {
       console.error('Error in the request Like');

@@ -79,7 +79,7 @@ export const InfoUser = () => {
     const totalFields = 11; // Total de campos que necesitamos validar
 
     if (formDataNew.firstName && formDataNew.firstName.length >= 3) count++;
-    if (formDataNew.lastName && formDataNew.lastName.length >= 3) count++;
+    if (formDataNew.lastName && formDataNew.lastName.length >= 2) count++;
     if (images.length === 6) count++;
     if (formDataNew.age.trim() !== '') count++;
     if (formDataNew.aboutYou.trim() !== '') count++;
@@ -87,7 +87,7 @@ export const InfoUser = () => {
     if (formDataNew.genderId !== '') count++;
     if (formDataNew.maxDistance < 999) count++; // Si cambió del valor por defecto
     if (formDataNew.showMeId !== '') count++;
-    if (formDataNew.ageRangeMin > 18) count++; // Si cambió del rango por defecto
+    if (formDataNew.ageRangeMin > 17) count++; // Si cambió del rango por defecto
     if (formDataNew.ageRangeMax < 100) count++;
 
     return {filled: count, total: totalFields};

@@ -2,64 +2,77 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
-	<key>CFBundleDisplayName</key>
-	<string>sofy</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-		<key>NSAllowsLocalNetworking</key>
-		<true/>
-	</dict>
-	<key>NSCameraUsageDescription</key>
-	<string>Esta aplicación necesita acceso a la cámara para tomar fotos.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Esta app necesita acceso a tu ubicación en segundo plano para funcionalidades de proximidad.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Esta app necesita acceso a tu ubicación para mostrar usuarios cercanos.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Esta app necesita acceder al micrófono para grabar mensajes de voz.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Esta app necesita guardar archivos multimedia en tu galería.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Esta aplicación necesita acceso a tu galería de fotos para seleccionar imágenes.</string>
-	<key>UIAppFonts</key>
-	<array>
-		<string>MaterialDesignIcons.ttf</string>
-	</array>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>armv7</string>
-	</array>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleDisplayName</key>
+    <string>sofy</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$(MARKETING_VERSION)</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>CFBundleVersion</key>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+    </dict>
+    
+    <key>NSCameraUsageDescription</key>
+    <string>Esta aplicación necesita acceso a la cámara para tomar fotos.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Esta app necesita acceso a tu ubicación en segundo plano para funcionalidades de proximidad.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Esta app necesita acceso a tu ubicación para mostrar usuarios cercanos.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Esta app necesita acceder al micrófono para grabar mensajes de voz.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Esta app necesita guardar archivos multimedia en tu galería.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Esta aplicación necesita acceso a tu galería de fotos para seleccionar imágenes.</string>
+
+    <key>NSCalendarsUsageDescription</key>
+    <string>Sofy requiere acceso al calendario para gestionar eventos y recordatorios.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Sofy utiliza reconocimiento de voz para comandos y accesibilidad.</string>
+    <key>NSMotionUsageDescription</key>
+    <string>Sofy utiliza los sensores de movimiento para interactividad.</string>
+    <key>NSAppleMusicUsageDescription</key>
+    <string>Sofy requiere acceso a la biblioteca multimedia para funciones de reproducción.</string>
+    <key>NSContactsUsageDescription</key>
+    <string>Sofy requiere acceso a tus contactos para encontrar amigos en la app.</string>
+
+    <key>UIAppFonts</key>
+    <array>
+        <string>MaterialDesignIcons.ttf</string>
+    </array>
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>armv7</string>
+    </array>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <false/>
 </dict>
 </plist>
